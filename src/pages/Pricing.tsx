@@ -79,15 +79,32 @@ export default function Pricing() {
 
   const handleSubscribe = async (priceId: string | null, planName: string) => {
     if (!priceId) {
-      toast({
-        title: 'Contactez-nous',
-        description: 'Pour le plan Enterprise, veuillez nous contacter directement.',
-      });
+      if (planName === 'Enterprise') {
+        window.location.href = 'mailto:contact@example.com?subject=Enterprise Plan Inquiry';
+      } else {
+        toast({
+          title: 'Plan actuel',
+          description: 'Vous êtes déjà sur le plan gratuit',
+        });
+      }
       return;
     }
 
     setLoading(planName);
     try {
+      // Verify authentication first
+      const { data: { session } } = await supabase.auth.getSession();
+      
+      if (!session) {
+        toast({
+          title: 'Connexion requise',
+          description: 'Veuillez vous connecter pour souscrire à un plan',
+          variant: 'destructive',
+        });
+        setLoading(null);
+        return;
+      }
+
       const { data, error } = await supabase.functions.invoke('stripe-create-checkout', {
         body: { priceId, planName: planName.toLowerCase() },
       });
@@ -96,8 +113,11 @@ export default function Pricing() {
 
       if (data?.url) {
         window.location.href = data.url;
+      } else {
+        throw new Error('Aucune URL de paiement reçue');
       }
     } catch (error: any) {
+      console.error('Stripe checkout error:', error);
       toast({
         title: 'Erreur',
         description: error.message || 'Impossible de créer la session de paiement',

@@ -67,6 +67,50 @@ export type Database = {
           },
         ]
       }
+      funnel_templates: {
+        Row: {
+          category_id: string | null
+          config: Json
+          created_at: string | null
+          description: string | null
+          id: string
+          is_active: boolean | null
+          name: string
+          thumbnail_url: string | null
+          updated_at: string | null
+        }
+        Insert: {
+          category_id?: string | null
+          config?: Json
+          created_at?: string | null
+          description?: string | null
+          id?: string
+          is_active?: boolean | null
+          name: string
+          thumbnail_url?: string | null
+          updated_at?: string | null
+        }
+        Update: {
+          category_id?: string | null
+          config?: Json
+          created_at?: string | null
+          description?: string | null
+          id?: string
+          is_active?: boolean | null
+          name?: string
+          thumbnail_url?: string | null
+          updated_at?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "funnel_templates_category_id_fkey"
+            columns: ["category_id"]
+            isOneToOne: false
+            referencedRelation: "template_categories"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       funnels: {
         Row: {
           config: Json
@@ -187,6 +231,10 @@ export type Database = {
           max_funnels: number | null
           phone: string | null
           plan: string | null
+          stripe_customer_id: string | null
+          stripe_subscription_id: string | null
+          subscription_end_date: string | null
+          subscription_status: string | null
           updated_at: string | null
         }
         Insert: {
@@ -201,6 +249,10 @@ export type Database = {
           max_funnels?: number | null
           phone?: string | null
           plan?: string | null
+          stripe_customer_id?: string | null
+          stripe_subscription_id?: string | null
+          subscription_end_date?: string | null
+          subscription_status?: string | null
           updated_at?: string | null
         }
         Update: {
@@ -215,6 +267,10 @@ export type Database = {
           max_funnels?: number | null
           phone?: string | null
           plan?: string | null
+          stripe_customer_id?: string | null
+          stripe_subscription_id?: string | null
+          subscription_end_date?: string | null
+          subscription_status?: string | null
           updated_at?: string | null
         }
         Relationships: []
@@ -284,6 +340,30 @@ export type Database = {
           },
         ]
       }
+      template_categories: {
+        Row: {
+          created_at: string | null
+          display_order: number
+          icon: string
+          id: string
+          name: string
+        }
+        Insert: {
+          created_at?: string | null
+          display_order?: number
+          icon: string
+          id?: string
+          name: string
+        }
+        Update: {
+          created_at?: string | null
+          display_order?: number
+          icon?: string
+          id?: string
+          name?: string
+        }
+        Relationships: []
+      }
       user_roles: {
         Row: {
           id: string
@@ -301,6 +381,63 @@ export type Database = {
           user_id?: string
         }
         Relationships: []
+      }
+      webhook_events: {
+        Row: {
+          created_at: string | null
+          funnel_id: string | null
+          id: string
+          last_retry_at: string | null
+          max_retries: number | null
+          payload: Json
+          response_body: string | null
+          response_status: number | null
+          retry_count: number | null
+          submission_id: string | null
+          webhook_url: string
+        }
+        Insert: {
+          created_at?: string | null
+          funnel_id?: string | null
+          id?: string
+          last_retry_at?: string | null
+          max_retries?: number | null
+          payload: Json
+          response_body?: string | null
+          response_status?: number | null
+          retry_count?: number | null
+          submission_id?: string | null
+          webhook_url: string
+        }
+        Update: {
+          created_at?: string | null
+          funnel_id?: string | null
+          id?: string
+          last_retry_at?: string | null
+          max_retries?: number | null
+          payload?: Json
+          response_body?: string | null
+          response_status?: number | null
+          retry_count?: number | null
+          submission_id?: string | null
+          webhook_url?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "webhook_events_funnel_id_fkey"
+            columns: ["funnel_id"]
+            isOneToOne: false
+            referencedRelation: "funnels"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "webhook_events_submission_id_fkey"
+            columns: ["submission_id"]
+            isOneToOne: false
+            referencedRelation: "submissions"
+            referencedColumns: ["id"]
+          },
+        ]
       }
     }
     Views: {
