@@ -2,6 +2,8 @@ import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { funnelService } from '@/services/funnelService';
 import { Funnel } from '@/types/funnel';
+import MainLayout from '@/components/layout/MainLayout';
+import CreateFunnelModal from '@/components/funnels/CreateFunnelModal';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
@@ -46,6 +48,7 @@ const Funnels = () => {
   const [search, setSearch] = useState('');
   const [statusFilter, setStatusFilter] = useState('all');
   const [viewMode, setViewMode] = useState<'grid' | 'list'>('grid');
+  const [createModalOpen, setCreateModalOpen] = useState(false);
   const { profile } = useAuth();
   const { toast } = useToast();
   const navigate = useNavigate();
@@ -153,8 +156,8 @@ const Funnels = () => {
   }
 
   return (
-    <div className="min-h-screen bg-background p-6">
-      <div className="max-w-7xl mx-auto space-y-8">
+    <MainLayout>
+      <div className="p-6 space-y-8 max-w-7xl mx-auto">
         {/* Header */}
         <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
           <div>
@@ -163,7 +166,7 @@ const Funnels = () => {
               {funnels.length} / {profile?.max_funnels || 3} funnels utilisés
             </p>
           </div>
-          <Button size="lg" onClick={() => navigate('/funnels/new')} className="shadow-elegant">
+          <Button size="lg" onClick={() => setCreateModalOpen(true)} className="shadow-elegant">
             <PlusCircle className="mr-2 h-5 w-5" />
             Nouveau Funnel
           </Button>
@@ -223,7 +226,7 @@ const Funnels = () => {
                 {search ? 'Essayez une autre recherche' : 'Créez votre premier funnel pour commencer'}
               </p>
               {!search && (
-                <Button size="lg" onClick={() => navigate('/funnels/new')} className="shadow-elegant">
+                <Button size="lg" onClick={() => setCreateModalOpen(true)} className="shadow-elegant">
                   <PlusCircle className="mr-2 h-5 w-5" />
                   Créer mon premier funnel
                 </Button>
@@ -231,7 +234,7 @@ const Funnels = () => {
             </CardContent>
           </Card>
         ) : viewMode === 'grid' ? (
-          <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
+          <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">{/* ... keep existing grid code ... */}
             {funnels.map((funnel) => (
               <Card key={funnel.id} className="hover:shadow-elegant transition-smooth group">
                 <CardHeader>
@@ -379,8 +382,13 @@ const Funnels = () => {
             </CardContent>
           </Card>
         )}
+        
+        <CreateFunnelModal 
+          open={createModalOpen}
+          onOpenChange={setCreateModalOpen}
+        />
       </div>
-    </div>
+    </MainLayout>
   );
 };
 
