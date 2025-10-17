@@ -8,13 +8,17 @@ import { TrafficSourcesChart } from '@/components/analytics/TrafficSourcesChart'
 import { DeviceBreakdownChart } from '@/components/analytics/DeviceBreakdownChart';
 import { SubmissionsTable } from '@/components/analytics/SubmissionsTable';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { BarChart3, Users, TrendingUp, Clock } from 'lucide-react';
+import { BarChart3, Users, TrendingUp, Clock, Download } from 'lucide-react';
+import { Button } from '@/components/ui/button';
+import { useToast } from '@/hooks/use-toast';
 import { subDays, format } from 'date-fns';
 import { fr } from 'date-fns/locale';
 
 const Analytics = () => {
   const { user } = useAuth();
+  const { toast } = useToast();
   const [loading, setLoading] = useState(true);
+  const [exporting, setExporting] = useState(false);
   const [dateRange, setDateRange] = useState('30');
   const [stats, setStats] = useState({
     totalSessions: 0,
@@ -32,6 +36,31 @@ const Analytics = () => {
       loadAnalytics();
     }
   }, [user, dateRange]);
+
+  const handleExportCSV = async () => {
+    setExporting(true);
+    try {
+      const days = parseInt(dateRange);
+      const startDate = subDays(new Date(), days).toISOString();
+      
+      const { data, error } = await supabase.functions.invoke('export-analytics', {
+        body: { startDate, endDate: new Date().toISOString(), format: 'csv' }
+      });
+
+      if (error) throw error;
+
+      const link = document.createElement('a');
+      link.href = `data:text/csv;base64,${data.data}`;
+      link.download = data.filename;
+      link.click();
+
+      toast({ title: 'Export réussi', description: 'Vos données ont été exportées' });
+    } catch (error: any) {
+      toast({ title: 'Erreur', description: 'Impossible d\'exporter les données', variant: 'destructive' });
+    } finally {
+      setExporting(false);
+    }
+  };
 
   const loadAnalytics = async () => {
     setLoading(true);

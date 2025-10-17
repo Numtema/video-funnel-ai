@@ -24,7 +24,9 @@ import {
   Menu,
   X,
   ChevronLeft,
-  User
+  User,
+  FileText,
+  CreditCard
 } from 'lucide-react';
 import { useState } from 'react';
 import { cn } from '@/lib/utils';
@@ -44,7 +46,9 @@ const MainLayout = ({ children }: MainLayoutProps) => {
   const navItems = [
     { icon: LayoutDashboard, label: 'Dashboard', path: '/dashboard' },
     { icon: Video, label: 'Funnels', path: '/funnels' },
+    { icon: FileText, label: 'Templates', path: '/templates' },
     { icon: BarChart3, label: 'Analytics', path: '/analytics' },
+    { icon: CreditCard, label: 'Tarifs', path: '/pricing' },
     { icon: Settings, label: 'Paramètres', path: '/settings' },
   ];
 

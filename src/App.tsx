@@ -13,6 +13,8 @@ import FunnelEditor from "./pages/FunnelEditor";
 import FunnelPlayer from "./pages/FunnelPlayer";
 import Analytics from "./pages/Analytics";
 import Settings from "./pages/Settings";
+import Templates from "./pages/Templates";
+import Pricing from "./pages/Pricing";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -65,6 +67,22 @@ const App = () => (
               element={
                 <ProtectedRoute>
                   <Settings />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/templates"
+              element={
+                <ProtectedRoute>
+                  <Templates />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/pricing"
+              element={
+                <ProtectedRoute>
+                  <Pricing />
                 </ProtectedRoute>
               }
             />

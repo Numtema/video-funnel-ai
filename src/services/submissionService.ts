@@ -103,14 +103,22 @@ export const submissionService = {
     if (funnel?.config) {
       const config = funnel.config as any;
       if (config.tracking?.webhookUrl) {
-        await sendWebhook(config.tracking.webhookUrl, {
-          event: 'funnel.submission',
-          funnel_id: data.funnelId,
-          submission_id: submission.id,
-          contact: data.contact,
-          score: data.score,
-          answers: data.answers,
-          timestamp: new Date().toISOString()
+        // Use webhook-handler edge function
+        await supabase.functions.invoke('webhook-handler', {
+          body: {
+            funnelId: data.funnelId,
+            eventType: 'funnel.submission',
+            webhookUrl: config.tracking.webhookUrl,
+            payload: {
+              event: 'funnel.submission',
+              funnel_id: data.funnelId,
+              submission_id: submission.id,
+              contact: data.contact,
+              score: data.score,
+              answers: data.answers,
+              timestamp: new Date().toISOString()
+            }
+          }
         });
       }
     }
