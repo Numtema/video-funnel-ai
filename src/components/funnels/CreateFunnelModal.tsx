@@ -71,7 +71,7 @@ const CreateFunnelModal = ({ open, onOpenChange }: CreateFunnelModalProps) => {
       });
 
       onOpenChange(false);
-      navigate(`/funnels/${funnel.id}`);
+      navigate(`/funnels/${funnel.id}/edit`);
     } catch (error: any) {
       toast({
         title: "Erreur",

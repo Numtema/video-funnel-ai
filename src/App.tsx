@@ -9,6 +9,7 @@ import Index from "./pages/Index";
 import Auth from "./pages/Auth";
 import Dashboard from "./pages/Dashboard";
 import Funnels from "./pages/Funnels";
+import FunnelEditor from "./pages/FunnelEditor";
 import Analytics from "./pages/Analytics";
 import Settings from "./pages/Settings";
 import NotFound from "./pages/NotFound";
@@ -38,6 +39,14 @@ const App = () => (
               element={
                 <ProtectedRoute>
                   <Funnels />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/funnels/:id/edit"
+              element={
+                <ProtectedRoute>
+                  <FunnelEditor />
                 </ProtectedRoute>
               }
             />

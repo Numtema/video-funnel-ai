@@ -76,6 +76,10 @@ const Funnels = () => {
     loadFunnels();
   }, [search, statusFilter]);
 
+  const handleEdit = (id: string) => {
+    navigate(`/funnels/${id}/edit`);
+  };
+
   const handleDelete = async (id: string) => {
     if (!confirm('Êtes-vous sûr de vouloir supprimer ce funnel ?')) return;
     
