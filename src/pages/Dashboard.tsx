@@ -4,8 +4,13 @@ import { useAuth } from '@/context/AuthContext';
 import { useAIUsage } from '@/hooks/useAIUsage';
 import MainLayout from '@/components/layout/MainLayout';
 import CreateFunnelModal from '@/components/funnels/CreateFunnelModal';
+import { WelcomeBanner } from '@/components/dashboard/WelcomeBanner';
+import { PerformanceChart } from '@/components/dashboard/PerformanceChart';
+import { ActivityFeed } from '@/components/dashboard/ActivityFeed';
+import { RecentFunnelsTable } from '@/components/dashboard/RecentFunnelsTable';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import { Progress } from '@/components/ui/progress';
 import { PlusCircle, Video, FileText, TrendingUp, Sparkles, BarChart3, Zap } from 'lucide-react';
 
 const Dashboard = () => {
@@ -36,35 +41,7 @@ const Dashboard = () => {
     <MainLayout>
       <div className="p-6 space-y-8 max-w-7xl mx-auto">
         {/* Welcome Banner */}
-        <Card className="bg-gradient-to-r from-primary/10 via-accent/5 to-primary/10 border-primary/20 animate-fade-in-up">
-          <CardHeader>
-            <div className="flex items-start justify-between">
-              <div>
-                <CardTitle className="text-3xl mb-2">
-                  {getGreeting()}, {profile?.full_name || user?.email?.split('@')[0]} ! 👋
-                </CardTitle>
-                <CardDescription className="text-lg">
-                  Bienvenue sur Nümtema Face
-                </CardDescription>
-              </div>
-              <Button 
-                size="lg" 
-                onClick={() => setCreateModalOpen(true)}
-                className="shadow-elegant"
-              >
-                <PlusCircle className="mr-2 h-5 w-5" />
-                Nouveau Funnel
-              </Button>
-            </div>
-          </CardHeader>
-          <CardContent>
-            <div className="flex items-center gap-2 text-sm text-muted-foreground">
-              <Zap className="h-4 w-4 text-accent" />
-              <span className="font-medium">Astuce du jour :</span>
-              <span>{getTipOfDay()}</span>
-            </div>
-          </CardContent>
-        </Card>
+        <WelcomeBanner />
 
         {/* Stats Cards */}
         <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-4">
@@ -174,24 +151,16 @@ const Dashboard = () => {
           </CardContent>
         </Card>
 
-        {/* Empty State */}
-        <Card className="border-dashed">
-          <CardContent className="flex flex-col items-center justify-center py-16 text-center">
-            <Video className="h-16 w-16 text-muted-foreground mb-4 animate-pulse" />
-            <h3 className="text-2xl font-semibold mb-2">Créez votre premier funnel</h3>
-            <p className="text-muted-foreground mb-6 max-w-md">
-              Transformez vos visiteurs en clients avec des funnels interactifs propulsés par l'IA
-            </p>
-            <Button 
-              size="lg" 
-              onClick={() => setCreateModalOpen(true)}
-              className="shadow-elegant"
-            >
-              <PlusCircle className="mr-2 h-5 w-5" />
-              Commencer maintenant
-            </Button>
-          </CardContent>
-        </Card>
+        {/* Performance Chart & Activity */}
+        <div className="grid gap-6 lg:grid-cols-3">
+          <div className="lg:col-span-2">
+            <PerformanceChart />
+          </div>
+          <ActivityFeed />
+        </div>
+
+        {/* Recent Funnels Table */}
+        <RecentFunnelsTable />
 
         <CreateFunnelModal 
           open={createModalOpen}

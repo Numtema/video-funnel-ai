@@ -77,7 +77,7 @@ const MainLayout = ({ children }: MainLayoutProps) => {
           >
             {mobileMenuOpen ? <X className="h-5 w-5" /> : <Menu className="h-5 w-5" />}
           </Button>
-          <h1 className="text-xl font-bold text-primary">Nümtema Face</h1>
+          <img src="/src/assets/logo.svg" alt="Nümtema Face" className="h-8" />
         </div>
         <DropdownMenu>
           <DropdownMenuTrigger asChild>
@@ -122,7 +122,9 @@ const MainLayout = ({ children }: MainLayoutProps) => {
           <div className="p-4 flex items-center justify-between">
             {sidebarOpen ? (
               <>
-                <h1 className="text-2xl font-bold text-primary">Nümtema Face</h1>
+                <Link to="/dashboard" className="flex items-center gap-2">
+                  <img src="/src/assets/logo.svg" alt="Nümtema Face" className="h-10" />
+                </Link>
                 <Button
                   variant="ghost"
                   size="icon"

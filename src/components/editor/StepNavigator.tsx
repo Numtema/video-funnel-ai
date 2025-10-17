@@ -1,4 +1,3 @@
-import { useState } from 'react';
 import { QuizStep, StepType } from '@/types/funnel';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
@@ -19,6 +18,7 @@ import {
   Trash2,
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
+import { DragDropContext, Droppable, Draggable, DropResult } from 'react-beautiful-dnd';
 
 interface StepNavigatorProps {
   steps: QuizStep[];
@@ -37,8 +37,6 @@ export function StepNavigator({
   onDeleteStep,
   onReorder,
 }: StepNavigatorProps) {
-  const [draggedIndex, setDraggedIndex] = useState<number | null>(null);
-
   const getStepIcon = (type: StepType) => {
     const icons = {
       [StepType.Welcome]: Home,
@@ -62,27 +60,14 @@ export function StepNavigator({
     return labels[type];
   };
 
-  const handleDragStart = (index: number) => {
-    setDraggedIndex(index);
-  };
+  const handleDragEnd = (result: DropResult) => {
+    if (!result.destination) return;
 
-  const handleDragOver = (e: React.DragEvent, index: number) => {
-    e.preventDefault();
-    
-    if (draggedIndex === null || draggedIndex === index) return;
+    const items = Array.from(steps);
+    const [reorderedItem] = items.splice(result.source.index, 1);
+    items.splice(result.destination.index, 0, reorderedItem);
 
-    const newSteps = [...steps];
-    const draggedStep = newSteps[draggedIndex];
-    
-    newSteps.splice(draggedIndex, 1);
-    newSteps.splice(index, 0, draggedStep);
-    
-    setDraggedIndex(index);
-    onReorder(newSteps);
-  };
-
-  const handleDragEnd = () => {
-    setDraggedIndex(null);
+    onReorder(items);
   };
 
   return (
@@ -91,57 +76,70 @@ export function StepNavigator({
         <h2 className="font-semibold">Étapes ({steps.length})</h2>
       </div>
 
-      <div className="space-y-2">
-        {steps.map((step, index) => (
-          <div
-            key={step.id}
-            draggable
-            onDragStart={() => handleDragStart(index)}
-            onDragOver={(e) => handleDragOver(e, index)}
-            onDragEnd={handleDragEnd}
-            className={cn(
-              'group relative flex items-center gap-2 p-3 rounded-lg border bg-card cursor-pointer transition-all',
-              selectedStepId === step.id && 'bg-primary/10 border-primary',
-              draggedIndex === index && 'opacity-50'
-            )}
-            onClick={() => onSelectStep(step.id)}
-          >
-            <GripVertical className="w-4 h-4 text-muted-foreground cursor-move" />
-            
-            <div className="flex items-center gap-2 flex-1">
-              <div className="flex-shrink-0 w-8 h-8 rounded-full bg-primary/10 flex items-center justify-center">
-                {getStepIcon(step.type)}
-              </div>
-              
-              <div className="flex-1 min-w-0">
-                <div className="flex items-center gap-2">
-                  <span className="text-xs font-medium text-muted-foreground">
-                    #{index + 1}
-                  </span>
-                  <span className="text-sm font-medium truncate">
-                    {step.title}
-                  </span>
-                </div>
-                <Badge variant="secondary" className="mt-1 text-xs">
-                  {getStepTypeLabel(step.type)}
-                </Badge>
-              </div>
-            </div>
-
-            <Button
-              variant="ghost"
-              size="sm"
-              className="opacity-0 group-hover:opacity-100 transition-opacity"
-              onClick={(e) => {
-                e.stopPropagation();
-                onDeleteStep(step.id);
-              }}
+      <DragDropContext onDragEnd={handleDragEnd}>
+        <Droppable droppableId="steps">
+          {(provided) => (
+            <div
+              {...provided.droppableProps}
+              ref={provided.innerRef}
+              className="space-y-2"
             >
-              <Trash2 className="w-4 h-4 text-destructive" />
-            </Button>
-          </div>
-        ))}
-      </div>
+              {steps.map((step, index) => (
+                <Draggable key={step.id} draggableId={step.id} index={index}>
+                  {(provided, snapshot) => (
+                    <div
+                      ref={provided.innerRef}
+                      {...provided.draggableProps}
+                      {...provided.dragHandleProps}
+                      className={cn(
+                        'group relative flex items-center gap-2 p-3 rounded-lg border bg-card cursor-pointer transition-all',
+                        selectedStepId === step.id && 'bg-primary/10 border-primary',
+                        snapshot.isDragging && 'shadow-lg'
+                      )}
+                      onClick={() => onSelectStep(step.id)}
+                    >
+                      <GripVertical className="w-4 h-4 text-muted-foreground cursor-grab" />
+                      
+                      <div className="flex items-center gap-2 flex-1">
+                        <div className="flex-shrink-0 w-8 h-8 rounded-full bg-primary/10 flex items-center justify-center">
+                          {getStepIcon(step.type)}
+                        </div>
+                        
+                        <div className="flex-1 min-w-0">
+                          <div className="flex items-center gap-2">
+                            <span className="text-xs font-medium text-muted-foreground">
+                              #{index + 1}
+                            </span>
+                            <span className="text-sm font-medium truncate">
+                              {step.title}
+                            </span>
+                          </div>
+                          <Badge variant="secondary" className="mt-1 text-xs">
+                            {getStepTypeLabel(step.type)}
+                          </Badge>
+                        </div>
+                      </div>
+
+                      <Button
+                        variant="ghost"
+                        size="sm"
+                        className="opacity-0 group-hover:opacity-100 transition-opacity"
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          onDeleteStep(step.id);
+                        }}
+                      >
+                        <Trash2 className="w-4 h-4 text-destructive" />
+                      </Button>
+                    </div>
+                  )}
+                </Draggable>
+              ))}
+              {provided.placeholder}
+            </div>
+          )}
+        </Droppable>
+      </DragDropContext>
 
       <DropdownMenu>
         <DropdownMenuTrigger asChild>
