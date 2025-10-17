@@ -13,7 +13,7 @@ interface LeadCaptureScreenProps {
   funnelId: string;
   answers: Record<string, any>;
   score: number;
-  onNext: () => void;
+  onNext: (data: any) => void;
 }
 
 export function LeadCaptureScreen({ step, theme, funnelId, answers, score, onNext }: LeadCaptureScreenProps) {
@@ -37,50 +37,8 @@ export function LeadCaptureScreen({ step, theme, funnelId, answers, score, onNex
     setSubmitting(true);
 
     try {
-      // Insert submission
-      const { error } = await supabase.from('submissions').insert({
-        funnel_id: funnelId,
-        contact_name: name || null,
-        contact_email: email,
-        contact_phone: phone || null,
-        answers,
-        score,
-        session_id: `session_${Date.now()}`,
-        device: /Mobile|Android|iP(hone|od)/.test(navigator.userAgent) ? 'mobile' : 'desktop',
-        source: new URLSearchParams(window.location.search).get('utm_source') || 'direct'
-      });
-
-      if (error) throw error;
-
-      // Increment funnel submissions count
-      await supabase.rpc('increment_funnel_submissions', { funnel_id: funnelId });
-
-      // Send webhook if configured
-      if (step.webhookUrl) {
-        try {
-          await fetch(step.webhookUrl, {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({
-              event: 'funnel.submission',
-              funnel_id: funnelId,
-              contact: { name, email, phone },
-              answers,
-              score,
-              timestamp: new Date().toISOString()
-            })
-          });
-        } catch (webhookError) {
-          console.error('Webhook error:', webhookError);
-        }
-      }
-
-      toast({
-        title: 'Merci !',
-        description: 'Vos informations ont été enregistrées'
-      });
-
-      onNext();
+      // Pass to parent via onNext - parent handles submission
+      onNext({ name, email, phone, subscribed: false });
     } catch (error) {
       console.error('Submission error:', error);
       toast({

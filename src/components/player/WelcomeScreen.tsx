@@ -1,14 +1,15 @@
-import { QuizStep, ThemeConfig } from '@/types/funnel';
+import { QuizStep, ThemeConfig, QuizConfig } from '@/types/funnel';
 import { Button } from '@/components/ui/button';
-import { ArrowRight } from 'lucide-react';
+import { ArrowRight, Facebook, Twitter, Instagram, Linkedin } from 'lucide-react';
 
 interface WelcomeScreenProps {
   step: QuizStep;
   theme: ThemeConfig;
+  socialLinks?: QuizConfig['socialLinks'];
   onNext: () => void;
 }
 
-export function WelcomeScreen({ step, theme, onNext }: WelcomeScreenProps) {
+export function WelcomeScreen({ step, theme, socialLinks, onNext }: WelcomeScreenProps) {
   return (
     <div className="text-center space-y-6 p-8 rounded-lg bg-card/50 backdrop-blur">
       {step.media.type === 'image' && step.media.url && (
@@ -41,11 +42,37 @@ export function WelcomeScreen({ step, theme, onNext }: WelcomeScreenProps) {
           backgroundColor: theme.colors.primary,
           color: theme.colors.buttonText
         }}
-        className="mt-8"
+        className="mt-8 hover-scale"
       >
         Commencer
         <ArrowRight className="ml-2 h-5 w-5" />
       </Button>
+
+      {/* Social links */}
+      {socialLinks && (
+        <div className="flex justify-center gap-4 mt-8">
+          {socialLinks.facebook && (
+            <a href={socialLinks.facebook} target="_blank" rel="noopener noreferrer" className="hover-scale">
+              <Facebook className="w-5 h-5" style={{ color: theme.colors.primary }} />
+            </a>
+          )}
+          {socialLinks.twitter && (
+            <a href={socialLinks.twitter} target="_blank" rel="noopener noreferrer" className="hover-scale">
+              <Twitter className="w-5 h-5" style={{ color: theme.colors.primary }} />
+            </a>
+          )}
+          {socialLinks.instagram && (
+            <a href={socialLinks.instagram} target="_blank" rel="noopener noreferrer" className="hover-scale">
+              <Instagram className="w-5 h-5" style={{ color: theme.colors.primary }} />
+            </a>
+          )}
+          {socialLinks.linkedin && (
+            <a href={socialLinks.linkedin} target="_blank" rel="noopener noreferrer" className="hover-scale">
+              <Linkedin className="w-5 h-5" style={{ color: theme.colors.primary }} />
+            </a>
+          )}
+        </div>
+      )}
     </div>
   );
 }

@@ -1,26 +1,33 @@
 import { useEffect, useState } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { funnelService } from '@/services/funnelService';
+import { submissionService } from '@/services/submissionService';
 import { QuizStep, QuizConfig, StepType } from '@/types/funnel';
 import { useAnalytics } from '@/hooks/useAnalytics';
+import { getNextStep, calculateProgress, getStepIndexById } from '@/components/player/PlayerLogic';
 import { WelcomeScreen } from '@/components/player/WelcomeScreen';
 import { QuestionScreen } from '@/components/player/QuestionScreen';
 import { MessageScreen } from '@/components/player/MessageScreen';
 import { LeadCaptureScreen } from '@/components/player/LeadCaptureScreen';
 import { CalendarEmbedScreen } from '@/components/player/CalendarEmbedScreen';
+import { Button } from '@/components/ui/button';
+import { ArrowLeft } from 'lucide-react';
 import { toast } from '@/hooks/use-toast';
+import logo from '@/assets/logo.svg';
 
 export default function FunnelPlayer() {
   const { shareToken } = useParams<{ shareToken: string }>();
   const navigate = useNavigate();
   const [config, setConfig] = useState<QuizConfig | null>(null);
   const [funnelId, setFunnelId] = useState<string>('');
-  const [currentStepIndex, setCurrentStepIndex] = useState(0);
+  const [currentStepId, setCurrentStepId] = useState<string>('');
   const [answers, setAnswers] = useState<Record<string, any>>({});
   const [score, setScore] = useState(0);
   const [loading, setLoading] = useState(true);
+  const [startTime] = useState(Date.now());
+  const [stepHistory, setStepHistory] = useState<string[]>([]);
 
-  const { trackStepEnter, trackStepLeave, saveSession } = useAnalytics(funnelId);
+  const { sessionId, trackStepEnter, trackStepLeave, saveSession } = useAnalytics(funnelId);
 
   useEffect(() => {
     loadFunnel();
@@ -36,6 +43,9 @@ export default function FunnelPlayer() {
       const funnel = await funnelService.getByShareToken(shareToken);
       setFunnelId(funnel.id);
       setConfig(funnel.config);
+      if (funnel.config.steps.length > 0) {
+        setCurrentStepId(funnel.config.steps[0].id);
+      }
       setLoading(false);
     } catch (error) {
       toast({
@@ -48,34 +58,73 @@ export default function FunnelPlayer() {
   };
 
   useEffect(() => {
-    if (config && config.steps[currentStepIndex]) {
-      const step = config.steps[currentStepIndex];
-      trackStepEnter(step.id, step.type);
+    if (config && currentStepId) {
+      const step = config.steps.find(s => s.id === currentStepId);
+      if (step) {
+        trackStepEnter(step.id, step.type);
+      }
     }
-  }, [currentStepIndex, config]);
+  }, [currentStepId, config]);
 
-  const handleNext = (answer?: any) => {
-    const currentStep = config!.steps[currentStepIndex];
+  const handleNext = async (answer?: any) => {
+    if (!config) return;
+    
+    const currentStep = config.steps.find(s => s.id === currentStepId);
+    if (!currentStep) return;
     
     // Track step leave
     trackStepLeave(currentStep.id, !!answer, answer);
 
-    // Save answer
+    // Save answer and update score
+    let newScore = score;
     if (answer !== undefined) {
       setAnswers(prev => ({ ...prev, [currentStep.id]: answer }));
       
-      // Update score for questions
       if (currentStep.type === StepType.Question && typeof answer?.score === 'number') {
-        setScore(prev => prev + answer.score);
+        newScore = score + answer.score;
+        setScore(newScore);
       }
     }
 
-    // Navigate to next step
-    if (currentStepIndex < config!.steps.length - 1) {
-      setCurrentStepIndex(prev => prev + 1);
+    // Handle lead capture submission
+    if (currentStep.type === StepType.LeadCapture && answer) {
+      try {
+        const completionTime = Math.floor((Date.now() - startTime) / 1000);
+        await submissionService.submit({
+          funnelId,
+          sessionId,
+          answers,
+          contact: {
+            name: answer.name,
+            email: answer.email,
+            phone: answer.phone,
+            subscribed: answer.subscribed || false
+          },
+          score: newScore,
+          completionTime
+        });
+      } catch (error) {
+        console.error('Submission error:', error);
+      }
+    }
+
+    // Get next step using conditional logic
+    const nextStepId = getNextStep(currentStep.id, answer, config, newScore);
+    
+    if (nextStepId) {
+      setStepHistory(prev => [...prev, currentStepId]);
+      setCurrentStepId(nextStepId);
     } else {
       // Funnel completed
-      handleComplete();
+      await handleComplete();
+    }
+  };
+
+  const handleBack = () => {
+    if (stepHistory.length > 0) {
+      const previousStepId = stepHistory[stepHistory.length - 1];
+      setStepHistory(prev => prev.slice(0, -1));
+      setCurrentStepId(previousStepId);
     }
   };
 
@@ -95,44 +144,90 @@ export default function FunnelPlayer() {
     );
   }
 
-  if (!config || !config.steps[currentStepIndex]) {
+  if (!config) {
     return null;
   }
 
-  const currentStep = config.steps[currentStepIndex];
+  const currentStep = config.steps.find(s => s.id === currentStepId);
+  if (!currentStep) return null;
+
+  const currentStepIndex = getStepIndexById(currentStepId, config.steps);
+  const progress = calculateProgress(currentStepIndex, config.steps.length);
 
   return (
     <div 
-      className="min-h-screen flex items-center justify-center p-4"
+      className="min-h-screen flex flex-col"
       style={{
         backgroundColor: config.theme.colors.background,
         color: config.theme.colors.text,
         fontFamily: config.theme.font
       }}
     >
-      <div className="w-full max-w-2xl">
-        {currentStep.type === StepType.Welcome && (
-          <WelcomeScreen step={currentStep} theme={config.theme} onNext={handleNext} />
-        )}
-        {currentStep.type === StepType.Question && (
-          <QuestionScreen step={currentStep} theme={config.theme} onNext={handleNext} />
-        )}
-        {currentStep.type === StepType.Message && (
-          <MessageScreen step={currentStep} theme={config.theme} onNext={handleNext} />
-        )}
-        {currentStep.type === StepType.LeadCapture && (
-          <LeadCaptureScreen 
-            step={currentStep} 
-            theme={config.theme} 
-            funnelId={funnelId}
-            answers={answers}
-            score={score}
-            onNext={handleNext} 
-          />
-        )}
-        {currentStep.type === StepType.CalendarEmbed && (
-          <CalendarEmbedScreen step={currentStep} theme={config.theme} onNext={handleNext} />
-        )}
+      {/* Progress bar */}
+      <div className="fixed top-0 left-0 right-0 h-1 bg-muted z-50">
+        <div 
+          className="h-full transition-all duration-500 ease-out"
+          style={{ 
+            width: `${progress}%`,
+            backgroundColor: config.theme.colors.primary 
+          }}
+        />
+      </div>
+
+      {/* Back button */}
+      {stepHistory.length > 0 && (
+        <div className="fixed top-4 left-4 z-40">
+          <Button
+            variant="ghost"
+            size="sm"
+            onClick={handleBack}
+            className="backdrop-blur-sm bg-background/50"
+          >
+            <ArrowLeft className="w-4 h-4 mr-2" />
+            Retour
+          </Button>
+        </div>
+      )}
+
+      {/* Main content */}
+      <div className="flex-1 flex items-center justify-center p-4 pt-8">
+        <div className="w-full max-w-2xl animate-fade-in">
+          {currentStep.type === StepType.Welcome && (
+            <WelcomeScreen 
+              step={currentStep} 
+              theme={config.theme} 
+              onNext={handleNext}
+              socialLinks={config.socialLinks}
+            />
+          )}
+          {currentStep.type === StepType.Question && (
+            <QuestionScreen step={currentStep} theme={config.theme} onNext={handleNext} />
+          )}
+          {currentStep.type === StepType.Message && (
+            <MessageScreen step={currentStep} theme={config.theme} onNext={handleNext} />
+          )}
+          {currentStep.type === StepType.LeadCapture && (
+            <LeadCaptureScreen 
+              step={currentStep} 
+              theme={config.theme} 
+              funnelId={funnelId}
+              answers={answers}
+              score={score}
+              onNext={handleNext} 
+            />
+          )}
+          {currentStep.type === StepType.CalendarEmbed && (
+            <CalendarEmbedScreen step={currentStep} theme={config.theme} onNext={handleNext} />
+          )}
+        </div>
+      </div>
+
+      {/* Branding footer */}
+      <div className="py-4 text-center text-sm text-muted-foreground backdrop-blur-sm bg-background/30">
+        <div className="flex items-center justify-center gap-2">
+          <span>Powered by</span>
+          <img src={logo} alt="Nümtema Face" className="h-5" />
+        </div>
       </div>
     </div>
   );
