@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { funnelService } from '@/services/funnelService';
+import { aiService } from '@/services/aiService';
 import { QuizConfig } from '@/types/funnel';
 import { useAuth } from '@/context/AuthContext';
 import { useToast } from '@/hooks/use-toast';
@@ -15,7 +16,8 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
-import { Sparkles, FileText, Rocket } from 'lucide-react';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { Sparkles, Loader2, Rocket } from 'lucide-react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 
 interface CreateFunnelModalProps {
@@ -28,6 +30,8 @@ const CreateFunnelModal = ({ open, onOpenChange }: CreateFunnelModalProps) => {
   const [loading, setLoading] = useState(false);
   const [name, setName] = useState('');
   const [description, setDescription] = useState('');
+  const [aiPrompt, setAiPrompt] = useState('');
+  const [aiModel, setAiModel] = useState('google/gemini-2.5-flash');
   const { profile } = useAuth();
   const { toast } = useToast();
   const navigate = useNavigate();
@@ -83,10 +87,50 @@ const CreateFunnelModal = ({ open, onOpenChange }: CreateFunnelModalProps) => {
     }
   };
 
+  const handleAIGeneration = async () => {
+    if (!aiPrompt.trim()) {
+      toast({
+        title: "Erreur",
+        description: "Veuillez décrire votre funnel",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    try {
+      setLoading(true);
+      
+      const config = await aiService.generateFunnel(aiPrompt, aiModel);
+      
+      const funnel = await funnelService.create({
+        name: `Funnel généré par IA`,
+        description: aiPrompt.substring(0, 200),
+        config,
+      });
+
+      toast({
+        title: "Funnel créé avec IA !",
+        description: "Votre funnel a été généré avec succès",
+      });
+
+      onOpenChange(false);
+      navigate(`/funnels/${funnel.id}/edit`);
+    } catch (error: any) {
+      toast({
+        title: "Erreur",
+        description: error.message,
+        variant: "destructive",
+      });
+    } finally {
+      setLoading(false);
+    }
+  };
+
   const handleReset = () => {
     setStep('method');
     setName('');
     setDescription('');
+    setAiPrompt('');
   };
 
   return (
@@ -154,23 +198,58 @@ const CreateFunnelModal = ({ open, onOpenChange }: CreateFunnelModalProps) => {
 
         {step === 'ai' && (
           <div className="space-y-4 py-4">
-            <div className="bg-accent/10 border border-accent/20 rounded-lg p-4 flex items-start gap-3">
-              <Sparkles className="h-5 w-5 text-accent mt-0.5 flex-shrink-0" />
-              <div className="text-sm">
-                <p className="font-medium mb-1">Fonctionnalité à venir</p>
-                <p className="text-muted-foreground">
-                  La génération automatique avec IA sera disponible prochainement. 
-                  Pour l'instant, créez votre funnel manuellement.
-                </p>
-              </div>
+            <div className="space-y-2">
+              <Label htmlFor="aiPrompt">Décrivez votre funnel</Label>
+              <Textarea
+                id="aiPrompt"
+                placeholder="Ex: Funnel pour un coach en développement personnel qui vend une formation en ligne sur la confiance en soi..."
+                value={aiPrompt}
+                onChange={(e) => setAiPrompt(e.target.value)}
+                maxLength={500}
+                rows={4}
+              />
+              <p className="text-xs text-muted-foreground">
+                {aiPrompt.length}/500 caractères
+              </p>
             </div>
 
-            <div className="flex gap-2">
+            <div className="space-y-2">
+              <Label htmlFor="model">Modèle IA</Label>
+              <Select value={aiModel} onValueChange={setAiModel}>
+                <SelectTrigger id="model">
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="google/gemini-2.5-flash">
+                    Gemini Flash (Rapide)
+                  </SelectItem>
+                  <SelectItem value="google/gemini-2.5-pro">
+                    Gemini Pro (Précis)
+                  </SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+
+            <div className="flex gap-2 pt-4">
               <Button variant="outline" onClick={() => setStep('method')} className="flex-1">
                 Retour
               </Button>
-              <Button onClick={() => setStep('blank')} className="flex-1">
-                Créer manuellement
+              <Button 
+                onClick={handleAIGeneration}
+                disabled={!aiPrompt.trim() || loading}
+                className="flex-1"
+              >
+                {loading ? (
+                  <>
+                    <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                    Génération...
+                  </>
+                ) : (
+                  <>
+                    <Sparkles className="w-4 h-4 mr-2" />
+                    Générer avec IA
+                  </>
+                )}
               </Button>
             </div>
           </div>

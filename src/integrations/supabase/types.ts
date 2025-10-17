@@ -315,7 +315,7 @@ export type Database = {
         Returns: boolean
       }
       increment_ai_usage: {
-        Args: { user_id: string }
+        Args: { _user_id: string }
         Returns: undefined
       }
       increment_funnel_submissions: {
