@@ -10,6 +10,8 @@ import { Trash2, Sparkles } from 'lucide-react';
 import { ContentTab } from './ContentTab';
 import { MediaTab } from './MediaTab';
 import { DesignTab } from './DesignTab';
+import { aiService } from '@/services/aiService';
+import { toast } from '@/hooks/use-toast';
 
 interface StepEditorProps {
   step: QuizStep;
@@ -18,12 +20,57 @@ interface StepEditorProps {
 }
 
 export function StepEditor({ step, onUpdate, onDelete }: StepEditorProps) {
+  const [isGeneratingTitle, setIsGeneratingTitle] = useState(false);
+  const [isGeneratingDesc, setIsGeneratingDesc] = useState(false);
+
   const handleTitleChange = (title: string) => {
     onUpdate({ ...step, title });
   };
 
   const handleDescriptionChange = (description: string) => {
     onUpdate({ ...step, description });
+  };
+
+  const handleAISuggestTitle = async () => {
+    if (!step.title) {
+      toast({ title: 'Entrez d\'abord un titre', variant: 'destructive' });
+      return;
+    }
+    setIsGeneratingTitle(true);
+    try {
+      const suggestion = await aiService.suggestText('title', step.title);
+      onUpdate({ ...step, title: suggestion });
+      toast({ title: 'Titre amélioré !' });
+    } catch (error: any) {
+      toast({ 
+        title: 'Erreur IA', 
+        description: error.message,
+        variant: 'destructive' 
+      });
+    } finally {
+      setIsGeneratingTitle(false);
+    }
+  };
+
+  const handleAISuggestDescription = async () => {
+    if (!step.description) {
+      toast({ title: 'Entrez d\'abord une description', variant: 'destructive' });
+      return;
+    }
+    setIsGeneratingDesc(true);
+    try {
+      const suggestion = await aiService.suggestText('description', step.description);
+      onUpdate({ ...step, description: suggestion });
+      toast({ title: 'Description améliorée !' });
+    } catch (error: any) {
+      toast({ 
+        title: 'Erreur IA', 
+        description: error.message,
+        variant: 'destructive' 
+      });
+    } finally {
+      setIsGeneratingDesc(false);
+    }
   };
 
   const getStepTypeLabel = (type: StepType): string => {
@@ -60,9 +107,15 @@ export function StepEditor({ step, onUpdate, onDelete }: StepEditorProps) {
           <div>
             <div className="flex items-center gap-2 mb-2">
               <Label htmlFor="step-title">Titre</Label>
-              <Button variant="ghost" size="sm" className="h-6 px-2">
+              <Button 
+                variant="ghost" 
+                size="sm" 
+                className="h-6 px-2"
+                onClick={handleAISuggestTitle}
+                disabled={isGeneratingTitle}
+              >
                 <Sparkles className="w-3 h-3 mr-1" />
-                <span className="text-xs">IA</span>
+                <span className="text-xs">{isGeneratingTitle ? 'Génération...' : 'IA'}</span>
               </Button>
             </div>
             <Input
@@ -77,9 +130,15 @@ export function StepEditor({ step, onUpdate, onDelete }: StepEditorProps) {
           <div>
             <div className="flex items-center gap-2 mb-2">
               <Label htmlFor="step-description">Description</Label>
-              <Button variant="ghost" size="sm" className="h-6 px-2">
+              <Button 
+                variant="ghost" 
+                size="sm" 
+                className="h-6 px-2"
+                onClick={handleAISuggestDescription}
+                disabled={isGeneratingDesc}
+              >
                 <Sparkles className="w-3 h-3 mr-1" />
-                <span className="text-xs">IA</span>
+                <span className="text-xs">{isGeneratingDesc ? 'Génération...' : 'IA'}</span>
               </Button>
             </div>
             <Textarea

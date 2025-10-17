@@ -3,6 +3,16 @@ import { QuizConfig } from '@/types/funnel';
 
 export const aiService = {
   async generateFunnel(prompt: string, model: string = 'google/gemini-2.5-flash'): Promise<QuizConfig> {
+    // Get current user
+    const { data: { user } } = await supabase.auth.getUser();
+    if (!user) throw new Error('Non authentifié');
+
+    // Increment AI usage counter
+    const { error: usageError } = await supabase.rpc('increment_ai_usage', { 
+      _user_id: user.id 
+    });
+    if (usageError) throw usageError;
+
     const { data, error } = await supabase.functions.invoke('ai-gateway', {
       body: { action: 'generate-funnel', prompt, model }
     });
@@ -14,6 +24,16 @@ export const aiService = {
   },
 
   async suggestText(field: string, currentValue: string): Promise<string> {
+    // Get current user
+    const { data: { user } } = await supabase.auth.getUser();
+    if (!user) throw new Error('Non authentifié');
+
+    // Increment AI usage counter
+    const { error: usageError } = await supabase.rpc('increment_ai_usage', { 
+      _user_id: user.id 
+    });
+    if (usageError) throw usageError;
+
     const { data, error } = await supabase.functions.invoke('ai-gateway', {
       body: { action: 'suggest-text', field, currentValue }
     });
@@ -23,6 +43,16 @@ export const aiService = {
   },
 
   async generateImage(prompt: string): Promise<string> {
+    // Get current user
+    const { data: { user } } = await supabase.auth.getUser();
+    if (!user) throw new Error('Non authentifié');
+
+    // Increment AI usage counter
+    const { error: usageError } = await supabase.rpc('increment_ai_usage', { 
+      _user_id: user.id 
+    });
+    if (usageError) throw usageError;
+
     const { data, error } = await supabase.functions.invoke('ai-gateway', {
       body: { action: 'generate-image', prompt }
     });

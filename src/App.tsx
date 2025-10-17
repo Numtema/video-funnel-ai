@@ -10,6 +10,7 @@ import Auth from "./pages/Auth";
 import Dashboard from "./pages/Dashboard";
 import Funnels from "./pages/Funnels";
 import FunnelEditor from "./pages/FunnelEditor";
+import FunnelPlayer from "./pages/FunnelPlayer";
 import Analytics from "./pages/Analytics";
 import Settings from "./pages/Settings";
 import NotFound from "./pages/NotFound";
@@ -26,6 +27,7 @@ const App = () => (
           <Routes>
             <Route path="/" element={<Index />} />
             <Route path="/auth" element={<Auth />} />
+            <Route path="/f/:shareToken" element={<FunnelPlayer />} />
             <Route
               path="/dashboard"
               element={
