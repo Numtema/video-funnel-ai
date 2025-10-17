@@ -26,6 +26,7 @@ export function MediaTab({ step, onUpdate }: MediaTabProps) {
   const [isGenerating, setIsGenerating] = useState(false);
   const [imagePrompt, setImagePrompt] = useState('');
   const [selectedModel, setSelectedModel] = useState('google/gemini-2.5-flash-image-preview');
+  const [pexelsSearch, setPexelsSearch] = useState('');
 
   const handleMediaTypeChange = (type: 'image' | 'video' | 'audio' | 'none') => {
     onUpdate({
@@ -86,6 +87,23 @@ export function MediaTab({ step, onUpdate }: MediaTabProps) {
     }
   };
 
+  const searchPexels = () => {
+    if (!pexelsSearch.trim()) {
+      toast({
+        title: 'Erreur',
+        description: 'Entrez un terme de recherche',
+        variant: 'destructive',
+      });
+      return;
+    }
+    const pexelsUrl = `https://www.pexels.com/search/${encodeURIComponent(pexelsSearch)}`;
+    window.open(pexelsUrl, '_blank');
+    toast({
+      title: 'Recherche Pexels',
+      description: 'Copiez l\'URL de l\'image et collez-la dans le champ "Lien"',
+    });
+  };
+
   return (
     <div className="space-y-6">
       <div>
@@ -105,14 +123,18 @@ export function MediaTab({ step, onUpdate }: MediaTabProps) {
 
       {step.media.type !== 'none' && (
         <Tabs defaultValue="link" className="w-full">
-          <TabsList className="w-full grid grid-cols-2">
+          <TabsList className="w-full grid grid-cols-3">
             <TabsTrigger value="link">
               <LinkIcon className="w-4 h-4 mr-2" />
               Lien
             </TabsTrigger>
+            <TabsTrigger value="pexels">
+              <ImageIcon className="w-4 h-4 mr-2" />
+              Pexels
+            </TabsTrigger>
             <TabsTrigger value="ai">
               <Sparkles className="w-4 h-4 mr-2" />
-              Générer avec IA
+              Générer IA
             </TabsTrigger>
           </TabsList>
 
@@ -157,6 +179,44 @@ export function MediaTab({ step, onUpdate }: MediaTabProps) {
                 )}
               </div>
             )}
+          </TabsContent>
+
+          <TabsContent value="pexels" className="space-y-4 mt-4">
+            <div className="space-y-4">
+              <div className="bg-muted p-4 rounded-lg">
+                <p className="text-sm text-muted-foreground">
+                  Recherchez des images gratuites et de qualité professionnelle sur Pexels. 
+                  Copiez ensuite l'URL de l'image et collez-la dans l'onglet "Lien".
+                </p>
+              </div>
+              
+              <div>
+                <Label htmlFor="pexels-search">Rechercher sur Pexels</Label>
+                <div className="flex gap-2 mt-2">
+                  <Input
+                    id="pexels-search"
+                    value={pexelsSearch}
+                    onChange={(e) => setPexelsSearch(e.target.value)}
+                    placeholder="ex: nature, business, technology..."
+                    onKeyPress={(e) => e.key === 'Enter' && searchPexels()}
+                  />
+                  <Button onClick={searchPexels} type="button">
+                    <ImageIcon className="w-4 h-4 mr-2" />
+                    Rechercher
+                  </Button>
+                </div>
+              </div>
+
+              <div className="text-sm text-muted-foreground space-y-2">
+                <p className="font-medium">Comment utiliser :</p>
+                <ol className="list-decimal list-inside space-y-1 ml-2">
+                  <li>Cliquez sur "Rechercher" pour ouvrir Pexels dans un nouvel onglet</li>
+                  <li>Sélectionnez une image qui vous plaît</li>
+                  <li>Faites clic droit sur l'image → "Copier l'adresse de l'image"</li>
+                  <li>Revenez ici et collez l'URL dans l'onglet "Lien"</li>
+                </ol>
+              </div>
+            </div>
           </TabsContent>
 
           <TabsContent value="ai" className="space-y-4 mt-4">

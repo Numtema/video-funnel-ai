@@ -37,8 +37,16 @@ serve(async (req) => {
             messages: [
               {
                 role: 'system',
-                content: `Tu es un expert en marketing et funnels de conversion.
-Génère un QuizConfig JSON complet basé sur la description utilisateur.
+                content: `Tu es un expert en marketing, psychologie et design pédagogique.
+Génère un QuizConfig JSON complet et engageant basé sur la description utilisateur.
+
+DIRECTIVES IMPORTANTES:
+1. **Comprends l'objectif**: Analyse le prompt pour identifier l'audience cible et l'objectif du funnel
+2. **Crée un parcours captivant**: Conçois 5-7 étapes qui guident l'utilisateur. Commence par welcome, utilise des questions/messages variés, termine par lead_capture
+3. **Contenu engageant**: Rédige des textes empathiques, clairs et motivants
+4. **IDs uniques**: Assure-toi que TOUS les 'id' sont uniques ("step-1", "opt-1-1", etc.)
+5. **Médias pertinents**: Pour chaque étape, fournis une URL valide et gratuite depuis Pexels (https://images.pexels.com/...) ou Pixabay qui correspond visuellement au contenu
+6. **Design thématique**: Choisis une police Google Fonts et une palette de couleurs harmonieuse adaptée à l'ambiance du funnel
 
 Structure attendue:
 {
@@ -46,33 +54,43 @@ Structure attendue:
     {
       "id": "step-1",
       "type": "welcome",
-      "title": "Titre accrocheur",
-      "description": "Description engageante",
-      "media": { "type": "none", "url": "" }
+      "title": "Titre accrocheur et personnalisé",
+      "description": "Description engageante qui capte l'attention",
+      "media": { "type": "image", "url": "https://images.pexels.com/photos/XXXXX/..." }
     },
-    // Ajoute 3-5 questions pertinentes avec type "question"
-    // Chaque question doit avoir options avec text, score, nextStepId
+    {
+      "id": "question-1",
+      "type": "question",
+      "title": "Question pertinente qui fait réfléchir",
+      "media": { "type": "image", "url": "https://images.pexels.com/photos/XXXXX/..." },
+      "options": [
+        { "id": "opt-1-1", "text": "Option A", "score": 10 },
+        { "id": "opt-1-2", "text": "Option B", "score": 5 }
+      ]
+    },
+    // Ajoute 3-5 questions pertinentes
     {
       "id": "lead-capture",
       "type": "lead_capture",
-      "title": "Obtenez vos résultats",
+      "title": "Recevez vos résultats personnalisés",
+      "description": "Entrez vos coordonnées pour découvrir votre profil",
       "fields": ["name", "email"],
-      "media": { "type": "none", "url": "" }
+      "media": { "type": "image", "url": "https://images.pexels.com/photos/XXXXX/..." }
     }
   ],
   "theme": {
     "font": "Poppins",
     "colors": {
-      "background": "#D9CFC4",
-      "primary": "#A97C7C",
-      "accent": "#A11D1F",
-      "text": "#374151",
+      "background": "#F0F4F8",
+      "primary": "#4A90E2",
+      "accent": "#FF6B6B",
+      "text": "#333333",
       "buttonText": "#FFFFFF"
     }
   },
   "scoring": {
     "enabled": true,
-    "threshold": 50
+    "threshold": 30
   }
 }
 

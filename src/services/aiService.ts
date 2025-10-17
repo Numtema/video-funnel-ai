@@ -63,12 +63,18 @@ export const aiService = {
 
     if (error) throw error;
     
-    // Handle different model response formats
+    // Handle image response from Nano Banana
     if (data.choices?.[0]?.message?.images?.[0]?.image_url?.url) {
       return data.choices[0].message.images[0].image_url.url;
     }
     
-    throw new Error('Format de réponse invalide');
+    // Fallback for other possible response formats
+    if (data.imageUrl) {
+      return data.imageUrl;
+    }
+    
+    console.error('Invalid image response:', data);
+    throw new Error('Format de réponse image invalide');
   },
 
   async analyzeSubmissions(answers: Record<string, any>): Promise<{
