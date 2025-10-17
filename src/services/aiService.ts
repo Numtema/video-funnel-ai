@@ -42,7 +42,7 @@ export const aiService = {
     return data.choices[0].message.content;
   },
 
-  async generateImage(prompt: string): Promise<string> {
+  async generateImage(prompt: string, model: string = 'google/gemini-2.5-flash-image-preview'): Promise<string> {
     // Get current user
     const { data: { user } } = await supabase.auth.getUser();
     if (!user) throw new Error('Non authentifié');
@@ -54,13 +54,17 @@ export const aiService = {
     if (usageError) throw usageError;
 
     const { data, error } = await supabase.functions.invoke('ai-gateway', {
-      body: { action: 'generate-image', prompt }
+      body: { action: 'generate-image', prompt, model }
     });
 
     if (error) throw error;
     
-    const imageUrl = data.choices[0].message.images[0].image_url.url;
-    return imageUrl;
+    // Handle different model response formats
+    if (data.choices?.[0]?.message?.images?.[0]?.image_url?.url) {
+      return data.choices[0].message.images[0].image_url.url;
+    }
+    
+    throw new Error('Format de réponse invalide');
   },
 
   async analyzeSubmissions(answers: Record<string, any>): Promise<{

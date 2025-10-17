@@ -114,6 +114,10 @@ Réponds UNIQUEMENT avec du JSON valide, sans markdown ni commentaires.`
 
       case 'generate-image': {
         console.log('Generating image with prompt:', params.prompt);
+        console.log('Using model:', params.model || 'google/gemini-2.5-flash-image-preview');
+        
+        const model = params.model || 'google/gemini-2.5-flash-image-preview';
+        
         response = await fetch('https://ai.gateway.lovable.dev/v1/chat/completions', {
           method: 'POST',
           headers: {
@@ -121,8 +125,11 @@ Réponds UNIQUEMENT avec du JSON valide, sans markdown ni commentaires.`
             'Content-Type': 'application/json'
           },
           body: JSON.stringify({
-            model: 'google/gemini-2.5-flash-image-preview',
-            messages: [{ role: 'user', content: params.prompt }],
+            model: model,
+            messages: [{ 
+              role: 'user', 
+              content: params.prompt 
+            }],
             modalities: ['image', 'text']
           })
         });

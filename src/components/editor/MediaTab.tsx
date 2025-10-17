@@ -25,6 +25,7 @@ export function MediaTab({ step, onUpdate }: MediaTabProps) {
   const { toast } = useToast();
   const [isGenerating, setIsGenerating] = useState(false);
   const [imagePrompt, setImagePrompt] = useState('');
+  const [selectedModel, setSelectedModel] = useState('google/gemini-2.5-flash-image-preview');
 
   const handleMediaTypeChange = (type: 'image' | 'video' | 'audio' | 'none') => {
     onUpdate({
@@ -58,7 +59,7 @@ export function MediaTab({ step, onUpdate }: MediaTabProps) {
 
     setIsGenerating(true);
     try {
-      const imageUrl = await aiService.generateImage(imagePrompt);
+      const imageUrl = await aiService.generateImage(imagePrompt, selectedModel);
       
       onUpdate({
         ...step,
@@ -72,11 +73,12 @@ export function MediaTab({ step, onUpdate }: MediaTabProps) {
         title: 'Image générée',
         description: 'Votre image a été créée avec succès',
       });
-    } catch (error) {
+      setImagePrompt('');
+    } catch (error: any) {
       console.error('Error generating image:', error);
       toast({
         title: 'Erreur',
-        description: 'Impossible de générer l\'image. Vérifiez vos crédits IA.',
+        description: error.message || 'Impossible de générer l\'image. Vérifiez vos crédits IA.',
         variant: 'destructive',
       });
     } finally {
@@ -159,28 +161,62 @@ export function MediaTab({ step, onUpdate }: MediaTabProps) {
 
           <TabsContent value="ai" className="space-y-4 mt-4">
             {step.media.type === 'image' && (
-              <div>
-                <Label htmlFor="image-prompt">Décrivez l'image à générer</Label>
-                <Textarea
-                  id="image-prompt"
-                  value={imagePrompt}
-                  onChange={(e) => setImagePrompt(e.target.value)}
-                  placeholder="Ex: Une photo professionnelle d'une femme souriante dans un bureau moderne..."
-                  rows={4}
-                  className="mt-2"
-                />
+              <div className="space-y-4">
+                <div>
+                  <Label htmlFor="image-model">Modèle IA</Label>
+                  <Select value={selectedModel} onValueChange={setSelectedModel}>
+                    <SelectTrigger className="mt-2">
+                      <SelectValue />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="google/gemini-2.5-flash-image-preview">
+                        <div className="flex flex-col items-start">
+                          <span className="font-medium">Nano Banana 🍌</span>
+                          <span className="text-xs text-muted-foreground">Rapide • Image jusqu'à 1024x1024px</span>
+                        </div>
+                      </SelectItem>
+                      <SelectItem value="imagen-4-generate-001">
+                        <div className="flex flex-col items-start">
+                          <span className="font-medium">Imagen 4</span>
+                          <span className="text-xs text-muted-foreground">Haute qualité • Meilleur rendu texte</span>
+                        </div>
+                      </SelectItem>
+                      <SelectItem value="imagen-4-ultra-generate-001">
+                        <div className="flex flex-col items-start">
+                          <span className="font-medium">Imagen 4 Ultra</span>
+                          <span className="text-xs text-muted-foreground">Qualité supérieure • Plus lent</span>
+                        </div>
+                      </SelectItem>
+                    </SelectContent>
+                  </Select>
+                </div>
+
+                <div>
+                  <Label htmlFor="image-prompt">Décrivez l'image à générer</Label>
+                  <Textarea
+                    id="image-prompt"
+                    value={imagePrompt}
+                    onChange={(e) => setImagePrompt(e.target.value)}
+                    placeholder="Ex: Une photo professionnelle d'une femme souriante dans un bureau moderne, éclairage naturel, ultra haute résolution..."
+                    rows={4}
+                    className="mt-2"
+                  />
+                  <p className="text-xs text-muted-foreground mt-2">
+                    💡 Astuce: Ajoutez "ultra high resolution" pour maximiser la qualité
+                  </p>
+                </div>
                 
                 <Button
                   onClick={handleGenerateImage}
                   disabled={isGenerating}
-                  className="w-full mt-4"
+                  className="w-full"
                 >
                   <Sparkles className="w-4 h-4 mr-2" />
                   {isGenerating ? 'Génération en cours...' : 'Générer l\'image'}
                 </Button>
 
                 {step.media.url && step.media.url.startsWith('data:image') && (
-                  <div className="mt-4 border rounded-lg p-4">
+                  <div className="mt-4 border rounded-lg p-4 bg-muted/20">
                     <p className="text-sm font-medium mb-2">Image générée</p>
                     <img
                       src={step.media.url}
