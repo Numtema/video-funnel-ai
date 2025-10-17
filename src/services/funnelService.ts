@@ -60,11 +60,16 @@ export const funnelService = {
 
   // Create funnel
   async create(data: { name: string; description?: string; config: QuizConfig }): Promise<Funnel> {
+    // Get current user
+    const { data: { user }, error: userError } = await supabase.auth.getUser();
+    if (userError || !user) throw new Error('User not authenticated');
+
     const share_token = generateShareToken();
     
     const { data: funnel, error } = await supabase
       .from('funnels')
       .insert([{
+        user_id: user.id,
         name: data.name,
         description: data.description || null,
         config: data.config as any,
