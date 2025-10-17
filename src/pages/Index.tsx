@@ -110,11 +110,7 @@ const Index = () => {
 
         {/* Footer */}
         <div className="text-center mt-16 text-muted-foreground">
-          <p className="mb-2">© 2025 Nümtema AI Foundry</p>
-          <p className="flex items-center justify-center gap-2">
-            <Zap className="h-4 w-4 text-accent" />
-            <span>Contact: 07 45 43 42 64</span>
-          </p>
+          <p>© 2025 Nümtema AI Foundry</p>
         </div>
       </div>
     </div>

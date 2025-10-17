@@ -191,7 +191,6 @@ const Auth = () => {
 
           <div className="mt-6 text-center text-sm text-muted-foreground">
             <p>© 2025 Nümtema AI Foundry</p>
-            <p className="mt-1">Contact: 07 45 43 42 64</p>
           </div>
         </CardContent>
       </Card>
