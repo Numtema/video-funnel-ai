@@ -14,16 +14,321 @@ export type Database = {
   }
   public: {
     Tables: {
-      [_ in never]: never
+      analytics_sessions: {
+        Row: {
+          completed: boolean | null
+          completed_at: string | null
+          device: string | null
+          funnel_id: string
+          id: string
+          ip_address: unknown | null
+          score: number | null
+          source: string | null
+          started_at: string
+          steps: Json
+          submitted: boolean | null
+          user_agent: string | null
+        }
+        Insert: {
+          completed?: boolean | null
+          completed_at?: string | null
+          device?: string | null
+          funnel_id: string
+          id: string
+          ip_address?: unknown | null
+          score?: number | null
+          source?: string | null
+          started_at: string
+          steps?: Json
+          submitted?: boolean | null
+          user_agent?: string | null
+        }
+        Update: {
+          completed?: boolean | null
+          completed_at?: string | null
+          device?: string | null
+          funnel_id?: string
+          id?: string
+          ip_address?: unknown | null
+          score?: number | null
+          source?: string | null
+          started_at?: string
+          steps?: Json
+          submitted?: boolean | null
+          user_agent?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "analytics_sessions_funnel_id_fkey"
+            columns: ["funnel_id"]
+            isOneToOne: false
+            referencedRelation: "funnels"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      funnels: {
+        Row: {
+          config: Json
+          created_at: string | null
+          deleted_at: string | null
+          description: string | null
+          id: string
+          is_active: boolean | null
+          is_published: boolean | null
+          name: string
+          published_at: string | null
+          share_token: string
+          total_submissions: number | null
+          total_views: number | null
+          updated_at: string | null
+          user_id: string
+        }
+        Insert: {
+          config?: Json
+          created_at?: string | null
+          deleted_at?: string | null
+          description?: string | null
+          id?: string
+          is_active?: boolean | null
+          is_published?: boolean | null
+          name: string
+          published_at?: string | null
+          share_token: string
+          total_submissions?: number | null
+          total_views?: number | null
+          updated_at?: string | null
+          user_id: string
+        }
+        Update: {
+          config?: Json
+          created_at?: string | null
+          deleted_at?: string | null
+          description?: string | null
+          id?: string
+          is_active?: boolean | null
+          is_published?: boolean | null
+          name?: string
+          published_at?: string | null
+          share_token?: string
+          total_submissions?: number | null
+          total_views?: number | null
+          updated_at?: string | null
+          user_id?: string
+        }
+        Relationships: []
+      }
+      media_assets: {
+        Row: {
+          ai_generated: boolean | null
+          ai_model: string | null
+          ai_prompt: string | null
+          ai_provider: string | null
+          created_at: string | null
+          duration_seconds: number | null
+          funnel_id: string | null
+          id: string
+          size_bytes: number | null
+          thumbnail_url: string | null
+          type: string
+          url: string
+          user_id: string | null
+        }
+        Insert: {
+          ai_generated?: boolean | null
+          ai_model?: string | null
+          ai_prompt?: string | null
+          ai_provider?: string | null
+          created_at?: string | null
+          duration_seconds?: number | null
+          funnel_id?: string | null
+          id?: string
+          size_bytes?: number | null
+          thumbnail_url?: string | null
+          type: string
+          url: string
+          user_id?: string | null
+        }
+        Update: {
+          ai_generated?: boolean | null
+          ai_model?: string | null
+          ai_prompt?: string | null
+          ai_provider?: string | null
+          created_at?: string | null
+          duration_seconds?: number | null
+          funnel_id?: string | null
+          id?: string
+          size_bytes?: number | null
+          thumbnail_url?: string | null
+          type?: string
+          url?: string
+          user_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "media_assets_funnel_id_fkey"
+            columns: ["funnel_id"]
+            isOneToOne: false
+            referencedRelation: "funnels"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      profiles: {
+        Row: {
+          ai_count_reset_at: string | null
+          avatar_url: string | null
+          company_name: string | null
+          created_at: string | null
+          current_month_ai_count: number | null
+          full_name: string | null
+          id: string
+          max_ai_generations_monthly: number | null
+          max_funnels: number | null
+          phone: string | null
+          plan: string | null
+          updated_at: string | null
+        }
+        Insert: {
+          ai_count_reset_at?: string | null
+          avatar_url?: string | null
+          company_name?: string | null
+          created_at?: string | null
+          current_month_ai_count?: number | null
+          full_name?: string | null
+          id: string
+          max_ai_generations_monthly?: number | null
+          max_funnels?: number | null
+          phone?: string | null
+          plan?: string | null
+          updated_at?: string | null
+        }
+        Update: {
+          ai_count_reset_at?: string | null
+          avatar_url?: string | null
+          company_name?: string | null
+          created_at?: string | null
+          current_month_ai_count?: number | null
+          full_name?: string | null
+          id?: string
+          max_ai_generations_monthly?: number | null
+          max_funnels?: number | null
+          phone?: string | null
+          plan?: string | null
+          updated_at?: string | null
+        }
+        Relationships: []
+      }
+      submissions: {
+        Row: {
+          ai_analysis: Json | null
+          answers: Json
+          completion_time_seconds: number | null
+          contact_email: string | null
+          contact_name: string | null
+          contact_phone: string | null
+          created_at: string | null
+          device: string | null
+          funnel_id: string
+          id: string
+          ip_address: unknown | null
+          score: number | null
+          session_id: string
+          source: string | null
+          subscribed: boolean | null
+          user_agent: string | null
+        }
+        Insert: {
+          ai_analysis?: Json | null
+          answers?: Json
+          completion_time_seconds?: number | null
+          contact_email?: string | null
+          contact_name?: string | null
+          contact_phone?: string | null
+          created_at?: string | null
+          device?: string | null
+          funnel_id: string
+          id?: string
+          ip_address?: unknown | null
+          score?: number | null
+          session_id: string
+          source?: string | null
+          subscribed?: boolean | null
+          user_agent?: string | null
+        }
+        Update: {
+          ai_analysis?: Json | null
+          answers?: Json
+          completion_time_seconds?: number | null
+          contact_email?: string | null
+          contact_name?: string | null
+          contact_phone?: string | null
+          created_at?: string | null
+          device?: string | null
+          funnel_id?: string
+          id?: string
+          ip_address?: unknown | null
+          score?: number | null
+          session_id?: string
+          source?: string | null
+          subscribed?: boolean | null
+          user_agent?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "submissions_funnel_id_fkey"
+            columns: ["funnel_id"]
+            isOneToOne: false
+            referencedRelation: "funnels"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      user_roles: {
+        Row: {
+          id: string
+          role: Database["public"]["Enums"]["app_role"]
+          user_id: string
+        }
+        Insert: {
+          id?: string
+          role?: Database["public"]["Enums"]["app_role"]
+          user_id: string
+        }
+        Update: {
+          id?: string
+          role?: Database["public"]["Enums"]["app_role"]
+          user_id?: string
+        }
+        Relationships: []
+      }
     }
     Views: {
       [_ in never]: never
     }
     Functions: {
-      [_ in never]: never
+      has_role: {
+        Args: {
+          _role: Database["public"]["Enums"]["app_role"]
+          _user_id: string
+        }
+        Returns: boolean
+      }
+      increment_ai_usage: {
+        Args: { user_id: string }
+        Returns: undefined
+      }
+      increment_funnel_submissions: {
+        Args: { funnel_id: string }
+        Returns: undefined
+      }
+      increment_funnel_views: {
+        Args: { funnel_id: string }
+        Returns: undefined
+      }
     }
     Enums: {
-      [_ in never]: never
+      app_role: "admin" | "user"
     }
     CompositeTypes: {
       [_ in never]: never
@@ -150,6 +455,8 @@ export type CompositeTypes<
 
 export const Constants = {
   public: {
-    Enums: {},
+    Enums: {
+      app_role: ["admin", "user"],
+    },
   },
 } as const
