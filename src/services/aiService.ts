@@ -19,7 +19,11 @@ export const aiService = {
 
     if (error) throw error;
     
-    const content = data.choices[0].message.content;
+    let content = data.choices[0].message.content;
+    
+    // Remove markdown code blocks if present
+    content = content.replace(/```json\n?/g, '').replace(/```\n?/g, '').trim();
+    
     return JSON.parse(content);
   },
 
@@ -77,7 +81,11 @@ export const aiService = {
     });
 
     if (error) throw error;
-    const content = JSON.parse(data.choices[0].message.content);
-    return content;
+    
+    let content = data.choices[0].message.content;
+    // Remove markdown code blocks if present
+    content = content.replace(/```json\n?/g, '').replace(/```\n?/g, '').trim();
+    
+    return JSON.parse(content);
   }
 };
