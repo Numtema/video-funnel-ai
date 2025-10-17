@@ -31,7 +31,7 @@ const CreateFunnelModal = ({ open, onOpenChange }: CreateFunnelModalProps) => {
   const [name, setName] = useState('');
   const [description, setDescription] = useState('');
   const [aiPrompt, setAiPrompt] = useState('');
-  const [aiModel, setAiModel] = useState('models/gemini-2.5-flash');
+  const [aiModel, setAiModel] = useState('google/gemini-2.5-flash');
   const { profile } = useAuth();
   const { toast } = useToast();
   const navigate = useNavigate();
@@ -220,20 +220,23 @@ const CreateFunnelModal = ({ open, onOpenChange }: CreateFunnelModalProps) => {
                   <SelectValue />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="models/gemini-2.5-pro">
+                  <SelectItem value="google/gemini-2.5-pro">
                     Gemini 2.5 Pro (Plus précis)
                   </SelectItem>
-                  <SelectItem value="models/gemini-2.5-flash">
+                  <SelectItem value="google/gemini-2.5-flash">
                     Gemini 2.5 Flash (Rapide)
                   </SelectItem>
-                  <SelectItem value="models/gemini-2.5-flash-lite">
+                  <SelectItem value="google/gemini-2.5-flash-lite">
                     Gemini 2.5 Flash Lite (Ultra rapide)
                   </SelectItem>
-                  <SelectItem value="models/gemini-flash-latest">
-                    Gemini Flash Latest (Dernière version)
+                  <SelectItem value="openai/gpt-5">
+                    GPT-5 (Puissant)
                   </SelectItem>
-                  <SelectItem value="models/gemini-flash-lite-latest">
-                    Gemini Flash Lite Latest (Plus rapide)
+                  <SelectItem value="openai/gpt-5-mini">
+                    GPT-5 Mini (Équilibré)
+                  </SelectItem>
+                  <SelectItem value="openai/gpt-5-nano">
+                    GPT-5 Nano (Économique)
                   </SelectItem>
                 </SelectContent>
               </Select>
