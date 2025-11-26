@@ -4,11 +4,14 @@ import { Button } from '@/components/ui/button';
 import { useToast } from '@/hooks/use-toast';
 import { funnelService } from '@/services/funnelService';
 import { Funnel, QuizConfig, QuizStep, StepType } from '@/types/funnel';
-import { Save, Eye, Share2, MoreVertical, ArrowLeft } from 'lucide-react';
+import { Save, Eye, Share2, MoreVertical, ArrowLeft, Menu, X } from 'lucide-react';
 import { StepNavigator } from '@/components/editor/StepNavigator';
 import { StepEditor } from '@/components/editor/StepEditor';
 import { PreviewPane } from '@/components/editor/PreviewPane';
 import { FunnelSettings } from '@/components/editor/FunnelSettings';
+import { Sheet, SheetContent, SheetTrigger } from '@/components/ui/sheet';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { cn } from '@/lib/utils';
 
 export default function FunnelEditor() {
   const { id } = useParams<{ id: string }>();
@@ -20,6 +23,8 @@ export default function FunnelEditor() {
   const [selectedStepId, setSelectedStepId] = useState<string | null>(null);
   const [isSaving, setIsSaving] = useState(false);
   const [hasUnsavedChanges, setHasUnsavedChanges] = useState(false);
+  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+  const [showPreview, setShowPreview] = useState(false);
 
   useEffect(() => {
     if (id) {
@@ -184,42 +189,89 @@ export default function FunnelEditor() {
 
   return (
     <div className="h-screen flex flex-col bg-background">
-      {/* Top Action Bar */}
-      <div className="h-16 border-b bg-card px-6 flex items-center justify-between">
-        <div className="flex items-center gap-4">
+      {/* Top Action Bar - Responsive */}
+      <div className="h-14 md:h-16 border-b bg-card px-3 md:px-6 flex items-center justify-between">
+        <div className="flex items-center gap-2 md:gap-4 min-w-0">
+          {/* Mobile Menu Button */}
+          <Sheet open={mobileMenuOpen} onOpenChange={setMobileMenuOpen}>
+            <SheetTrigger asChild className="lg:hidden">
+              <Button variant="ghost" size="sm">
+                <Menu className="w-4 h-4" />
+              </Button>
+            </SheetTrigger>
+            <SheetContent side="left" className="w-80 p-0">
+              <StepNavigator
+                steps={config.steps}
+                selectedStepId={selectedStepId}
+                onSelectStep={(id) => {
+                  setSelectedStepId(id);
+                  setMobileMenuOpen(false);
+                }}
+                onAddStep={(type) => {
+                  handleAddStep(type);
+                  setMobileMenuOpen(false);
+                }}
+                onDeleteStep={handleDeleteStep}
+                onReorder={handleReorderSteps}
+              />
+            </SheetContent>
+          </Sheet>
+
           <Button
             variant="ghost"
             size="sm"
             onClick={() => navigate('/funnels')}
+            className="hidden md:flex"
           >
             <ArrowLeft className="w-4 h-4 mr-2" />
             Retour
           </Button>
-          <div>
-            <h1 className="text-lg font-semibold">{funnel.name}</h1>
+
+          <Button
+            variant="ghost"
+            size="icon"
+            onClick={() => navigate('/funnels')}
+            className="md:hidden flex-shrink-0"
+          >
+            <ArrowLeft className="w-4 h-4" />
+          </Button>
+
+          <div className="min-w-0 flex-1">
+            <h1 className="text-sm md:text-lg font-semibold truncate">{funnel.name}</h1>
             {hasUnsavedChanges && (
-              <p className="text-xs text-muted-foreground">Modifications non sauvegardées</p>
+              <p className="text-xs text-muted-foreground hidden md:block">Modifications non sauvegardées</p>
             )}
           </div>
         </div>
 
-        <div className="flex items-center gap-2">
+        <div className="flex items-center gap-1 md:gap-2 flex-shrink-0">
           <Button
             variant="outline"
             size="sm"
             onClick={handlePreview}
+            className="hidden sm:flex"
           >
-            <Eye className="w-4 h-4 mr-2" />
-            Aperçu
+            <Eye className="w-4 h-4 sm:mr-2" />
+            <span className="hidden sm:inline">Aperçu</span>
+          </Button>
+
+          <Button
+            variant="outline"
+            size="icon"
+            onClick={handlePreview}
+            className="sm:hidden"
+          >
+            <Eye className="w-4 h-4" />
           </Button>
           
           <Button
             variant="outline"
             size="sm"
             onClick={handleShare}
+            className="hidden md:flex"
           >
-            <Share2 className="w-4 h-4 mr-2" />
-            Partager
+            <Share2 className="w-4 h-4 md:mr-2" />
+            <span className="hidden md:inline">Partager</span>
           </Button>
 
           <Button
@@ -227,18 +279,68 @@ export default function FunnelEditor() {
             onClick={handleSave}
             disabled={isSaving || !hasUnsavedChanges}
           >
-            <Save className="w-4 h-4 mr-2" />
-            {isSaving ? 'Sauvegarde...' : 'Sauvegarder'}
+            <Save className="w-4 h-4 sm:mr-2" />
+            <span className="hidden sm:inline">{isSaving ? 'Sauvegarde...' : 'Sauvegarder'}</span>
           </Button>
 
-          <Button variant="ghost" size="sm">
+          <Button variant="ghost" size="sm" className="hidden md:flex">
             <MoreVertical className="w-4 h-4" />
           </Button>
         </div>
       </div>
 
-      {/* 3 Columns Layout */}
-      <div className="flex-1 flex overflow-hidden">
+      {/* Mobile: Tabs Layout */}
+      <div className="flex-1 overflow-hidden lg:hidden">
+        <Tabs defaultValue="editor" className="h-full flex flex-col">
+          <TabsList className="w-full rounded-none border-b h-12">
+            <TabsTrigger value="steps" className="flex-1">Étapes</TabsTrigger>
+            <TabsTrigger value="editor" className="flex-1">Éditeur</TabsTrigger>
+            <TabsTrigger value="preview" className="flex-1">Aperçu</TabsTrigger>
+          </TabsList>
+
+          <TabsContent value="steps" className="flex-1 overflow-y-auto m-0">
+            <StepNavigator
+              steps={config.steps}
+              selectedStepId={selectedStepId}
+              onSelectStep={setSelectedStepId}
+              onAddStep={handleAddStep}
+              onDeleteStep={handleDeleteStep}
+              onReorder={handleReorderSteps}
+            />
+          </TabsContent>
+
+          <TabsContent value="editor" className="flex-1 overflow-y-auto m-0">
+            {selectedStep ? (
+              <StepEditor
+                step={selectedStep}
+                onUpdate={handleUpdateStep}
+                onDelete={() => handleDeleteStep(selectedStep.id)}
+              />
+            ) : (
+              <div className="h-full flex items-center justify-center text-muted-foreground p-6">
+                <div className="text-center">
+                  <p className="mb-2">Aucune étape sélectionnée</p>
+                  <p className="text-sm">Allez dans l'onglet "Étapes" pour commencer</p>
+                </div>
+              </div>
+            )}
+          </TabsContent>
+
+          <TabsContent value="preview" className="flex-1 overflow-y-auto m-0">
+            <PreviewPane
+              step={selectedStep}
+              theme={config.theme}
+            />
+            <FunnelSettings
+              config={config}
+              onUpdate={handleUpdateConfig}
+            />
+          </TabsContent>
+        </Tabs>
+      </div>
+
+      {/* Desktop: 3 Columns Layout */}
+      <div className="flex-1 lg:flex overflow-hidden hidden">
         {/* Left: Step Navigator */}
         <div className="w-72 border-r bg-card overflow-y-auto">
           <StepNavigator
