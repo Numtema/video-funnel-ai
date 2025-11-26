@@ -189,6 +189,13 @@ export default function FunnelPlayer() {
         </div>
       )}
 
+      {/* Logo */}
+      {config.theme.logo && (
+        <div className="pt-8 pb-4 flex justify-center">
+          <img src={config.theme.logo} alt="Logo" className="h-16 object-contain" />
+        </div>
+      )}
+
       {/* Main content */}
       <div className="flex-1 flex items-center justify-center p-4 pt-8">
         <div className="w-full max-w-2xl animate-fade-in">

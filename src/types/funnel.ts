@@ -49,6 +49,7 @@ export interface ScoringConfig {
 
 export interface ThemeConfig {
   font: string;
+  logo?: string;
   colors: {
     background: string;
     primary: string;

@@ -68,6 +68,13 @@ export function PreviewPane({ step, theme }: PreviewPaneProps) {
               fontFamily: theme.font,
             }}
           >
+            {/* Logo */}
+            {theme.logo && (
+              <div className="p-4 flex justify-center border-b" style={{ borderColor: theme.colors.primary + '20' }}>
+                <img src={theme.logo} alt="Logo" className="h-12 object-contain" />
+              </div>
+            )}
+
             {/* Media */}
             {step.media.type !== 'none' && step.media.url && (
               <div className="aspect-video bg-muted">

@@ -210,6 +210,44 @@ export function FunnelSettings({ config, onUpdate }: FunnelSettingsProps) {
         </CollapsibleContent>
       </Collapsible>
 
+      {/* Branding Section */}
+      <Collapsible
+        open={openSections.includes('branding')}
+        onOpenChange={() => toggleSection('branding')}
+      >
+        <CollapsibleTrigger className="flex items-center justify-between w-full p-3 hover:bg-muted rounded-lg">
+          <span className="font-medium text-sm">Personnalisation</span>
+          <ChevronDown
+            className={`w-4 h-4 transition-transform ${
+              openSections.includes('branding') ? 'rotate-180' : ''
+            }`}
+          />
+        </CollapsibleTrigger>
+        <CollapsibleContent className="pt-3 space-y-3">
+          <div>
+            <Label htmlFor="logo">Logo de l'entreprise (URL)</Label>
+            <Input
+              id="logo"
+              value={config.theme.logo || ''}
+              onChange={(e) =>
+                onUpdate({
+                  ...config,
+                  theme: {
+                    ...config.theme,
+                    logo: e.target.value,
+                  },
+                })
+              }
+              placeholder="https://..."
+              className="mt-1"
+            />
+            <p className="text-xs text-muted-foreground mt-1">
+              Le logo s'affichera en haut du funnel
+            </p>
+          </div>
+        </CollapsibleContent>
+      </Collapsible>
+
       {/* Social Links Section */}
       <Collapsible
         open={openSections.includes('social')}
