@@ -25,7 +25,7 @@ export function LeadCaptureScreen({ step, theme, funnelId, answers, score, onNex
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     
-    if (!email) {
+    if (!email || !email.trim()) {
       toast({
         title: 'Erreur',
         description: 'L\'email est requis',
@@ -37,16 +37,14 @@ export function LeadCaptureScreen({ step, theme, funnelId, answers, score, onNex
     setSubmitting(true);
 
     try {
-      // Pass to parent via onNext - parent handles submission
-      onNext({ name, email, phone, subscribed: false });
+      await onNext({ name, email, phone, subscribed: false });
     } catch (error) {
       console.error('Submission error:', error);
       toast({
         title: 'Erreur',
-        description: 'Une erreur est survenue',
+        description: 'Une erreur est survenue lors de l\'envoi',
         variant: 'destructive'
       });
-    } finally {
       setSubmitting(false);
     }
   };
