@@ -34,7 +34,7 @@ const plans = [
       'Webhooks illimités',
       'Support prioritaire',
     ],
-    priceId: 'price_starter',
+    priceId: 'price_1SXrjmIo2oYoHceFtI0kBmVL',
     highlighted: false,
   },
   {
@@ -51,7 +51,7 @@ const plans = [
       'Support prioritaire',
       'Domaine personnalisé',
     ],
-    priceId: 'price_pro',
+    priceId: 'price_1SXrkxIo2oYoHceFyNjl85Lb',
     highlighted: true,
   },
   {

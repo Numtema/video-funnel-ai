@@ -15,6 +15,7 @@ import {
 import { Sparkles, Link as LinkIcon, Upload, Image as ImageIcon } from 'lucide-react';
 import { aiService } from '@/services/aiService';
 import { useToast } from '@/hooks/use-toast';
+import { isYouTubeUrl, getYouTubeEmbedUrl } from '@/lib/youtube';
 
 interface MediaTabProps {
   step: QuizStep;
@@ -164,11 +165,24 @@ export function MediaTab({ step, onUpdate }: MediaTabProps) {
                   />
                 )}
                 {step.media.type === 'video' && (
-                  <video
-                    src={step.media.url}
-                    controls
-                    className="w-full rounded-lg"
-                  />
+                  <>
+                    {isYouTubeUrl(step.media.url) ? (
+                      <div className="relative w-full" style={{ paddingBottom: '56.25%' }}>
+                        <iframe
+                          src={getYouTubeEmbedUrl(step.media.url) || ''}
+                          className="absolute top-0 left-0 w-full h-full rounded-lg"
+                          allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                          allowFullScreen
+                        />
+                      </div>
+                    ) : (
+                      <video
+                        src={step.media.url}
+                        controls
+                        className="w-full rounded-lg"
+                      />
+                    )}
+                  </>
                 )}
                 {step.media.type === 'audio' && (
                   <audio

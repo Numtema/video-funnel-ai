@@ -3,6 +3,7 @@ import { Button } from '@/components/ui/button';
 import { Monitor, Tablet, Smartphone } from 'lucide-react';
 import { useState } from 'react';
 import { cn } from '@/lib/utils';
+import { isYouTubeUrl, getYouTubeEmbedUrl } from '@/lib/youtube';
 
 interface PreviewPaneProps {
   step: QuizStep | undefined;
@@ -78,10 +79,21 @@ export function PreviewPane({ step, theme }: PreviewPaneProps) {
                   />
                 )}
                 {step.media.type === 'video' && (
-                  <video
-                    src={step.media.url}
-                    className="w-full h-full object-cover"
-                  />
+                  <>
+                    {isYouTubeUrl(step.media.url) ? (
+                      <iframe
+                        src={getYouTubeEmbedUrl(step.media.url) || ''}
+                        className="w-full h-full"
+                        allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                        allowFullScreen
+                      />
+                    ) : (
+                      <video
+                        src={step.media.url}
+                        className="w-full h-full object-cover"
+                      />
+                    )}
+                  </>
                 )}
               </div>
             )}

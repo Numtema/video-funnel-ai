@@ -1,6 +1,7 @@
 import { QuizStep, ThemeConfig, QuizConfig } from '@/types/funnel';
 import { Button } from '@/components/ui/button';
 import { ArrowRight, Facebook, Twitter, Instagram, Linkedin } from 'lucide-react';
+import { isYouTubeUrl, getYouTubeEmbedUrl } from '@/lib/youtube';
 
 interface WelcomeScreenProps {
   step: QuizStep;
@@ -20,11 +21,24 @@ export function WelcomeScreen({ step, theme, socialLinks, onNext }: WelcomeScree
         />
       )}
       {step.media.type === 'video' && step.media.url && (
-        <video 
-          src={step.media.url} 
-          controls
-          className="w-full max-h-96 rounded-lg mb-6"
-        />
+        <>
+          {isYouTubeUrl(step.media.url) ? (
+            <div className="relative w-full mb-6" style={{ paddingBottom: '56.25%', maxHeight: '400px' }}>
+              <iframe
+                src={getYouTubeEmbedUrl(step.media.url) || ''}
+                className="absolute top-0 left-0 w-full h-full rounded-lg"
+                allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                allowFullScreen
+              />
+            </div>
+          ) : (
+            <video 
+              src={step.media.url} 
+              controls
+              className="w-full max-h-96 rounded-lg mb-6"
+            />
+          )}
+        </>
       )}
 
       <h1 className="text-4xl font-bold mb-4">{step.title}</h1>
