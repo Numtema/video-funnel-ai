@@ -7,7 +7,7 @@ import { Avatar, AvatarFallback } from '@/components/ui/avatar';
 import { Progress } from '@/components/ui/progress';
 import { Separator } from '@/components/ui/separator';
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuLabel, DropdownMenuSeparator, DropdownMenuTrigger } from '@/components/ui/dropdown-menu';
-import { LayoutDashboard, Video, BarChart3, Settings, LogOut, Sparkles, Menu, X, ChevronLeft, ChevronRight, User, FileText, CreditCard } from 'lucide-react';
+import { LayoutDashboard, Video, BarChart3, Settings, LogOut, Sparkles, AlignJustify, X, ChevronLeft, ChevronRight, User, FileText, CreditCard } from 'lucide-react';
 import lionLogo from '@/assets/lion-logo.svg';
 import { useState } from 'react';
 import { cn } from '@/lib/utils';
@@ -70,7 +70,7 @@ const MainLayout = ({
       <div className="lg:hidden fixed top-0 left-0 right-0 z-50 bg-card border-b px-4 py-3 flex items-center justify-between">
         <div className="flex items-center gap-2">
           <Button variant="ghost" size="icon" onClick={() => setMobileMenuOpen(!mobileMenuOpen)}>
-            {mobileMenuOpen ? <X className="h-5 w-5" /> : <Menu className="h-5 w-5" />}
+            {mobileMenuOpen ? <X className="h-5 w-5" /> : <AlignJustify className="h-5 w-5" />}
           </Button>
           <img src={lionLogo} alt="Nümtema Face" className="h-8" />
         </div>
