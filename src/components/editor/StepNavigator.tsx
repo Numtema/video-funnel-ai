@@ -43,7 +43,7 @@ export function StepNavigator({
       [StepType.LeadCapture]: Mail,
       [StepType.CalendarEmbed]: Calendar,
     };
-    const Icon = icons[type];
+    const Icon = icons[type] || HelpCircle;
     return <Icon className="w-4 h-4" />;
   };
 
