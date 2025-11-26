@@ -6,81 +6,70 @@ import { Button } from '@/components/ui/button';
 import { Avatar, AvatarFallback } from '@/components/ui/avatar';
 import { Progress } from '@/components/ui/progress';
 import { Separator } from '@/components/ui/separator';
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuLabel,
-  DropdownMenuSeparator,
-  DropdownMenuTrigger,
-} from '@/components/ui/dropdown-menu';
-import {
-  LayoutDashboard,
-  Video,
-  BarChart3,
-  Settings,
-  LogOut,
-  Sparkles,
-  Menu,
-  X,
-  ChevronLeft,
-  ChevronRight,
-  User,
-  FileText,
-  CreditCard
-} from 'lucide-react';
+import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuLabel, DropdownMenuSeparator, DropdownMenuTrigger } from '@/components/ui/dropdown-menu';
+import { LayoutDashboard, Video, BarChart3, Settings, LogOut, Sparkles, Menu, X, ChevronLeft, ChevronRight, User, FileText, CreditCard } from 'lucide-react';
 import lionLogo from '@/assets/lion-logo.svg';
 import { useState } from 'react';
 import { cn } from '@/lib/utils';
-
 interface MainLayoutProps {
   children: ReactNode;
 }
-
-const MainLayout = ({ children }: MainLayoutProps) => {
-  const { user, profile, signOut } = useAuth();
-  const { usage, percentage } = useAIUsage();
+const MainLayout = ({
+  children
+}: MainLayoutProps) => {
+  const {
+    user,
+    profile,
+    signOut
+  } = useAuth();
+  const {
+    usage,
+    percentage
+  } = useAIUsage();
   const location = useLocation();
   const navigate = useNavigate();
   const [sidebarOpen, setSidebarOpen] = useState(true);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
-
-  const navItems = [
-    { icon: LayoutDashboard, label: 'Dashboard', path: '/dashboard' },
-    { icon: Video, label: 'Funnels', path: '/funnels' },
-    { icon: FileText, label: 'Templates', path: '/templates' },
-    { icon: BarChart3, label: 'Analytics', path: '/analytics' },
-    { icon: CreditCard, label: 'Tarifs', path: '/pricing' },
-    { icon: Settings, label: 'Paramètres', path: '/settings' },
-  ];
-
+  const navItems = [{
+    icon: LayoutDashboard,
+    label: 'Dashboard',
+    path: '/dashboard'
+  }, {
+    icon: Video,
+    label: 'Funnels',
+    path: '/funnels'
+  }, {
+    icon: FileText,
+    label: 'Templates',
+    path: '/templates'
+  }, {
+    icon: BarChart3,
+    label: 'Analytics',
+    path: '/analytics'
+  }, {
+    icon: CreditCard,
+    label: 'Tarifs',
+    path: '/pricing'
+  }, {
+    icon: Settings,
+    label: 'Paramètres',
+    path: '/settings'
+  }];
   const getInitials = () => {
     if (profile?.full_name) {
-      return profile.full_name
-        .split(' ')
-        .map(n => n[0])
-        .join('')
-        .toUpperCase()
-        .slice(0, 2);
+      return profile.full_name.split(' ').map(n => n[0]).join('').toUpperCase().slice(0, 2);
     }
     return user?.email?.slice(0, 2).toUpperCase() || 'U';
   };
-
   const handleSignOut = async () => {
     await signOut();
     navigate('/auth');
   };
-
-  return (
-    <div className="min-h-screen bg-background">
+  return <div className="min-h-screen bg-background">
       {/* Mobile Header */}
       <div className="lg:hidden fixed top-0 left-0 right-0 z-50 bg-card border-b px-4 py-3 flex items-center justify-between">
         <div className="flex items-center gap-2">
-          <Button
-            variant="ghost"
-            size="icon"
-            onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
-          >
+          <Button variant="ghost" size="icon" onClick={() => setMobileMenuOpen(!mobileMenuOpen)}>
             {mobileMenuOpen ? <X className="h-5 w-5" /> : <Menu className="h-5 w-5" />}
           </Button>
           <img src={lionLogo} alt="Nümtema Face" className="h-8" />
@@ -116,70 +105,40 @@ const MainLayout = ({ children }: MainLayoutProps) => {
       </div>
 
       {/* Sidebar */}
-      <aside
-        className={cn(
-          'fixed top-0 left-0 z-40 h-screen transition-all duration-300 bg-card border-r',
-          'hidden lg:block',
-          sidebarOpen ? 'w-64' : 'w-20'
-        )}
-      >
+      <aside className={cn('fixed top-0 left-0 z-40 h-screen transition-all duration-300 bg-card border-r', 'hidden lg:block', sidebarOpen ? 'w-64' : 'w-20')}>
         <div className="flex flex-col h-full">
           {/* Logo */}
           <div className="p-4 flex items-center justify-between">
-            {sidebarOpen ? (
-              <>
+            {sidebarOpen ? <>
                 <Link to="/dashboard" className="flex items-center gap-2">
                   <img src={lionLogo} alt="Nümtema Face" className="h-10" />
                 </Link>
-                <Button
-                  variant="ghost"
-                  size="icon"
-                  onClick={() => setSidebarOpen(false)}
-                  className="hidden lg:flex hover:bg-accent/10 transition-smooth"
-                >
+                <Button variant="ghost" size="icon" onClick={() => setSidebarOpen(false)} className="hidden lg:flex hover:bg-accent/10 transition-smooth">
                   <ChevronLeft className="h-5 w-5" />
                 </Button>
-              </>
-            ) : (
-              <Button
-                variant="ghost"
-                size="icon"
-                onClick={() => setSidebarOpen(true)}
-                className="mx-auto hover:bg-accent/10 transition-smooth"
-              >
+              </> : <Button variant="ghost" size="icon" onClick={() => setSidebarOpen(true)} className="mx-auto hover:bg-accent/10 transition-smooth">
                 <ChevronRight className="h-5 w-5" />
-              </Button>
-            )}
+              </Button>}
           </div>
 
           <Separator />
 
           {/* Navigation */}
           <nav className="flex-1 p-4 space-y-2">
-            {navItems.map((item) => {
-              const Icon = item.icon;
-              const isActive = location.pathname === item.path;
-              
-              return (
-                <Link key={item.path} to={item.path}>
-                  <Button
-                    variant={isActive ? 'default' : 'ghost'}
-                    className={cn(
-                      'w-full justify-start transition-smooth',
-                      !sidebarOpen && 'justify-center'
-                    )}
-                  >
+            {navItems.map(item => {
+            const Icon = item.icon;
+            const isActive = location.pathname === item.path;
+            return <Link key={item.path} to={item.path}>
+                  <Button variant={isActive ? 'default' : 'ghost'} className={cn('w-full justify-start transition-smooth', !sidebarOpen && 'justify-center')}>
                     <Icon className={cn('h-5 w-5', sidebarOpen && 'mr-3')} />
                     {sidebarOpen && <span>{item.label}</span>}
                   </Button>
-                </Link>
-              );
-            })}
+                </Link>;
+          })}
           </nav>
 
           {/* AI Usage */}
-          {sidebarOpen && (
-            <div className="p-4 space-y-2">
+          {sidebarOpen && <div className="p-4 space-y-2">
               <div className="flex items-center justify-between text-sm">
                 <div className="flex items-center gap-2">
                   <Sparkles className="h-4 w-4 text-accent" />
@@ -190,15 +149,13 @@ const MainLayout = ({ children }: MainLayoutProps) => {
                 </span>
               </div>
               <Progress value={percentage} className="h-2" />
-            </div>
-          )}
+            </div>}
 
           <Separator />
 
           {/* User Profile */}
           <div className="p-4">
-            {sidebarOpen ? (
-              <DropdownMenu>
+            {sidebarOpen ? <DropdownMenu>
                 <DropdownMenuTrigger asChild>
                   <Button variant="ghost" className="w-full justify-start">
                     <Avatar className="h-8 w-8 mr-3">
@@ -228,9 +185,7 @@ const MainLayout = ({ children }: MainLayoutProps) => {
                     Déconnexion
                   </DropdownMenuItem>
                 </DropdownMenuContent>
-              </DropdownMenu>
-            ) : (
-              <DropdownMenu>
+              </DropdownMenu> : <DropdownMenu>
                 <DropdownMenuTrigger asChild>
                   <Button variant="ghost" size="icon" className="mx-auto">
                     <Avatar className="h-8 w-8">
@@ -250,36 +205,24 @@ const MainLayout = ({ children }: MainLayoutProps) => {
                     Déconnexion
                   </DropdownMenuItem>
                 </DropdownMenuContent>
-              </DropdownMenu>
-            )}
+              </DropdownMenu>}
           </div>
         </div>
       </aside>
 
       {/* Mobile Sidebar */}
-      {mobileMenuOpen && (
-        <div className="lg:hidden fixed inset-0 z-30 bg-background">
+      {mobileMenuOpen && <div className="lg:hidden fixed inset-0 z-30 bg-background">
           <div className="pt-16 p-4 space-y-2">
-            {navItems.map((item) => {
-              const Icon = item.icon;
-              const isActive = location.pathname === item.path;
-              
-              return (
-                <Link
-                  key={item.path}
-                  to={item.path}
-                  onClick={() => setMobileMenuOpen(false)}
-                >
-                  <Button
-                    variant={isActive ? 'default' : 'ghost'}
-                    className="w-full justify-start"
-                  >
+            {navItems.map(item => {
+          const Icon = item.icon;
+          const isActive = location.pathname === item.path;
+          return <Link key={item.path} to={item.path} onClick={() => setMobileMenuOpen(false)}>
+                  <Button variant={isActive ? 'default' : 'ghost'} className="w-full justify-start text-xs text-left border">
                     <Icon className="h-5 w-5 mr-3" />
                     <span>{item.label}</span>
                   </Button>
-                </Link>
-              );
-            })}
+                </Link>;
+        })}
             
             <Separator className="my-4" />
             
@@ -296,21 +239,12 @@ const MainLayout = ({ children }: MainLayoutProps) => {
               <Progress value={percentage} className="h-2 mx-3" />
             </div>
           </div>
-        </div>
-      )}
+        </div>}
 
       {/* Main Content */}
-      <main
-        className={cn(
-          'transition-all duration-300',
-          'pt-16 lg:pt-0',
-          sidebarOpen ? 'lg:ml-64' : 'lg:ml-20'
-        )}
-      >
+      <main className={cn('transition-all duration-300', 'pt-16 lg:pt-0', sidebarOpen ? 'lg:ml-64' : 'lg:ml-20')}>
         {children}
       </main>
-    </div>
-  );
+    </div>;
 };
-
 export default MainLayout;
