@@ -8,7 +8,7 @@ import { Progress } from '@/components/ui/progress';
 import { Separator } from '@/components/ui/separator';
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuLabel, DropdownMenuSeparator, DropdownMenuTrigger } from '@/components/ui/dropdown-menu';
 import { LayoutDashboard, Video, BarChart3, Settings, LogOut, Sparkles, AlignJustify, X, ChevronLeft, ChevronRight, User, FileText, CreditCard } from 'lucide-react';
-import numtemaBillsLogo from '@/assets/numtema-bills-logo.png';
+import numtemaFaceLogo from '@/assets/numtema-face-logo.png';
 import { useState } from 'react';
 import { cn } from '@/lib/utils';
 interface MainLayoutProps {
@@ -72,7 +72,7 @@ const MainLayout = ({
           <Button variant="ghost" size="icon" onClick={() => setMobileMenuOpen(!mobileMenuOpen)}>
             {mobileMenuOpen ? <X className="h-5 w-5" /> : <AlignJustify className="h-5 w-5" />}
           </Button>
-          <img src={numtemaBillsLogo} alt="Nümtema Bills" className="h-8" />
+          <img src={numtemaFaceLogo} alt="Nümtema Face" className="h-8" />
         </div>
         <DropdownMenu>
           <DropdownMenuTrigger asChild>
@@ -111,7 +111,7 @@ const MainLayout = ({
           <div className="p-4 flex items-center justify-between">
             {sidebarOpen ? <>
                 <Link to="/dashboard" className="flex items-center gap-2">
-                  <img src={numtemaBillsLogo} alt="Nümtema Bills" className="h-10" />
+                  <img src={numtemaFaceLogo} alt="Nümtema Face" className="h-10" />
                 </Link>
                 <Button variant="ghost" size="icon" onClick={() => setSidebarOpen(false)} className="hidden lg:flex hover:bg-accent/10 transition-smooth">
                   <ChevronLeft className="h-5 w-5" />
