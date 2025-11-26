@@ -4,8 +4,10 @@ import { TemplateCard } from '@/components/templates/TemplateCard';
 import { supabase } from '@/integrations/supabase/client';
 import { Input } from '@/components/ui/input';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { Search } from 'lucide-react';
+import { Search, Sparkles } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
+import { Button } from '@/components/ui/button';
+import CreateFunnelModal from '@/components/funnels/CreateFunnelModal';
 
 interface Template {
   id: string;
@@ -29,6 +31,7 @@ export default function Templates() {
   const [selectedCategory, setSelectedCategory] = useState<string>('all');
   const [searchQuery, setSearchQuery] = useState('');
   const [loading, setLoading] = useState(true);
+  const [createModalOpen, setCreateModalOpen] = useState(false);
   const { toast } = useToast();
 
   useEffect(() => {
@@ -95,11 +98,21 @@ export default function Templates() {
   return (
     <MainLayout>
       <div className="space-y-6 p-4 sm:p-6">
-        <div>
-          <h1 className="text-2xl sm:text-3xl font-bold">Templates de Funnels</h1>
-          <p className="text-sm sm:text-base text-muted-foreground mt-2">
-            Démarrez rapidement avec nos templates pré-configurés
-          </p>
+        <div className="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-4">
+          <div>
+            <h1 className="text-2xl sm:text-3xl font-bold">Templates de Funnels</h1>
+            <p className="text-sm sm:text-base text-muted-foreground mt-2">
+              Démarrez rapidement avec nos templates pré-configurés
+            </p>
+          </div>
+          <Button 
+            onClick={() => setCreateModalOpen(true)}
+            size="lg"
+            className="w-full sm:w-auto"
+          >
+            <Sparkles className="mr-2 h-5 w-5" />
+            Créer avec l'IA
+          </Button>
         </div>
 
         <div className="flex gap-4 flex-col sm:flex-row">
@@ -149,6 +162,11 @@ export default function Templates() {
           </div>
         )}
       </div>
+      
+      <CreateFunnelModal 
+        open={createModalOpen} 
+        onOpenChange={setCreateModalOpen} 
+      />
     </MainLayout>
   );
 }
