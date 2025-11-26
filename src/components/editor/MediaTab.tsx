@@ -231,8 +231,8 @@ export function MediaTab({ step, onUpdate }: MediaTabProps) {
                     <SelectContent>
                       <SelectItem value="google/gemini-2.5-flash-image-preview">
                         <div className="flex flex-col items-start">
-                          <span className="font-medium">Nano Banana 🍌</span>
-                          <span className="text-xs text-muted-foreground">Rapide • Image jusqu'à 1024x1024px</span>
+                          <span className="font-medium">Nano Banana</span>
+                          <span className="text-xs text-muted-foreground">Rapide - Image jusqu'à 1024x1024px</span>
                         </div>
                       </SelectItem>
                       <SelectItem value="imagen-4-generate-001">

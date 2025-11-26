@@ -221,22 +221,22 @@ const CreateFunnelModal = ({ open, onOpenChange }: CreateFunnelModalProps) => {
                 </SelectTrigger>
                 <SelectContent>
                   <SelectItem value="google/gemini-2.5-flash">
-                    Gemini Flash (Rapide) ⚡
+                    Gemini Flash (Rapide)
                   </SelectItem>
                   <SelectItem value="google/gemini-2.5-pro">
-                    Gemini Pro (Précis) 🎯
+                    Gemini Pro (Précis)
                   </SelectItem>
                   <SelectItem value="google/gemini-2.5-flash-lite">
-                    Gemini Flash Lite (Ultra rapide) 🚀
+                    Gemini Flash Lite (Ultra rapide)
                   </SelectItem>
                   <SelectItem value="openai/gpt-5">
-                    GPT-5 (Puissant) 💪
+                    GPT-5 (Puissant)
                   </SelectItem>
                   <SelectItem value="openai/gpt-5-mini">
-                    GPT-5 Mini (Équilibré) ⚖️
+                    GPT-5 Mini (Équilibré)
                   </SelectItem>
                   <SelectItem value="openai/gpt-5-nano">
-                    GPT-5 Nano (Économique) 💰
+                    GPT-5 Nano (Économique)
                   </SelectItem>
                 </SelectContent>
               </Select>
