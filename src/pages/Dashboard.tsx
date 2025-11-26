@@ -28,11 +28,11 @@ const Dashboard = () => {
 
   const getTipOfDay = () => {
     const tips = [
-      "Utilisez des vidéos courtes pour maintenir l'engagement 🎥",
-      "Testez différents call-to-action pour optimiser vos conversions 🎯",
-      "L'IA peut générer vos médias automatiquement ✨",
-      "Analysez vos données pour comprendre votre audience 📊",
-      "Un bon titre fait 50% du succès de votre funnel 💡",
+      "Utilisez des vidéos courtes pour maintenir l'engagement",
+      "Testez différents call-to-action pour optimiser vos conversions",
+      "L'IA peut générer vos médias automatiquement",
+      "Analysez vos données pour comprendre votre audience",
+      "Un bon titre fait 50% du succès de votre funnel",
     ];
     return tips[new Date().getDate() % tips.length];
   };
