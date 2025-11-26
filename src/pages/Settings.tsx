@@ -78,31 +78,31 @@ const Settings = () => {
 
   return (
     <MainLayout>
-      <div className="p-6 space-y-8 max-w-5xl mx-auto">
+      <div className="p-4 sm:p-6 space-y-6 sm:space-y-8 max-w-5xl mx-auto">
         <div>
-          <h1 className="text-4xl font-bold">Paramètres</h1>
-          <p className="text-muted-foreground mt-2">
+          <h1 className="text-2xl sm:text-3xl lg:text-4xl font-bold">Paramètres</h1>
+          <p className="text-sm sm:text-base text-muted-foreground mt-2">
             Gérez votre compte et vos préférences
           </p>
         </div>
 
         <Tabs defaultValue="profile" className="w-full">
-          <TabsList className="grid w-full grid-cols-4">
-            <TabsTrigger value="profile">
-              <User className="mr-2 h-4 w-4" />
-              Profil
+          <TabsList className="grid w-full grid-cols-2 sm:grid-cols-4 gap-1">
+            <TabsTrigger value="profile" className="text-xs sm:text-sm">
+              <User className="mr-0 sm:mr-2 h-4 w-4" />
+              <span className="hidden sm:inline">Profil</span>
             </TabsTrigger>
-            <TabsTrigger value="plan">
-              <CreditCard className="mr-2 h-4 w-4" />
-              Plan
+            <TabsTrigger value="plan" className="text-xs sm:text-sm">
+              <CreditCard className="mr-0 sm:mr-2 h-4 w-4" />
+              <span className="hidden sm:inline">Plan</span>
             </TabsTrigger>
-            <TabsTrigger value="ai">
-              <Sparkles className="mr-2 h-4 w-4" />
-              IA
+            <TabsTrigger value="ai" className="text-xs sm:text-sm">
+              <Sparkles className="mr-0 sm:mr-2 h-4 w-4" />
+              <span className="hidden sm:inline">IA</span>
             </TabsTrigger>
-            <TabsTrigger value="notifications">
-              <Bell className="mr-2 h-4 w-4" />
-              Notifications
+            <TabsTrigger value="notifications" className="text-xs sm:text-sm">
+              <Bell className="mr-0 sm:mr-2 h-4 w-4" />
+              <span className="hidden sm:inline">Notifications</span>
             </TabsTrigger>
           </TabsList>
 

@@ -161,16 +161,16 @@ const Funnels = () => {
 
   return (
     <MainLayout>
-      <div className="p-6 space-y-8 max-w-7xl mx-auto">
+      <div className="p-4 sm:p-6 space-y-6 sm:space-y-8 max-w-7xl mx-auto">
         {/* Header */}
-        <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
+        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
           <div>
-            <h1 className="text-4xl font-bold">Mes Funnels</h1>
-            <p className="text-muted-foreground mt-2">
+            <h1 className="text-2xl sm:text-3xl lg:text-4xl font-bold">Mes Funnels</h1>
+            <p className="text-sm sm:text-base text-muted-foreground mt-2">
               {funnels.length} / {profile?.max_funnels || 3} funnels utilisés
             </p>
           </div>
-          <Button size="lg" onClick={() => setCreateModalOpen(true)} className="shadow-elegant">
+          <Button size="lg" onClick={() => setCreateModalOpen(true)} className="shadow-elegant w-full sm:w-auto">
             <PlusCircle className="mr-2 h-5 w-5" />
             Nouveau Funnel
           </Button>
@@ -178,8 +178,8 @@ const Funnels = () => {
 
         {/* Filters */}
         <Card>
-          <CardContent className="pt-6">
-            <div className="flex flex-col md:flex-row gap-4">
+          <CardContent className="pt-4 sm:pt-6">
+            <div className="flex flex-col gap-3 sm:gap-4">
               <div className="flex-1 relative">
                 <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground" />
                 <Input
@@ -189,32 +189,34 @@ const Funnels = () => {
                   className="pl-10"
                 />
               </div>
-              <Select value={statusFilter} onValueChange={setStatusFilter}>
-                <SelectTrigger className="w-full md:w-48">
-                  <SelectValue placeholder="Statut" />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="all">Tous</SelectItem>
-                  <SelectItem value="published">Publiés</SelectItem>
-                  <SelectItem value="draft">Brouillons</SelectItem>
-                  <SelectItem value="inactive">Inactifs</SelectItem>
-                </SelectContent>
-              </Select>
-              <div className="flex gap-2">
-                <Button
-                  variant={viewMode === 'grid' ? 'default' : 'outline'}
-                  size="icon"
-                  onClick={() => setViewMode('grid')}
-                >
-                  <Grid3x3 className="h-4 w-4" />
-                </Button>
-                <Button
-                  variant={viewMode === 'list' ? 'default' : 'outline'}
-                  size="icon"
-                  onClick={() => setViewMode('list')}
-                >
-                  <List className="h-4 w-4" />
-                </Button>
+              <div className="flex flex-col sm:flex-row gap-3 sm:gap-4">
+                <Select value={statusFilter} onValueChange={setStatusFilter}>
+                  <SelectTrigger className="w-full sm:w-48">
+                    <SelectValue placeholder="Statut" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="all">Tous</SelectItem>
+                    <SelectItem value="published">Publiés</SelectItem>
+                    <SelectItem value="draft">Brouillons</SelectItem>
+                    <SelectItem value="inactive">Inactifs</SelectItem>
+                  </SelectContent>
+                </Select>
+                <div className="flex gap-2">
+                  <Button
+                    variant={viewMode === 'grid' ? 'default' : 'outline'}
+                    size="icon"
+                    onClick={() => setViewMode('grid')}
+                  >
+                    <Grid3x3 className="h-4 w-4" />
+                  </Button>
+                  <Button
+                    variant={viewMode === 'list' ? 'default' : 'outline'}
+                    size="icon"
+                    onClick={() => setViewMode('list')}
+                  >
+                    <List className="h-4 w-4" />
+                  </Button>
+                </div>
               </div>
             </div>
           </CardContent>
@@ -238,7 +240,7 @@ const Funnels = () => {
             </CardContent>
           </Card>
         ) : viewMode === 'grid' ? (
-          <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">{/* ... keep existing grid code ... */}
+          <div className="grid gap-4 sm:gap-6 grid-cols-1 md:grid-cols-2 lg:grid-cols-3">{/* ... keep existing grid code ... */}
             {funnels.map((funnel) => (
               <Card key={funnel.id} className="hover:shadow-elegant transition-smooth group">
                 <CardHeader>
@@ -326,9 +328,9 @@ const Funnels = () => {
             <CardContent className="p-0">
               <div className="divide-y">
                 {funnels.map((funnel) => (
-                  <div key={funnel.id} className="flex items-center justify-between p-4 hover:bg-muted/50 transition-colors">
+                  <div key={funnel.id} className="flex flex-col sm:flex-row sm:items-center sm:justify-between p-4 hover:bg-muted/50 transition-colors gap-4">
                     <div className="flex-1 min-w-0">
-                      <div className="flex items-center gap-3">
+                      <div className="flex items-center gap-3 flex-wrap">
                         <h3 className="font-semibold truncate">{funnel.name}</h3>
                         {getStatusBadge(funnel)}
                       </div>
@@ -336,18 +338,20 @@ const Funnels = () => {
                         {funnel.description || 'Aucune description'}
                       </p>
                     </div>
-                    <div className="flex items-center gap-8 ml-4">
-                      <div className="text-center">
-                        <div className="font-semibold">{funnel.total_views}</div>
-                        <div className="text-xs text-muted-foreground">Vues</div>
-                      </div>
-                      <div className="text-center">
-                        <div className="font-semibold">{funnel.total_submissions}</div>
-                        <div className="text-xs text-muted-foreground">Conv.</div>
-                      </div>
-                      <div className="text-center">
-                        <div className="font-semibold">{getConversionRate(funnel)}</div>
-                        <div className="text-xs text-muted-foreground">Taux</div>
+                    <div className="flex items-center justify-between sm:justify-end gap-4 sm:gap-8 sm:ml-4">
+                      <div className="flex gap-4 sm:gap-8">
+                        <div className="text-center">
+                          <div className="font-semibold text-sm sm:text-base">{funnel.total_views}</div>
+                          <div className="text-xs text-muted-foreground">Vues</div>
+                        </div>
+                        <div className="text-center">
+                          <div className="font-semibold text-sm sm:text-base">{funnel.total_submissions}</div>
+                          <div className="text-xs text-muted-foreground">Conv.</div>
+                        </div>
+                        <div className="text-center">
+                          <div className="font-semibold text-sm sm:text-base">{getConversionRate(funnel)}</div>
+                          <div className="text-xs text-muted-foreground">Taux</div>
+                        </div>
                       </div>
                       <DropdownMenu>
                         <DropdownMenuTrigger asChild>

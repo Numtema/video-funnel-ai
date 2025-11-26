@@ -39,12 +39,12 @@ const Dashboard = () => {
 
   return (
     <MainLayout>
-      <div className="p-6 space-y-8 max-w-7xl mx-auto">
+      <div className="p-4 sm:p-6 space-y-6 sm:space-y-8 max-w-7xl mx-auto">
         {/* Welcome Banner */}
         <WelcomeBanner />
 
         {/* Stats Cards */}
-        <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-4">
+        <div className="grid gap-4 sm:gap-6 grid-cols-1 sm:grid-cols-2 lg:grid-cols-4">
           <Card className="hover:shadow-elegant transition-smooth animate-scale-in">
             <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
               <CardTitle className="text-sm font-medium">Funnels Actifs</CardTitle>
@@ -115,7 +115,7 @@ const Dashboard = () => {
             <CardTitle>Actions Rapides</CardTitle>
             <CardDescription>Commencez dès maintenant</CardDescription>
           </CardHeader>
-          <CardContent className="grid gap-4 md:grid-cols-3">
+          <CardContent className="grid gap-4 sm:grid-cols-2 md:grid-cols-3">
             <Button 
               size="lg" 
               onClick={() => setCreateModalOpen(true)}
