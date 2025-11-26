@@ -21,7 +21,7 @@ export type Database = {
           device: string | null
           funnel_id: string
           id: string
-          ip_address: unknown | null
+          ip_address: unknown
           score: number | null
           source: string | null
           started_at: string
@@ -35,7 +35,7 @@ export type Database = {
           device?: string | null
           funnel_id: string
           id: string
-          ip_address?: unknown | null
+          ip_address?: unknown
           score?: number | null
           source?: string | null
           started_at: string
@@ -49,7 +49,7 @@ export type Database = {
           device?: string | null
           funnel_id?: string
           id?: string
-          ip_address?: unknown | null
+          ip_address?: unknown
           score?: number | null
           source?: string | null
           started_at?: string
@@ -287,7 +287,7 @@ export type Database = {
           device: string | null
           funnel_id: string
           id: string
-          ip_address: unknown | null
+          ip_address: unknown
           score: number | null
           session_id: string
           source: string | null
@@ -305,7 +305,7 @@ export type Database = {
           device?: string | null
           funnel_id: string
           id?: string
-          ip_address?: unknown | null
+          ip_address?: unknown
           score?: number | null
           session_id: string
           source?: string | null
@@ -323,7 +323,7 @@ export type Database = {
           device?: string | null
           funnel_id?: string
           id?: string
-          ip_address?: unknown | null
+          ip_address?: unknown
           score?: number | null
           session_id?: string
           source?: string | null
@@ -451,10 +451,7 @@ export type Database = {
         }
         Returns: boolean
       }
-      increment_ai_usage: {
-        Args: { _user_id: string }
-        Returns: undefined
-      }
+      increment_ai_usage: { Args: { _user_id: string }; Returns: undefined }
       increment_funnel_submissions: {
         Args: { funnel_id: string }
         Returns: undefined

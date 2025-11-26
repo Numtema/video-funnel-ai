@@ -24,10 +24,12 @@ import {
   Menu,
   X,
   ChevronLeft,
+  ChevronRight,
   User,
   FileText,
   CreditCard
 } from 'lucide-react';
+import lionLogo from '@/assets/lion-logo.svg';
 import { useState } from 'react';
 import { cn } from '@/lib/utils';
 
@@ -81,7 +83,7 @@ const MainLayout = ({ children }: MainLayoutProps) => {
           >
             {mobileMenuOpen ? <X className="h-5 w-5" /> : <Menu className="h-5 w-5" />}
           </Button>
-          <img src="/src/assets/logo.svg" alt="Nümtema Face" className="h-8" />
+          <img src={lionLogo} alt="Nümtema Face" className="h-8" />
         </div>
         <DropdownMenu>
           <DropdownMenuTrigger asChild>
@@ -127,13 +129,13 @@ const MainLayout = ({ children }: MainLayoutProps) => {
             {sidebarOpen ? (
               <>
                 <Link to="/dashboard" className="flex items-center gap-2">
-                  <img src="/src/assets/logo.svg" alt="Nümtema Face" className="h-10" />
+                  <img src={lionLogo} alt="Nümtema Face" className="h-10" />
                 </Link>
                 <Button
                   variant="ghost"
                   size="icon"
                   onClick={() => setSidebarOpen(false)}
-                  className="hidden lg:flex"
+                  className="hidden lg:flex hover:bg-accent/10 transition-smooth"
                 >
                   <ChevronLeft className="h-5 w-5" />
                 </Button>
@@ -143,9 +145,9 @@ const MainLayout = ({ children }: MainLayoutProps) => {
                 variant="ghost"
                 size="icon"
                 onClick={() => setSidebarOpen(true)}
-                className="mx-auto"
+                className="mx-auto hover:bg-accent/10 transition-smooth"
               >
-                <Menu className="h-5 w-5" />
+                <ChevronRight className="h-5 w-5" />
               </Button>
             )}
           </div>
