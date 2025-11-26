@@ -71,6 +71,11 @@ export interface QuizConfig {
     instagram?: string;
     linkedin?: string;
   };
+  whatsapp?: {
+    enabled: boolean;
+    phoneNumber?: string;
+    message?: string;
+  };
 }
 
 export interface Funnel {

@@ -133,6 +133,83 @@ export function FunnelSettings({ config, onUpdate }: FunnelSettingsProps) {
         </CollapsibleContent>
       </Collapsible>
 
+      {/* WhatsApp Section */}
+      <Collapsible
+        open={openSections.includes('whatsapp')}
+        onOpenChange={() => toggleSection('whatsapp')}
+      >
+        <CollapsibleTrigger className="flex items-center justify-between w-full p-3 hover:bg-muted rounded-lg">
+          <span className="font-medium text-sm">WhatsApp Marketing</span>
+          <ChevronDown
+            className={`w-4 h-4 transition-transform ${
+              openSections.includes('whatsapp') ? 'rotate-180' : ''
+            }`}
+          />
+        </CollapsibleTrigger>
+        <CollapsibleContent className="pt-3 space-y-4">
+          <div className="flex items-center justify-between">
+            <Label htmlFor="whatsapp-enabled">Activer WhatsApp</Label>
+            <Switch
+              id="whatsapp-enabled"
+              checked={config.whatsapp?.enabled || false}
+              onCheckedChange={(enabled) =>
+                onUpdate({
+                  ...config,
+                  whatsapp: {
+                    ...config.whatsapp,
+                    enabled,
+                  },
+                })
+              }
+            />
+          </div>
+
+          {config.whatsapp?.enabled && (
+            <>
+              <div>
+                <Label htmlFor="whatsapp-phone">Numéro WhatsApp</Label>
+                <Input
+                  id="whatsapp-phone"
+                  value={config.whatsapp.phoneNumber || ''}
+                  onChange={(e) =>
+                    onUpdate({
+                      ...config,
+                      whatsapp: {
+                        ...config.whatsapp,
+                        phoneNumber: e.target.value,
+                      },
+                    })
+                  }
+                  placeholder="33612345678"
+                  className="mt-2"
+                />
+                <p className="text-xs text-muted-foreground mt-1">
+                  Format international sans + (ex: 33612345678)
+                </p>
+              </div>
+              <div>
+                <Label htmlFor="whatsapp-message">Message pré-rempli</Label>
+                <Input
+                  id="whatsapp-message"
+                  value={config.whatsapp.message || ''}
+                  onChange={(e) =>
+                    onUpdate({
+                      ...config,
+                      whatsapp: {
+                        ...config.whatsapp,
+                        message: e.target.value,
+                      },
+                    })
+                  }
+                  placeholder="Bonjour, je suis intéressé(e) par..."
+                  className="mt-2"
+                />
+              </div>
+            </>
+          )}
+        </CollapsibleContent>
+      </Collapsible>
+
       {/* Social Links Section */}
       <Collapsible
         open={openSections.includes('social')}
