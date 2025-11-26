@@ -1,5 +1,5 @@
 import { useAuth } from '@/context/AuthContext';
-import { Sparkles, Sun, Moon, Cloud } from 'lucide-react';
+import { Sparkles, Sun, Moon, CheckCircle2, Clock } from 'lucide-react';
 
 export function WelcomeBanner() {
   const { user, profile } = useAuth();
@@ -12,11 +12,11 @@ export function WelcomeBanner() {
   };
 
   const tips = [
-    "💡 Utilisez l'IA pour générer vos images de funnel rapidement",
-    "🎯 Un bon funnel commence par une question claire",
-    "📊 Activez le scoring pour qualifier vos leads automatiquement",
-    "🎨 Personnalisez les couleurs pour matcher votre marque",
-    "🚀 Publiez votre funnel pour commencer à collecter des leads",
+    "Utilisez l'IA pour générer vos images de funnel rapidement",
+    "Un bon funnel commence par une question claire",
+    "Activez le scoring pour qualifier vos leads automatiquement",
+    "Personnalisez les couleurs pour matcher votre marque",
+    "Publiez votre funnel pour commencer à collecter des leads",
   ];
 
   const randomTip = tips[Math.floor(Math.random() * tips.length)];
@@ -50,12 +50,27 @@ export function WelcomeBanner() {
 
         {isNewUser && (
           <div className="mt-4 p-4 bg-accent/10 rounded-lg border border-accent/20">
-            <h3 className="font-semibold text-accent mb-2">🎉 Bienvenue dans Nümtema Face !</h3>
-            <ul className="space-y-1 text-sm text-muted-foreground">
-              <li>✅ Compte créé</li>
-              <li className="opacity-50">⏳ Créer votre premier funnel</li>
-              <li className="opacity-50">⏳ Générer du contenu avec l'IA</li>
-              <li className="opacity-50">⏳ Publier et partager</li>
+            <h3 className="font-semibold text-accent mb-3 flex items-center gap-2">
+              <Sparkles className="w-5 h-5" />
+              Bienvenue dans Nümtema Face !
+            </h3>
+            <ul className="space-y-2 text-sm">
+              <li className="flex items-center gap-2 text-foreground">
+                <CheckCircle2 className="w-4 h-4 text-success flex-shrink-0" />
+                <span>Compte créé</span>
+              </li>
+              <li className="flex items-center gap-2 text-muted-foreground opacity-60">
+                <Clock className="w-4 h-4 flex-shrink-0" />
+                <span>Créer votre premier funnel</span>
+              </li>
+              <li className="flex items-center gap-2 text-muted-foreground opacity-60">
+                <Clock className="w-4 h-4 flex-shrink-0" />
+                <span>Générer du contenu avec l'IA</span>
+              </li>
+              <li className="flex items-center gap-2 text-muted-foreground opacity-60">
+                <Clock className="w-4 h-4 flex-shrink-0" />
+                <span>Publier et partager</span>
+              </li>
             </ul>
           </div>
         )}
