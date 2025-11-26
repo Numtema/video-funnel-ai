@@ -213,7 +213,8 @@ export default function FunnelPlayer() {
               funnelId={funnelId}
               answers={answers}
               score={score}
-              onNext={handleNext} 
+              onNext={handleNext}
+              config={config}
             />
           )}
           {currentStep.type === StepType.CalendarEmbed && (

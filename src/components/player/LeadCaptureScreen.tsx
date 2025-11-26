@@ -1,11 +1,11 @@
 import { useState } from 'react';
-import { QuizStep, ThemeConfig } from '@/types/funnel';
+import { QuizStep, ThemeConfig, QuizConfig } from '@/types/funnel';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { supabase } from '@/integrations/supabase/client';
 import { toast } from '@/hooks/use-toast';
-import { Send } from 'lucide-react';
+import { Send, MessageCircle } from 'lucide-react';
 
 interface LeadCaptureScreenProps {
   step: QuizStep;
@@ -14,13 +14,15 @@ interface LeadCaptureScreenProps {
   answers: Record<string, any>;
   score: number;
   onNext: (data: any) => void;
+  config?: QuizConfig;
 }
 
-export function LeadCaptureScreen({ step, theme, funnelId, answers, score, onNext }: LeadCaptureScreenProps) {
+export function LeadCaptureScreen({ step, theme, funnelId, answers, score, onNext, config }: LeadCaptureScreenProps) {
   const [name, setName] = useState('');
   const [email, setEmail] = useState('');
   const [phone, setPhone] = useState('');
   const [submitting, setSubmitting] = useState(false);
+  const [submitted, setSubmitted] = useState(false);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -38,6 +40,7 @@ export function LeadCaptureScreen({ step, theme, funnelId, answers, score, onNex
 
     try {
       await onNext({ name, email, phone, subscribed: false });
+      setSubmitted(true);
     } catch (error) {
       console.error('Submission error:', error);
       toast({
@@ -47,6 +50,43 @@ export function LeadCaptureScreen({ step, theme, funnelId, answers, score, onNex
       });
       setSubmitting(false);
     }
+  };
+
+  const handleWhatsAppClick = () => {
+    if (!config?.whatsapp?.phoneNumber) return;
+    
+    const message = config.whatsapp.message || `Bonjour, je viens de compléter le formulaire ${step.title}`;
+    const encodedMessage = encodeURIComponent(message);
+    const whatsappUrl = `https://wa.me/${config.whatsapp.phoneNumber}?text=${encodedMessage}`;
+    
+    window.open(whatsappUrl, '_blank');
+  };
+
+  if (submitted) {
+    return (
+      <div className="space-y-6 p-8 rounded-lg bg-card/50 backdrop-blur text-center">
+        <div className="mb-6">
+          <div className="w-16 h-16 bg-primary/20 rounded-full flex items-center justify-center mx-auto mb-4">
+            <Send className="w-8 h-8 text-primary" />
+          </div>
+          <h2 className="text-3xl font-bold mb-2">Merci !</h2>
+          <p className="text-muted-foreground">
+            Vos informations ont été envoyées avec succès.
+          </p>
+        </div>
+
+        {config?.whatsapp?.enabled && config.whatsapp.phoneNumber && (
+          <Button
+            onClick={handleWhatsAppClick}
+            size="lg"
+            className="bg-[#25D366] hover:bg-[#20BA5A] text-white"
+          >
+            <MessageCircle className="mr-2 h-5 w-5" />
+            Continuer sur WhatsApp
+          </Button>
+        )}
+      </div>
+    );
   };
 
   return (
