@@ -135,17 +135,17 @@ const Analytics = () => {
 
   return (
     <MainLayout>
-      <div className="p-6 space-y-8 max-w-7xl mx-auto">
-        <div>
-          <h1 className="text-4xl font-bold mb-2">Analytics</h1>
-          <p className="text-muted-foreground">
-            Vue d'ensemble des performances de vos funnels
-          </p>
-        </div>
+      <div className="p-4 sm:p-6 space-y-6 sm:space-y-8 max-w-7xl mx-auto">
+        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+          <div>
+            <h1 className="text-2xl sm:text-3xl lg:text-4xl font-bold mb-2">Analytics</h1>
+            <p className="text-sm sm:text-base text-muted-foreground">
+              Vue d'ensemble des performances de vos funnels
+            </p>
+          </div>
 
-        <div className="flex justify-end">
           <Select value={dateRange} onValueChange={setDateRange}>
-            <SelectTrigger className="w-48">
+            <SelectTrigger className="w-full sm:w-48">
               <SelectValue />
             </SelectTrigger>
             <SelectContent>
@@ -156,7 +156,7 @@ const Analytics = () => {
           </Select>
         </div>
 
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-6">
           <KPICard
             title="Total Sessions"
             value={stats.totalSessions}
@@ -183,7 +183,7 @@ const Analytics = () => {
           />
         </div>
 
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 sm:gap-6">
           <SessionsChart data={sessions} loading={loading} />
           <TrafficSourcesChart data={trafficSources} loading={loading} />
         </div>
