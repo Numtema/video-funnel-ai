@@ -35,7 +35,7 @@ export default function FunnelPlayer() {
 
   const loadFunnel = async () => {
     if (!shareToken) {
-      navigate('/404');
+      setLoading(false);
       return;
     }
 
@@ -48,12 +48,13 @@ export default function FunnelPlayer() {
       }
       setLoading(false);
     } catch (error) {
+      console.error('Funnel loading error:', error);
+      setLoading(false);
       toast({
         title: 'Erreur',
         description: 'Funnel introuvable ou inactif',
         variant: 'destructive'
       });
-      navigate('/404');
     }
   };
 
@@ -145,7 +146,20 @@ export default function FunnelPlayer() {
   }
 
   if (!config) {
-    return null;
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-background">
+        <div className="text-center space-y-4 p-8">
+          <h1 className="text-3xl font-bold text-foreground">Funnel introuvable</h1>
+          <p className="text-muted-foreground">Ce funnel n'existe pas ou n'est pas publié.</p>
+          <a 
+            href="/" 
+            className="inline-block mt-4 px-6 py-2 bg-primary text-primary-foreground rounded-lg hover:bg-primary/90 transition-colors"
+          >
+            Retour à l'accueil
+          </a>
+        </div>
+      </div>
+    );
   }
 
   const currentStep = config.steps.find(s => s.id === currentStepId);
