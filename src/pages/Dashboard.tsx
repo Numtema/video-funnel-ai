@@ -1,10 +1,11 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '@/context/AuthContext';
 import { useAIUsage } from '@/hooks/useAIUsage';
 import { useRealtimeLeads } from '@/hooks/useRealtimeLeads';
 import MainLayout from '@/components/layout/MainLayout';
 import CreateFunnelModal from '@/components/funnels/CreateFunnelModal';
+import { OnboardingModal } from '@/components/onboarding/OnboardingModal';
 import { WelcomeBanner } from '@/components/dashboard/WelcomeBanner';
 import { PerformanceChart } from '@/components/dashboard/PerformanceChart';
 import { ActivityFeed } from '@/components/dashboard/ActivityFeed';
@@ -19,9 +20,29 @@ const Dashboard = () => {
   const { usage, percentage } = useAIUsage();
   const navigate = useNavigate();
   const [createModalOpen, setCreateModalOpen] = useState(false);
+  const [onboardingOpen, setOnboardingOpen] = useState(false);
   
   // Setup realtime notifications for new leads
   useRealtimeLeads(user?.id);
+
+  // Check if user has completed onboarding
+  useEffect(() => {
+    if (user) {
+      const hasCompletedOnboarding = localStorage.getItem(
+        `onboarding_completed_${user.id}`
+      );
+      if (!hasCompletedOnboarding) {
+        setOnboardingOpen(true);
+      }
+    }
+  }, [user]);
+
+  const handleOnboardingComplete = () => {
+    if (user) {
+      localStorage.setItem(`onboarding_completed_${user.id}`, 'true');
+    }
+    setOnboardingOpen(false);
+  };
 
   const getGreeting = () => {
     const hour = new Date().getHours();
@@ -169,6 +190,11 @@ const Dashboard = () => {
         <CreateFunnelModal 
           open={createModalOpen}
           onOpenChange={setCreateModalOpen}
+        />
+        
+        <OnboardingModal
+          open={onboardingOpen}
+          onComplete={handleOnboardingComplete}
         />
       </div>
     </MainLayout>

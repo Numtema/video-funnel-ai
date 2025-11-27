@@ -9,7 +9,7 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Badge } from '@/components/ui/badge';
-import { User, CreditCard, Bell, Sparkles, Upload, Lock } from 'lucide-react';
+import { User, CreditCard, Bell, Sparkles, Upload, Lock, AlertTriangle } from 'lucide-react';
 import { z } from 'zod';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
@@ -40,6 +40,7 @@ const Settings = () => {
   const [loading, setLoading] = useState(false);
   const [uploading, setUploading] = useState(false);
   const [plansDialogOpen, setPlansDialogOpen] = useState(false);
+  const [deletingAccount, setDeletingAccount] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   const form = useForm<ProfileFormData>({
@@ -96,6 +97,63 @@ const Settings = () => {
       });
     } finally {
       setLoading(false);
+    }
+  };
+
+  const handleDeleteAccount = async () => {
+    const confirmed = window.confirm(
+      '⚠️ ATTENTION: Cette action est irréversible!\n\n' +
+      'Êtes-vous absolument certain de vouloir supprimer votre compte?\n\n' +
+      'Toutes vos données seront définitivement perdues:\n' +
+      '• Tous vos funnels\n' +
+      '• Tous vos leads\n' +
+      '• Toutes vos analytics\n' +
+      '• Votre profil et paramètres\n\n' +
+      'Tapez "SUPPRIMER" pour confirmer.'
+    );
+
+    if (!confirmed) return;
+
+    const doubleConfirm = window.prompt(
+      'Tapez "SUPPRIMER" en majuscules pour confirmer définitivement:'
+    );
+
+    if (doubleConfirm !== 'SUPPRIMER') {
+      toast({
+        title: 'Suppression annulée',
+        description: 'Votre compte n\'a pas été supprimé',
+      });
+      return;
+    }
+
+    try {
+      setDeletingAccount(true);
+
+      // Soft delete by marking funnels as deleted
+      const { error: funnelsError } = await supabase
+        .from('funnels')
+        .update({ deleted_at: new Date().toISOString() })
+        .eq('user_id', user?.id);
+      
+      if (funnelsError) throw funnelsError;
+
+      toast({
+        title: 'Compte désactivé',
+        description: 'Votre compte et toutes vos données ont été désactivés. Contactez le support pour une suppression définitive.',
+      });
+
+      // Sign out
+      await supabase.auth.signOut();
+      window.location.href = '/';
+    } catch (error: any) {
+      console.error('Delete account error:', error);
+      toast({
+        title: 'Erreur',
+        description: 'Impossible de désactiver le compte. Contactez le support.',
+        variant: 'destructive',
+      });
+    } finally {
+      setDeletingAccount(false);
     }
   };
 
@@ -500,6 +558,41 @@ const Settings = () => {
                   <p className="text-muted-foreground">
                     Préférences de notification à venir
                   </p>
+                </div>
+              </CardContent>
+            </Card>
+
+            {/* Danger Zone */}
+            <Card className="border-destructive">
+              <CardHeader>
+                <CardTitle className="text-destructive flex items-center gap-2">
+                  <AlertTriangle className="h-5 w-5" />
+                  Zone de danger
+                </CardTitle>
+                <CardDescription>
+                  Actions irréversibles sur votre compte
+                </CardDescription>
+              </CardHeader>
+              <CardContent>
+                <div className="bg-destructive/10 border border-destructive/20 rounded-lg p-4">
+                  <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+                    <div className="flex-1">
+                      <p className="font-semibold text-destructive mb-1">
+                        Supprimer mon compte
+                      </p>
+                      <p className="text-sm text-muted-foreground">
+                        Cette action est définitive et irréversible. Toutes vos données seront perdues : funnels, leads, analytics, profil.
+                      </p>
+                    </div>
+                    <Button
+                      variant="destructive"
+                      onClick={handleDeleteAccount}
+                      disabled={deletingAccount}
+                      className="w-full sm:w-auto"
+                    >
+                      {deletingAccount ? 'Suppression...' : 'Supprimer mon compte'}
+                    </Button>
+                  </div>
                 </div>
               </CardContent>
             </Card>
