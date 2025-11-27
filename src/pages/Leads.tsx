@@ -59,9 +59,12 @@ const Leads = () => {
   const loadLeads = async () => {
     try {
       setLoading(true);
+      
+      console.log('🔍 Loading leads with filters:', { statusFilter, funnelFilter, search });
+      
       let query = supabase
         .from('submissions')
-        .select('*, funnels(name)')
+        .select('*, funnels!inner(name)')
         .order('created_at', { ascending: false });
 
       if (statusFilter !== 'all') {
@@ -77,12 +80,19 @@ const Leads = () => {
       }
 
       const { data, error } = await query;
-      if (error) throw error;
+      
+      if (error) {
+        console.error('❌ Error loading leads:', error);
+        throw error;
+      }
+      
+      console.log('✅ Loaded leads:', data?.length || 0);
       setLeads(data as unknown as Lead[]);
     } catch (error: any) {
+      console.error('❌ Load leads exception:', error);
       toast({
         title: 'Erreur',
-        description: error.message,
+        description: error.message || 'Impossible de charger les leads',
         variant: 'destructive',
       });
     } finally {

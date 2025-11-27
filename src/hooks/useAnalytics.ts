@@ -71,8 +71,9 @@ export function useAnalytics(funnelId: string) {
   };
 
   const trackStepEnter = (stepId: string, stepType: string) => {
-    // Create session on first step if not already created
+    // ALWAYS create session on first step
     if (!sessionCreated) {
+      console.log('📊 Creating analytics session for funnel:', funnelId);
       createSession();
     }
     
@@ -82,6 +83,7 @@ export function useAnalytics(funnelId: string) {
       enteredAt: Date.now()
     };
     setSteps(prev => [...prev, visit]);
+    console.log('📍 Step entered:', { stepId, stepType });
   };
 
   const trackStepLeave = (stepId: string, answered: boolean, answer?: any) => {
