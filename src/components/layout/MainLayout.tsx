@@ -7,7 +7,7 @@ import { Avatar, AvatarFallback } from '@/components/ui/avatar';
 import { Progress } from '@/components/ui/progress';
 import { Separator } from '@/components/ui/separator';
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuLabel, DropdownMenuSeparator, DropdownMenuTrigger } from '@/components/ui/dropdown-menu';
-import { LayoutDashboard, Video, BarChart3, Settings, LogOut, Sparkles, AlignJustify, X, ChevronLeft, ChevronRight, User, FileText, CreditCard } from 'lucide-react';
+import { LayoutDashboard, Video, BarChart3, Settings, LogOut, Sparkles, AlignJustify, X, ChevronLeft, ChevronRight, User, FileText, CreditCard, Users } from 'lucide-react';
 import numtemaFaceLogo from '@/assets/numtema-face-logo.png';
 import { useState } from 'react';
 import { cn } from '@/lib/utils';
@@ -46,6 +46,10 @@ const MainLayout = ({
     icon: BarChart3,
     label: 'Analytics',
     path: '/analytics'
+  }, {
+    icon: Users,
+    label: 'Leads',
+    path: '/leads'
   }, {
     icon: CreditCard,
     label: 'Tarifs',

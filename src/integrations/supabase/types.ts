@@ -291,6 +291,7 @@ export type Database = {
           score: number | null
           session_id: string
           source: string | null
+          status: string | null
           subscribed: boolean | null
           user_agent: string | null
         }
@@ -309,6 +310,7 @@ export type Database = {
           score?: number | null
           session_id: string
           source?: string | null
+          status?: string | null
           subscribed?: boolean | null
           user_agent?: string | null
         }
@@ -327,6 +329,7 @@ export type Database = {
           score?: number | null
           session_id?: string
           source?: string | null
+          status?: string | null
           subscribed?: boolean | null
           user_agent?: string | null
         }
