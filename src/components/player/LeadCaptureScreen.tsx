@@ -86,13 +86,13 @@ export function LeadCaptureScreen({ step, theme, funnelId, answers, score, onNex
 
   if (submitted) {
     return (
-      <div className="space-y-6 p-8 rounded-lg bg-card/50 backdrop-blur text-center">
-        <div className="mb-6">
-          <div className="w-16 h-16 bg-primary/20 rounded-full flex items-center justify-center mx-auto mb-4">
-            <Send className="w-8 h-8 text-primary" />
+      <div className="space-y-4 sm:space-y-6 p-4 sm:p-6 md:p-8 rounded-lg bg-card/50 backdrop-blur text-center">
+        <div className="mb-4 sm:mb-6">
+          <div className="w-12 h-12 sm:w-16 sm:h-16 bg-primary/20 rounded-full flex items-center justify-center mx-auto mb-3 sm:mb-4">
+            <Send className="w-6 h-6 sm:w-8 sm:h-8 text-primary" />
           </div>
-          <h2 className="text-3xl font-bold mb-2">Merci !</h2>
-          <p className="text-muted-foreground">
+          <h2 className="text-xl sm:text-2xl md:text-3xl font-bold mb-2 px-2">Merci !</h2>
+          <p className="text-sm sm:text-base text-muted-foreground px-3">
             Vos informations ont été envoyées avec succès.
           </p>
         </div>
@@ -101,9 +101,9 @@ export function LeadCaptureScreen({ step, theme, funnelId, answers, score, onNex
           <Button
             onClick={handleWhatsAppClick}
             size="lg"
-            className="bg-[#25D366] hover:bg-[#20BA5A] text-white"
+            className="bg-[#25D366] hover:bg-[#20BA5A] text-white text-sm sm:text-base"
           >
-            <MessageCircle className="mr-2 h-5 w-5" />
+            <MessageCircle className="mr-2 h-4 w-4 sm:h-5 sm:w-5" />
             Continuer sur WhatsApp
           </Button>
         )}
@@ -112,30 +112,30 @@ export function LeadCaptureScreen({ step, theme, funnelId, answers, score, onNex
   };
 
   return (
-    <div className="space-y-6 p-8 rounded-lg bg-card/50 backdrop-blur">
-      <div className="text-center mb-6">
-        <h2 className="text-2xl sm:text-3xl font-bold break-words">{step.title}</h2>
+    <div className="space-y-4 sm:space-y-6 p-4 sm:p-6 md:p-8 rounded-lg bg-card/50 backdrop-blur">
+      <div className="text-center mb-4 sm:mb-6">
+        <h2 className="text-lg sm:text-xl md:text-2xl lg:text-3xl font-bold break-words leading-tight px-2">{step.title}</h2>
         {step.description && (
-          <p className="text-muted-foreground mt-2 break-words px-2">{step.description}</p>
+          <p className="text-sm sm:text-base text-muted-foreground mt-2 break-words px-3 leading-relaxed">{step.description}</p>
         )}
       </div>
 
-      <form onSubmit={handleSubmit} className="space-y-4">
+      <form onSubmit={handleSubmit} className="space-y-3 sm:space-y-4">
         {step.fields?.includes('name') && (
           <div>
-            <Label htmlFor="name">Nom complet</Label>
+            <Label htmlFor="name" className="text-sm sm:text-base">Nom complet</Label>
             <Input
               id="name"
               value={name}
               onChange={(e) => setName(e.target.value)}
               placeholder="Jean Dupont"
-              className="mt-1"
+              className="mt-1 text-sm sm:text-base"
             />
           </div>
         )}
 
         <div>
-          <Label htmlFor="email">Email *</Label>
+          <Label htmlFor="email" className="text-sm sm:text-base">Email *</Label>
           <Input
             id="email"
             type="email"
@@ -143,20 +143,20 @@ export function LeadCaptureScreen({ step, theme, funnelId, answers, score, onNex
             value={email}
             onChange={(e) => setEmail(e.target.value)}
             placeholder="jean@example.com"
-            className="mt-1"
+            className="mt-1 text-sm sm:text-base"
           />
         </div>
 
         {step.fields?.includes('phone') && (
           <div>
-            <Label htmlFor="phone">Téléphone</Label>
+            <Label htmlFor="phone" className="text-sm sm:text-base">Téléphone</Label>
             <Input
               id="phone"
               type="tel"
               value={phone}
               onChange={(e) => setPhone(e.target.value)}
               placeholder="+33 6 12 34 56 78"
-              className="mt-1"
+              className="mt-1 text-sm sm:text-base"
             />
           </div>
         )}
@@ -165,14 +165,14 @@ export function LeadCaptureScreen({ step, theme, funnelId, answers, score, onNex
           type="submit"
           disabled={submitting}
           size="lg"
-          className="w-full mt-6"
+          className="w-full mt-4 sm:mt-6 text-sm sm:text-base"
           style={{
             backgroundColor: theme.colors.primary,
             color: theme.colors.buttonText
           }}
         >
           {submitting ? 'Envoi...' : 'Envoyer'}
-          <Send className="ml-2 h-5 w-5" />
+          <Send className="ml-2 h-4 w-4 sm:h-5 sm:w-5" />
         </Button>
       </form>
     </div>

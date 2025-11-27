@@ -11,19 +11,19 @@ interface MessageScreenProps {
 
 export function MessageScreen({ step, theme, onNext }: MessageScreenProps) {
   return (
-    <div className="text-center space-y-6 p-8 rounded-lg bg-card/50 backdrop-blur">
+    <div className="text-center space-y-4 sm:space-y-6 p-4 sm:p-6 md:p-8 rounded-lg bg-card/50 backdrop-blur">
       {step.media.type === 'image' && step.media.url && (
         <img 
           src={step.media.url} 
           alt={step.title}
-          className="w-full max-h-64 object-cover rounded-lg mb-4"
+          className="w-full max-h-48 sm:max-h-64 object-cover rounded-lg mb-3 sm:mb-4"
         />
       )}
       
       {step.media.type === 'video' && step.media.url && (
         <>
           {isYouTubeUrl(step.media.url) ? (
-            <div className="relative w-full mb-4" style={{ paddingBottom: '56.25%', maxHeight: '300px' }}>
+            <div className="relative w-full mb-3 sm:mb-4" style={{ paddingBottom: '56.25%', maxHeight: '250px' }}>
               <iframe
                 src={getYouTubeEmbedUrl(step.media.url) || ''}
                 className="absolute top-0 left-0 w-full h-full rounded-lg"
@@ -35,16 +35,16 @@ export function MessageScreen({ step, theme, onNext }: MessageScreenProps) {
             <video 
               src={step.media.url} 
               controls
-              className="w-full max-h-64 rounded-lg mb-4"
+              className="w-full max-h-48 sm:max-h-64 rounded-lg mb-3 sm:mb-4"
             />
           )}
         </>
       )}
 
-      <h2 className="text-2xl sm:text-3xl font-bold break-words">{step.title}</h2>
+      <h2 className="text-lg sm:text-xl md:text-2xl lg:text-3xl font-bold break-words leading-tight px-2">{step.title}</h2>
       
       {step.description && (
-        <p className="text-base sm:text-lg text-muted-foreground max-w-xl mx-auto whitespace-pre-line break-words px-2">
+        <p className="text-sm sm:text-base md:text-lg text-muted-foreground max-w-xl mx-auto whitespace-pre-line break-words px-3 leading-relaxed">
           {step.description}
         </p>
       )}
@@ -56,10 +56,10 @@ export function MessageScreen({ step, theme, onNext }: MessageScreenProps) {
           backgroundColor: theme.colors.primary,
           color: theme.colors.buttonText
         }}
-        className="mt-6"
+        className="mt-4 sm:mt-6"
       >
         Continuer
-        <ArrowRight className="ml-2 h-5 w-5" />
+        <ArrowRight className="ml-2 h-4 w-4 sm:h-5 sm:w-5" />
       </Button>
     </div>
   );
