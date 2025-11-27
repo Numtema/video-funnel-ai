@@ -50,6 +50,44 @@ export function ActivityFeed() {
     loadActivities();
   }, [user]);
 
+  // Setup realtime subscription for automatic updates
+  useEffect(() => {
+    if (!user) return;
+
+    const channel = supabase
+      .channel('activity-feed-updates')
+      .on(
+        'postgres_changes',
+        {
+          event: 'INSERT',
+          schema: 'public',
+          table: 'submissions',
+        },
+        () => {
+          console.log('🔄 New submission detected, refreshing activity feed');
+          loadActivities();
+        }
+      )
+      .on(
+        'postgres_changes',
+        {
+          event: '*',
+          schema: 'public',
+          table: 'funnels',
+          filter: `user_id=eq.${user.id}`,
+        },
+        () => {
+          console.log('🔄 Funnel update detected, refreshing activity feed');
+          loadActivities();
+        }
+      )
+      .subscribe();
+
+    return () => {
+      supabase.removeChannel(channel);
+    };
+  }, [user]);
+
   const loadActivities = async () => {
     if (!user) return;
 

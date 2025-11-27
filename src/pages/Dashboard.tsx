@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '@/context/AuthContext';
 import { useAIUsage } from '@/hooks/useAIUsage';
+import { useRealtimeLeads } from '@/hooks/useRealtimeLeads';
 import MainLayout from '@/components/layout/MainLayout';
 import CreateFunnelModal from '@/components/funnels/CreateFunnelModal';
 import { WelcomeBanner } from '@/components/dashboard/WelcomeBanner';
@@ -18,6 +19,9 @@ const Dashboard = () => {
   const { usage, percentage } = useAIUsage();
   const navigate = useNavigate();
   const [createModalOpen, setCreateModalOpen] = useState(false);
+  
+  // Setup realtime notifications for new leads
+  useRealtimeLeads(user?.id);
 
   const getGreeting = () => {
     const hour = new Date().getHours();
