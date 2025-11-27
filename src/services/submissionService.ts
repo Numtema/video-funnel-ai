@@ -1,4 +1,5 @@
 import { supabase } from '@/integrations/supabase/client';
+import { sanitizeData } from '@/lib/sanitize';
 
 function getDeviceType(): string {
   const ua = navigator.userAgent;
@@ -73,6 +74,10 @@ export const submissionService = {
 
     console.log('📤 About to insert submission into database...');
     
+    // Sanitize answers to remove circular references
+    const sanitizedAnswers = sanitizeData(data.answers);
+    console.log('🧹 Answers sanitized for database insertion');
+    
     const { data: submission, error } = await supabase
       .from('submissions')
       .insert({
@@ -82,7 +87,7 @@ export const submissionService = {
         contact_email: data.contact.email,
         contact_phone: data.contact.phone,
         subscribed: data.contact.subscribed,
-        answers: data.answers,
+        answers: sanitizedAnswers,
         score: data.score,
         completion_time_seconds: data.completionTime,
         device,
