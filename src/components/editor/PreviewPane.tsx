@@ -61,7 +61,7 @@ export function PreviewPane({ step, theme }: PreviewPaneProps) {
       <div className="border rounded-lg overflow-hidden bg-muted/30 p-4">
         <div className={cn('mx-auto transition-all', deviceSizes[deviceMode])}>
           <div
-            className="rounded-lg shadow-lg overflow-hidden"
+            className="rounded-lg shadow-lg overflow-y-auto max-h-[600px]"
             style={{
               backgroundColor: theme.colors.background,
               color: theme.colors.text,
@@ -107,12 +107,12 @@ export function PreviewPane({ step, theme }: PreviewPaneProps) {
 
             {/* Content */}
             <div className="p-6 space-y-4">
-              <h2 className="text-2xl font-bold" style={{ color: theme.colors.text }}>
+              <h2 className="text-2xl font-bold break-words" style={{ color: theme.colors.text }}>
                 {step.title || 'Titre de l\'étape'}
               </h2>
               
               {step.description && (
-                <p className="text-base opacity-80">
+                <p className="text-base opacity-80 break-words whitespace-pre-line">
                   {step.description}
                 </p>
               )}
@@ -123,7 +123,7 @@ export function PreviewPane({ step, theme }: PreviewPaneProps) {
                   {step.options.map((option) => (
                     <button
                       key={option.id}
-                      className="w-full p-4 rounded-lg border-2 text-left transition-all hover:scale-[1.02]"
+                      className="w-full p-4 rounded-lg border-2 text-left transition-all hover:scale-[1.02] break-words whitespace-normal"
                       style={{
                         borderColor: theme.colors.primary,
                         backgroundColor: 'transparent',
