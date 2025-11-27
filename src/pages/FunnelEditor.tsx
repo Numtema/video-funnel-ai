@@ -315,6 +315,7 @@ export default function FunnelEditor() {
                 step={selectedStep}
                 onUpdate={handleUpdateStep}
                 onDelete={() => handleDeleteStep(selectedStep.id)}
+                allSteps={config.steps}
               />
             ) : (
               <div className="h-full flex items-center justify-center text-muted-foreground p-6">
@@ -360,6 +361,7 @@ export default function FunnelEditor() {
               step={selectedStep}
               onUpdate={handleUpdateStep}
               onDelete={() => handleDeleteStep(selectedStep.id)}
+              allSteps={config.steps}
             />
           ) : (
             <div className="h-full flex items-center justify-center text-muted-foreground">
