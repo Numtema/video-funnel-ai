@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import { supabase } from '@/integrations/supabase/client';
+import { sanitizeData } from '@/lib/sanitize';
 
 interface StepVisit {
   stepId: string;
@@ -102,9 +103,12 @@ export function useAnalytics(funnelId: string) {
 
   const saveSession = async (completed: boolean, score?: number) => {
     try {
+      // Sanitize steps to remove circular references
+      const sanitizedSteps = sanitizeData(steps);
+      
       await supabase.from('analytics_sessions').update({
         completed_at: completed ? new Date().toISOString() : null,
-        steps: steps as any,
+        steps: sanitizedSteps as any,
         completed,
         submitted: completed,
         score
