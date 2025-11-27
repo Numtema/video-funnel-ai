@@ -52,9 +52,21 @@ export const submissionService = {
     score?: number;
     completionTime: number;
   }) {
+    console.log('Starting submission process for funnel:', data.funnelId);
+    
     // 1. Save submission
     const ip = await getClientIP();
+    const device = getDeviceType();
+    const source = getSource();
     
+    console.log('Inserting submission with data:', {
+      funnel_id: data.funnelId,
+      session_id: data.sessionId,
+      contact_email: data.contact.email,
+      device,
+      source
+    });
+
     const { data: submission, error } = await supabase
       .from('submissions')
       .insert({
@@ -67,15 +79,21 @@ export const submissionService = {
         answers: data.answers,
         score: data.score,
         completion_time_seconds: data.completionTime,
-        device: getDeviceType(),
-        source: getSource(),
+        device,
+        source,
         ip_address: ip,
-        user_agent: navigator.userAgent
+        user_agent: navigator.userAgent,
+        status: 'nouveau'
       })
       .select()
       .single();
 
-    if (error) throw error;
+    if (error) {
+      console.error('Submission insert error:', error);
+      throw error;
+    }
+
+    console.log('Submission created successfully:', submission.id);
 
     // 2. Increment funnel submissions counter
     await supabase.rpc('increment_funnel_submissions', {
@@ -98,33 +116,74 @@ export const submissionService = {
       // Continue even if analytics update fails
     }
 
-    // 4. Send webhook if configured
-    const { data: funnel } = await supabase
+    // 4. Get funnel name and config
+    const { data: funnelData, error: funnelError } = await supabase
       .from('funnels')
-      .select('config')
+      .select('name, config')
       .eq('id', data.funnelId)
       .single();
 
-    if (funnel?.config) {
-      const config = funnel.config as any;
-      if (config.tracking?.webhookUrl) {
-        // Use webhook-handler edge function
-        await supabase.functions.invoke('webhook-handler', {
-          body: {
-            funnelId: data.funnelId,
-            eventType: 'funnel.submission',
-            webhookUrl: config.tracking.webhookUrl,
-            payload: {
-              event: 'funnel.submission',
-              funnel_id: data.funnelId,
-              submission_id: submission.id,
+    if (funnelError) {
+      console.error('Error fetching funnel:', funnelError);
+    }
+
+    // 5. Send email notification
+    if (funnelData) {
+      try {
+        // Get owner email using RPC function
+        const { data: ownerEmail, error: emailError } = await supabase
+          .rpc('get_user_email_by_funnel', { 
+            funnel_uuid: data.funnelId 
+          });
+          
+        if (!emailError && ownerEmail) {
+          console.log('Sending email notification to:', ownerEmail);
+          
+          await supabase.functions.invoke('send-lead-notification', {
+            body: {
+              funnelId: data.funnelId,
+              funnelName: funnelData.name,
+              ownerEmail: ownerEmail,
               contact: data.contact,
               score: data.score,
               answers: data.answers,
-              timestamp: new Date().toISOString()
+              completionTime: data.completionTime,
+              device,
+              source
             }
-          }
-        });
+          });
+          
+          console.log('Email notification sent successfully');
+        }
+      } catch (emailError) {
+        console.error('Error sending email notification:', emailError);
+        // Continue even if email fails
+      }
+
+      // 6. Send webhook if configured
+      const config = funnelData.config as any;
+      if (config.tracking?.webhookUrl) {
+        try {
+          await supabase.functions.invoke('webhook-handler', {
+            body: {
+              funnelId: data.funnelId,
+              eventType: 'funnel.submission',
+              webhookUrl: config.tracking.webhookUrl,
+              payload: {
+                event: 'funnel.submission',
+                funnel_id: data.funnelId,
+                submission_id: submission.id,
+                contact: data.contact,
+                score: data.score,
+                answers: data.answers,
+                timestamp: new Date().toISOString()
+              }
+            }
+          });
+        } catch (webhookError) {
+          console.error('Error sending webhook:', webhookError);
+          // Continue even if webhook fails
+        }
       }
     }
 
