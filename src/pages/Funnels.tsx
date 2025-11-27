@@ -257,22 +257,31 @@ const Funnels = () => {
                           <MoreVertical className="h-4 w-4" />
                         </Button>
                       </DropdownMenuTrigger>
-                      <DropdownMenuContent align="end">
+                       <DropdownMenuContent align="end">
                         <DropdownMenuItem onClick={() => navigate(`/funnels/${funnel.id}`)}>
                           <Edit className="mr-2 h-4 w-4" />
                           Éditer
                         </DropdownMenuItem>
-                        <DropdownMenuItem onClick={() => window.open(`/f/${funnel.share_token}`, '_blank')}>
-                          <Eye className="mr-2 h-4 w-4" />
-                          Prévisualiser
-                        </DropdownMenuItem>
+                        {funnel.is_published ? (
+                          <>
+                            <DropdownMenuItem onClick={() => window.open(`/f/${funnel.share_token}`, '_blank')}>
+                              <Eye className="mr-2 h-4 w-4" />
+                              Prévisualiser
+                            </DropdownMenuItem>
+                            <DropdownMenuItem onClick={() => handleCopyLink(funnel.share_token)}>
+                              <Share2 className="mr-2 h-4 w-4" />
+                              Copier le lien
+                            </DropdownMenuItem>
+                          </>
+                        ) : (
+                          <DropdownMenuItem disabled>
+                            <Share2 className="mr-2 h-4 w-4" />
+                            Publiez pour partager
+                          </DropdownMenuItem>
+                        )}
                         <DropdownMenuItem onClick={() => navigate(`/analytics/${funnel.id}`)}>
                           <BarChart3 className="mr-2 h-4 w-4" />
                           Analytics
-                        </DropdownMenuItem>
-                        <DropdownMenuItem onClick={() => handleCopyLink(funnel.share_token)}>
-                          <Share2 className="mr-2 h-4 w-4" />
-                          Copier le lien
                         </DropdownMenuItem>
                         <DropdownMenuItem onClick={() => handleDuplicate(funnel.id)}>
                           <Copy className="mr-2 h-4 w-4" />
@@ -364,19 +373,41 @@ const Funnels = () => {
                             <Edit className="mr-2 h-4 w-4" />
                             Éditer
                           </DropdownMenuItem>
-                          <DropdownMenuItem onClick={() => window.open(`/f/${funnel.share_token}`, '_blank')}>
-                            <Eye className="mr-2 h-4 w-4" />
-                            Prévisualiser
-                          </DropdownMenuItem>
-                          <DropdownMenuItem onClick={() => handleCopyLink(funnel.share_token)}>
-                            <Share2 className="mr-2 h-4 w-4" />
-                            Copier le lien
-                          </DropdownMenuItem>
+                          {funnel.is_published ? (
+                            <>
+                              <DropdownMenuItem onClick={() => window.open(`/f/${funnel.share_token}`, '_blank')}>
+                                <Eye className="mr-2 h-4 w-4" />
+                                Prévisualiser
+                              </DropdownMenuItem>
+                              <DropdownMenuItem onClick={() => handleCopyLink(funnel.share_token)}>
+                                <Share2 className="mr-2 h-4 w-4" />
+                                Copier le lien
+                              </DropdownMenuItem>
+                            </>
+                          ) : (
+                            <DropdownMenuItem disabled>
+                              <Share2 className="mr-2 h-4 w-4" />
+                              Publiez pour partager
+                            </DropdownMenuItem>
+                          )}
                           <DropdownMenuItem onClick={() => handleDuplicate(funnel.id)}>
                             <Copy className="mr-2 h-4 w-4" />
                             Dupliquer
                           </DropdownMenuItem>
                           <DropdownMenuSeparator />
+                          <DropdownMenuItem onClick={() => handleTogglePublish(funnel)}>
+                            {funnel.is_published ? (
+                              <>
+                                <Pause className="mr-2 h-4 w-4" />
+                                Dépublier
+                              </>
+                            ) : (
+                              <>
+                                <Play className="mr-2 h-4 w-4" />
+                                Publier
+                              </>
+                            )}
+                          </DropdownMenuItem>
                           <DropdownMenuItem onClick={() => handleDelete(funnel.id)} className="text-destructive">
                             <Trash2 className="mr-2 h-4 w-4" />
                             Supprimer
