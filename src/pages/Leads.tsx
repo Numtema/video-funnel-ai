@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react';
 import { supabase } from '@/integrations/supabase/client';
+import { useAuth } from '@/context/AuthContext';
 import MainLayout from '@/components/layout/MainLayout';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -65,6 +66,7 @@ const Leads = () => {
   const [funnelFilter, setFunnelFilter] = useState('all');
   const [funnels, setFunnels] = useState<Array<{ id: string; name: string }>>([]);
   const { toast } = useToast();
+  const { user } = useAuth();
 
   const loadLeads = async () => {
     try {
@@ -140,6 +142,48 @@ const Leads = () => {
   useEffect(() => {
     loadLeads();
   }, [search, statusFilter, funnelFilter]);
+
+  // Setup realtime subscription for automatic lead updates
+  useEffect(() => {
+    if (!user) return;
+
+    console.log('🔴 Setting up realtime subscription for leads page');
+
+    const channel = supabase
+      .channel('leads-page-updates')
+      .on(
+        'postgres_changes',
+        {
+          event: '*',
+          schema: 'public',
+          table: 'submissions',
+        },
+        async (payload) => {
+          console.log('🔄 Lead update detected:', payload);
+          
+          // Verify the submission belongs to the current user's funnels
+          if (payload.new) {
+            const { data: funnel } = await supabase
+              .from('funnels')
+              .select('user_id')
+              .eq('id', (payload.new as any).funnel_id)
+              .single();
+            
+            if (funnel && funnel.user_id === user.id) {
+              loadLeads();
+            }
+          } else {
+            loadLeads();
+          }
+        }
+      )
+      .subscribe();
+
+    return () => {
+      console.log('🔴 Cleaning up realtime subscription');
+      supabase.removeChannel(channel);
+    };
+  }, [user, search, statusFilter, funnelFilter]);
 
   const updateLeadStatus = async (leadId: string, newStatus: string) => {
     try {
