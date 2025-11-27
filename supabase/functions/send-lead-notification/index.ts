@@ -29,6 +29,9 @@ const handler = async (req: Request): Promise<Response> => {
   }
 
   try {
+    console.log('📧 Lead notification function called at', new Date().toISOString());
+    
+    const requestData: LeadNotificationRequest = await req.json();
     const {
       funnelName,
       ownerEmail,
@@ -38,9 +41,20 @@ const handler = async (req: Request): Promise<Response> => {
       completionTime,
       device,
       source,
-    }: LeadNotificationRequest = await req.json();
+    } = requestData;
 
-    console.log('Sending lead notification to:', ownerEmail);
+    console.log('📧 Processing notification for:', {
+      ownerEmail,
+      funnelName,
+      contactEmail: contact.email,
+      hasScore: score !== undefined,
+      answerCount: Object.keys(answers).length
+    });
+
+    if (!resendApiKey) {
+      console.error('❌ RESEND_API_KEY not found in environment');
+      throw new Error('RESEND_API_KEY not configured');
+    }
 
     // Format answers for email
     const answersHTML = Object.entries(answers)
@@ -99,7 +113,9 @@ const handler = async (req: Request): Promise<Response> => {
 
               <!-- CTA -->
               <div style="text-align: center; margin-top: 30px;">
-                <a href="https://lovable.app" style="display: inline-block; background-color: #A11D1F; color: #ffffff; padding: 15px 40px; text-decoration: none; border-radius: 8px; font-weight: 600; font-size: 16px;">Voir dans le Dashboard</a>
+                <p style="color: #374151; font-size: 14px; margin-bottom: 15px;">
+                  Consultez ce lead dans votre tableau de bord pour le suivre
+                </p>
               </div>
             </div>
 
@@ -117,7 +133,9 @@ const handler = async (req: Request): Promise<Response> => {
       </html>
     `;
 
-    // Send email using Resend API directly
+    console.log('📧 Sending email via Resend API...');
+
+    // Send email using Resend API
     const emailResponse = await fetch('https://api.resend.com/emails', {
       method: 'POST',
       headers: {
@@ -132,16 +150,20 @@ const handler = async (req: Request): Promise<Response> => {
       }),
     });
 
+    const emailResult = await emailResponse.json();
+
     if (!emailResponse.ok) {
-      const errorText = await emailResponse.text();
-      console.error('Resend API error:', errorText);
-      throw new Error(`Resend API error: ${errorText}`);
+      console.error('❌ Resend API error:', {
+        status: emailResponse.status,
+        statusText: emailResponse.statusText,
+        body: emailResult
+      });
+      throw new Error(`Resend API error: ${JSON.stringify(emailResult)}`);
     }
 
-    const emailResult = await emailResponse.json();
-    console.log("Email sent successfully:", emailResult);
+    console.log("✅ Email sent successfully:", emailResult);
 
-    return new Response(JSON.stringify({ success: true, emailResponse: emailResult }), {
+    return new Response(JSON.stringify({ success: true, data: emailResult }), {
       status: 200,
       headers: {
         "Content-Type": "application/json",
@@ -149,9 +171,16 @@ const handler = async (req: Request): Promise<Response> => {
       },
     });
   } catch (error: any) {
-    console.error("Error in send-lead-notification function:", error);
+    console.error("❌ Error in send-lead-notification function:", {
+      message: error.message,
+      stack: error.stack
+    });
+    
     return new Response(
-      JSON.stringify({ error: error.message }),
+      JSON.stringify({ 
+        error: error.message,
+        timestamp: new Date().toISOString()
+      }),
       {
         status: 500,
         headers: { "Content-Type": "application/json", ...corsHeaders },
