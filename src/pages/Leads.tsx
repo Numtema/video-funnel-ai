@@ -174,6 +174,39 @@ const Leads = () => {
     return <Badge className={variant.className}>{variant.label}</Badge>;
   };
 
+  // Test submission function
+  const testSubmission = async () => {
+    try {
+      const { error } = await supabase.from('submissions').insert({
+        funnel_id: funnels[0]?.id || 'test-funnel-id',
+        session_id: `test_web_${Date.now()}`,
+        contact_name: 'Test Web User',
+        contact_email: `test${Date.now()}@example.com`,
+        contact_phone: '+33600000000',
+        subscribed: false,
+        answers: { test: 'from web interface' },
+        score: 75,
+        status: 'nouveau'
+      });
+
+      if (error) throw error;
+
+      toast({
+        title: '✅ Test réussi',
+        description: 'Soumission de test créée avec succès',
+      });
+      
+      loadLeads();
+    } catch (error: any) {
+      console.error('Test submission error:', error);
+      toast({
+        title: '❌ Erreur de test',
+        description: error.message,
+        variant: 'destructive'
+      });
+    }
+  };
+
   const stats = {
     total: leads.length,
     nouveau: leads.filter(l => l.status === 'nouveau').length,
@@ -192,10 +225,15 @@ const Leads = () => {
               {stats.total} leads au total
             </p>
           </div>
-          <Button onClick={exportToCSV} size="lg" disabled={leads.length === 0}>
-            <Download className="mr-2 h-5 w-5" />
-            Exporter CSV
-          </Button>
+          <div className="flex gap-2">
+            <Button onClick={testSubmission} variant="outline" size="lg">
+              🧪 Tester
+            </Button>
+            <Button onClick={exportToCSV} size="lg" disabled={leads.length === 0}>
+              <Download className="mr-2 h-5 w-5" />
+              Exporter CSV
+            </Button>
+          </div>
         </div>
 
         {/* Stats Cards */}

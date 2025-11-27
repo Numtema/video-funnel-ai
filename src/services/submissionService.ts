@@ -52,7 +52,11 @@ export const submissionService = {
     score?: number;
     completionTime: number;
   }) {
-    console.log('Starting submission process for funnel:', data.funnelId);
+    console.log('🔵🔵🔵 SUBMISSION SERVICE STARTED 🔵🔵🔵');
+    console.log('📋 Funnel ID:', data.funnelId);
+    console.log('📋 Session ID:', data.sessionId);
+    console.log('📋 Contact Email:', data.contact.email);
+    console.log('📋 Answers count:', Object.keys(data.answers).length);
     
     // 1. Save submission
     const ip = await getClientIP();
@@ -67,6 +71,8 @@ export const submissionService = {
       source
     });
 
+    console.log('📤 About to insert submission into database...');
+    
     const { data: submission, error } = await supabase
       .from('submissions')
       .insert({
@@ -89,11 +95,16 @@ export const submissionService = {
       .single();
 
     if (error) {
-      console.error('Submission insert error:', error);
+      console.error('❌❌❌ SUBMISSION INSERT ERROR ❌❌❌');
+      console.error('Error details:', error);
+      console.error('Error message:', error.message);
+      console.error('Error code:', error.code);
       throw error;
     }
 
-    console.log('Submission created successfully:', submission.id);
+    console.log('✅✅✅ SUBMISSION CREATED SUCCESSFULLY ✅✅✅');
+    console.log('Submission ID:', submission.id);
+    console.log('Full submission:', submission);
 
     // 2. Increment funnel submissions counter
     await supabase.rpc('increment_funnel_submissions', {
