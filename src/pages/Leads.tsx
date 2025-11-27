@@ -70,11 +70,19 @@ const Leads = () => {
     try {
       setLoading(true);
       
+      // Get current user to ensure data isolation
+      const { data: { user }, error: userError } = await supabase.auth.getUser();
+      if (userError || !user) {
+        throw new Error('User not authenticated');
+      }
+      
       console.log('🔍 Loading leads with filters:', { statusFilter, funnelFilter, search });
       
+      // RLS handles filtering, but we add explicit user_id filter for clarity and performance
       let query = supabase
         .from('submissions')
-        .select('*, funnels!inner(name)')
+        .select('*, funnels!inner(name, user_id)')
+        .eq('funnels.user_id', user.id)
         .order('created_at', { ascending: false });
 
       if (statusFilter !== 'all') {
@@ -111,9 +119,14 @@ const Leads = () => {
   };
 
   const loadFunnels = async () => {
+    // Get current user to ensure data isolation
+    const { data: { user } } = await supabase.auth.getUser();
+    if (!user) return;
+    
     const { data } = await supabase
       .from('funnels')
       .select('id, name')
+      .eq('user_id', user.id)
       .is('deleted_at', null)
       .order('name');
     

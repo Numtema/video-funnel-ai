@@ -6,6 +6,7 @@ import { Label } from '@/components/ui/label';
 import { supabase } from '@/integrations/supabase/client';
 import { toast } from '@/hooks/use-toast';
 import { Send, MessageCircle } from 'lucide-react';
+import { leadCaptureSchema } from '@/lib/validation';
 
 interface LeadCaptureScreenProps {
   step: QuizStep;
@@ -27,12 +28,19 @@ export function LeadCaptureScreen({ step, theme, funnelId, answers, score, onNex
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     
-    console.log('🔵 LeadCaptureScreen: Form submitted', { name, email, phone });
+    // Validate input data with zod
+    const validationResult = leadCaptureSchema.safeParse({
+      name: name.trim() || undefined,
+      email: email.trim(),
+      phone: phone.trim() || undefined,
+    });
     
-    if (!email || !email.trim()) {
+    if (!validationResult.success) {
+      const errors = validationResult.error.flatten().fieldErrors;
+      const firstError = Object.values(errors)[0]?.[0] || 'Données invalides';
       toast({
-        title: 'Erreur',
-        description: 'L\'email est requis',
+        title: 'Erreur de validation',
+        description: firstError,
         variant: 'destructive'
       });
       return;
@@ -41,9 +49,13 @@ export function LeadCaptureScreen({ step, theme, funnelId, answers, score, onNex
     setSubmitting(true);
 
     try {
-      console.log('🔵 LeadCaptureScreen: Calling onNext with data');
-      await onNext({ name, email, phone, subscribed: false });
-      console.log('🔵 LeadCaptureScreen: onNext completed successfully');
+      const validatedData = validationResult.data;
+      await onNext({ 
+        name: validatedData.name || '', 
+        email: validatedData.email, 
+        phone: validatedData.phone || '', 
+        subscribed: false 
+      });
       setSubmitted(true);
     } catch (error) {
       console.error('❌ LeadCaptureScreen: Submission error:', error);
@@ -59,11 +71,17 @@ export function LeadCaptureScreen({ step, theme, funnelId, answers, score, onNex
   const handleWhatsAppClick = () => {
     if (!config?.whatsapp?.phoneNumber) return;
     
-    const message = config.whatsapp.message || `Bonjour, je viens de compléter le formulaire ${step.title}`;
-    const encodedMessage = encodeURIComponent(message);
-    const whatsappUrl = `https://wa.me/${config.whatsapp.phoneNumber}?text=${encodedMessage}`;
+    // Sanitize phone number (remove non-digits)
+    const cleanPhone = config.whatsapp.phoneNumber.replace(/\D/g, '');
+    if (!cleanPhone) return;
     
-    window.open(whatsappUrl, '_blank');
+    // Sanitize and limit message length
+    const message = config.whatsapp.message || `Bonjour, je viens de compléter le formulaire ${step.title}`;
+    const truncatedMessage = message.substring(0, 500); // WhatsApp message limit
+    const encodedMessage = encodeURIComponent(truncatedMessage);
+    const whatsappUrl = `https://wa.me/${cleanPhone}?text=${encodedMessage}`;
+    
+    window.open(whatsappUrl, '_blank', 'noopener,noreferrer');
   };
 
   if (submitted) {
