@@ -123,13 +123,15 @@ export function PreviewPane({ step, theme }: PreviewPaneProps) {
                   {step.options.map((option) => (
                     <button
                       key={option.id}
-                      className="w-full p-4 rounded-lg border-2 text-left transition-all hover:scale-[1.02] break-words whitespace-normal"
+                      className="w-full p-3 sm:p-4 rounded-lg border-2 text-left transition-all hover:scale-[1.02] break-words whitespace-normal text-sm sm:text-base"
                       style={{
                         borderColor: theme.colors.primary,
                         backgroundColor: 'transparent',
+                        overflowWrap: 'break-word',
+                        wordBreak: 'break-word',
                       }}
                     >
-                      {option.text || 'Option de réponse'}
+                      <span className="block">{option.text || 'Option de réponse'}</span>
                     </button>
                   ))}
                 </div>

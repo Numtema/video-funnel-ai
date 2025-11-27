@@ -310,7 +310,7 @@ export default function FunnelPlayer() {
               />
             )}
             {creatorInfo.company_name && (
-              <p className="text-sm font-medium text-muted-foreground">
+              <p className="text-sm font-semibold text-foreground break-words px-4">
                 {creatorInfo.company_name}
               </p>
             )}
@@ -319,7 +319,7 @@ export default function FunnelPlayer() {
                 href={creatorInfo.website} 
                 target="_blank" 
                 rel="noopener noreferrer"
-                className="text-xs text-primary hover:underline"
+                className="text-xs text-primary hover:underline break-all px-4"
               >
                 Visitez notre site
               </a>
@@ -328,9 +328,9 @@ export default function FunnelPlayer() {
         )}
         
         {/* Platform branding */}
-        <div className="flex items-center justify-center gap-2 text-xs text-muted-foreground">
-          <span>Powered by</span>
-          <img src={logo} alt="Nümtema Face" className="h-4" />
+        <div className="flex flex-col sm:flex-row items-center justify-center gap-2 px-4">
+          <span className="text-sm font-semibold text-foreground">Powered by</span>
+          <img src={logo} alt="Nümtema Face" className="h-8 sm:h-6" />
         </div>
       </div>
     </div>

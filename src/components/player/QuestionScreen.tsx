@@ -61,12 +61,14 @@ export function QuestionScreen({ step, theme, onNext }: QuestionScreenProps) {
             onClick={() => handleOptionClick(option)}
             variant="outline"
             size="lg"
-            className="w-full justify-start text-left h-auto py-4 px-6 hover:scale-[1.02] transition-transform whitespace-normal break-words"
+            className="w-full justify-start text-left h-auto py-3 sm:py-4 px-4 sm:px-6 hover:scale-[1.02] transition-transform"
             style={{
               borderColor: theme.colors.primary,
             }}
           >
-            <span className="text-base sm:text-lg leading-relaxed">{option.text}</span>
+            <span className="text-sm sm:text-base md:text-lg leading-relaxed break-words whitespace-normal block w-full" style={{ overflowWrap: 'break-word', wordBreak: 'break-word' }}>
+              {option.text}
+            </span>
           </Button>
         ))}
       </div>
