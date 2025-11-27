@@ -42,11 +42,16 @@ Génère un QuizConfig JSON complet et engageant basé sur la description utilis
 
 DIRECTIVES IMPORTANTES:
 1. **Comprends l'objectif**: Analyse le prompt pour identifier l'audience cible et l'objectif du funnel
-2. **Crée un parcours captivant**: Conçois 5-7 étapes qui guident l'utilisateur. Commence par welcome, utilise des questions/messages variés, termine par lead_capture
-3. **Contenu engageant**: Rédige des textes empathiques, clairs et motivants
-4. **IDs uniques**: Assure-toi que TOUS les 'id' sont uniques ("step-1", "opt-1-1", etc.)
-5. **Médias pertinents**: Pour chaque étape, fournis une URL valide et gratuite depuis Pexels (https://images.pexels.com/...) ou Pixabay qui correspond visuellement au contenu
-6. **Design thématique**: Choisis une police Google Fonts et une palette de couleurs harmonieuse adaptée à l'ambiance du funnel
+2. **Adapte la complexité**: Selon la description:
+   - Funnel simple (quiz rapide, lead capture): 3-5 étapes
+   - Funnel standard (qualification, diagnostic): 7-12 étapes
+   - Funnel complexe (formation, évaluation détaillée): 15-30 étapes
+   Utilise le nombre d'étapes nécessaire pour accomplir l'objectif décrit par l'utilisateur
+3. **Crée un parcours captivant**: Conçois des étapes qui guident l'utilisateur. Commence par welcome, utilise des questions/messages variés, termine par lead_capture
+4. **Contenu engageant**: Rédige des textes empathiques, clairs et motivants
+5. **IDs uniques**: Assure-toi que TOUS les 'id' sont uniques ("step-1", "opt-1-1", etc.)
+6. **Médias pertinents**: Pour chaque étape, fournis une URL valide et gratuite depuis Pexels (https://images.pexels.com/...) ou Pixabay qui correspond visuellement au contenu
+7. **Design thématique**: Choisis une police Google Fonts et une palette de couleurs harmonieuse adaptée à l'ambiance du funnel
 
 Structure attendue:
 {
@@ -68,7 +73,7 @@ Structure attendue:
         { "id": "opt-1-2", "text": "Option B", "score": 5 }
       ]
     },
-    // Ajoute 3-5 questions pertinentes
+    // Ajoute autant de questions/messages que nécessaire pour atteindre l'objectif (jusqu'à 30 max)
     {
       "id": "lead-capture",
       "type": "lead_capture",
