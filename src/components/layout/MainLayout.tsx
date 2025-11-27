@@ -1,11 +1,13 @@
-import { ReactNode } from 'react';
+import { ReactNode, useEffect } from 'react';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { useAuth } from '@/context/AuthContext';
 import { useAIUsage } from '@/hooks/useAIUsage';
+import { useUnreadNotifications } from '@/hooks/useUnreadNotifications';
 import { Button } from '@/components/ui/button';
 import { Avatar, AvatarFallback } from '@/components/ui/avatar';
 import { Progress } from '@/components/ui/progress';
 import { Separator } from '@/components/ui/separator';
+import { Badge } from '@/components/ui/badge';
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuLabel, DropdownMenuSeparator, DropdownMenuTrigger } from '@/components/ui/dropdown-menu';
 import { LayoutDashboard, Video, BarChart3, Settings, LogOut, Sparkles, AlignJustify, X, ChevronLeft, ChevronRight, User, FileText, CreditCard, Users, Bell } from 'lucide-react';
 import numtemaFaceLogo from '@/assets/numtema-face-logo.png';
@@ -26,10 +28,18 @@ const MainLayout = ({
     usage,
     percentage
   } = useAIUsage();
+  const { unreadCount, markAsRead } = useUnreadNotifications(user?.id);
   const location = useLocation();
   const navigate = useNavigate();
   const [sidebarOpen, setSidebarOpen] = useState(true);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+
+  // Mark notifications as read when visiting notifications page
+  useEffect(() => {
+    if (location.pathname === '/notifications') {
+      markAsRead();
+    }
+  }, [location.pathname, markAsRead]);
   const navItems = [{
     icon: LayoutDashboard,
     label: 'Dashboard',
@@ -136,10 +146,21 @@ const MainLayout = ({
             {navItems.map(item => {
             const Icon = item.icon;
             const isActive = location.pathname === item.path;
+            const showBadge = item.path === '/notifications' && unreadCount > 0;
             return <Link key={item.path} to={item.path}>
-                  <Button variant={isActive ? 'default' : 'ghost'} className={cn('w-full justify-start transition-smooth', !sidebarOpen && 'justify-center')}>
+                  <Button variant={isActive ? 'default' : 'ghost'} className={cn('w-full justify-start transition-smooth relative', !sidebarOpen && 'justify-center')}>
                     <Icon className={cn('h-5 w-5', sidebarOpen && 'mr-3')} />
                     {sidebarOpen && <span>{item.label}</span>}
+                    {showBadge && (
+                      <Badge 
+                        className={cn(
+                          "absolute bg-destructive text-destructive-foreground border-0 animate-pulse",
+                          sidebarOpen ? "top-2 right-2 h-5 w-5 flex items-center justify-center p-0 text-xs" : "top-1 right-1 h-4 w-4 flex items-center justify-center p-0 text-[10px]"
+                        )}
+                      >
+                        {unreadCount > 99 ? '99+' : unreadCount}
+                      </Badge>
+                    )}
                   </Button>
                 </Link>;
           })}
@@ -224,10 +245,16 @@ const MainLayout = ({
             {navItems.map(item => {
           const Icon = item.icon;
           const isActive = location.pathname === item.path;
+          const showBadge = item.path === '/notifications' && unreadCount > 0;
           return <Link key={item.path} to={item.path} onClick={() => setMobileMenuOpen(false)}>
-                  <Button variant={isActive ? 'default' : 'ghost'} className="w-full justify-start text-xs text-left border">
+                  <Button variant={isActive ? 'default' : 'ghost'} className="w-full justify-start text-xs text-left border relative">
                     <Icon className="h-5 w-5 mr-3" />
                     <span>{item.label}</span>
+                    {showBadge && (
+                      <Badge className="ml-auto bg-destructive text-destructive-foreground border-0 animate-pulse h-5 w-5 flex items-center justify-center p-0 text-xs">
+                        {unreadCount > 99 ? '99+' : unreadCount}
+                      </Badge>
+                    )}
                   </Button>
                 </Link>;
         })}

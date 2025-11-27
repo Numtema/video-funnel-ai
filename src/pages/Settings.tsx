@@ -9,6 +9,8 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Badge } from '@/components/ui/badge';
+import { Switch } from '@/components/ui/switch';
+import { Separator } from '@/components/ui/separator';
 import { User, CreditCard, Bell, Sparkles, Upload, Lock, AlertTriangle } from 'lucide-react';
 import { z } from 'zod';
 import { useForm } from 'react-hook-form';
@@ -552,12 +554,71 @@ const Settings = () => {
                   Gérez comment vous recevez les notifications
                 </CardDescription>
               </CardHeader>
-              <CardContent>
-                <div className="text-center py-8">
-                  <Bell className="h-12 w-12 text-muted-foreground mx-auto mb-2" />
-                  <p className="text-muted-foreground">
-                    Préférences de notification à venir
+              <CardContent className="space-y-6">
+                {/* Sound Notifications */}
+                <div className="flex items-center justify-between">
+                  <div className="space-y-0.5">
+                    <Label htmlFor="sound-enabled" className="text-base">Sons de notification</Label>
+                    <p className="text-sm text-muted-foreground">
+                      Jouer un son lors de nouvelles notifications
+                    </p>
+                  </div>
+                  <Switch
+                    id="sound-enabled"
+                    defaultChecked={localStorage.getItem('notification_sound_enabled') !== 'false'}
+                    onCheckedChange={(checked) => {
+                      localStorage.setItem('notification_sound_enabled', String(checked));
+                      toast({
+                        title: checked ? "Sons activés" : "Sons désactivés",
+                        description: checked 
+                          ? "Vous recevrez des notifications sonores" 
+                          : "Les sons de notification sont désactivés",
+                      });
+                    }}
+                  />
+                </div>
+
+                <Separator />
+
+                {/* Sound Type Selection */}
+                <div className="space-y-3">
+                  <Label className="text-base">Type de son</Label>
+                  <p className="text-sm text-muted-foreground">
+                    Choisissez le son de notification qui vous convient
                   </p>
+                  <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 mt-3">
+                    {[
+                      { value: 'beep', label: 'Bip', icon: '🔔' },
+                      { value: 'bell', label: 'Cloche', icon: '🔊' },
+                      { value: 'pop', label: 'Pop', icon: '✨' },
+                    ].map((sound) => (
+                      <Button
+                        key={sound.value}
+                        variant={localStorage.getItem('notification_sound') === sound.value || (!localStorage.getItem('notification_sound') && sound.value === 'beep') ? 'default' : 'outline'}
+                        className="h-auto py-4 flex flex-col gap-2"
+                        onClick={() => {
+                          localStorage.setItem('notification_sound', sound.value);
+                          // Play preview
+                          const audio = new Audio();
+                          const sounds = {
+                            beep: 'data:audio/wav;base64,UklGRnoGAABXQVZFZm10IBAAAAABAAEAQB8AAEAfAAABAAgAZGF0YQoGAACBhYqFbF1fdJivrJBhNjVgodDbq2EcBj+a2/LDciUFLIHO8tiJNwgZaLvt559NEAxQp+PwtmMcBjiR1/LMeSwFJHfH8N2QQAoUXrTp66hVFApGn+DyvmwhBCl+zPLTgjMGHm7A7+OZUQ0NVKnn77JfGAg+ltryxnMnBSyBzvLYiTcIGWi77eefTRAMUKfj8LZjHAY4ktfyzHksBSR3x/DdkEAKFF605+uoVRQKRp/g8r5sIQQpfszyxHksBSR3x/DdkEAKFF605+uoVRQKRp/g8r5sIQQpfszyxHksBSR3x/DdkEAKFF605+uoVRQKRp/g8r5sIQQpfszyxHksBSR3x/DdkEAKFF605+uoVRQKRp/g8r5sIQQpfszyxHksBSR3x/DdkEAKFF605+uoVRQKRp/g8r5sIQQpfszyxHksBSR3x/DdkEAKFF605+uoVRQKRp/g8r5sIQQpfszyxHksBSR3x/DdkEAKFF605+uoVRQKRp/g8r5sIQQpfszyxHksBSR3x/DdkEAKFF605+uoVRQKRp/g8r5sIQQpfszyxHksBSR3x/DdkEAKFF605+uoVRQKRp/g8r5sIQQpfszyxHksBSR3x/DdkEAKFF605+uoVRQKRp/g8r5sIQQpfszyxHksBSR3x/DdkEAKFF605+uoVRQKRp/g8r5sIQQpfszyxHksBSR3x/DdkEAKFF605+uoVRQKRp/g8r5sIQQpfszyxHksBSR3x/DdkEAKFF605+uoVRQKRp/g8r5sIQQpfszyxHksBSR3x/DdkEAKFF605+uoVRQKRp/g8r5sIQQpfszyxHksBSR3x/DdkEAKFF605+uoVRQKRp/g8r5sIQQpfszyxHksBSR3x/DdkEAKFF605+uoVRQKRp/g8r5sIQQpfszyxHksBSR3x/DdkEAKFF605+uoVRQKRp/g8r5sIQQpfszyxHksBSR3x/DdkEAKFF605+uoVRQKRp/g8r5sIQQpfszyxHksBSR3x/DdkEAKFF605+uoVRQKRp/g8r5sIQQpfszyxHksBSR3x/DdkEAKFF605+uoVRQKRp/g8r5sIQQpfszyxHksBSR3x/DdkEAKFF605+uoVRQKRp/g8r5sIQQpfszyxHksBSR3x/DdkEAK',
+                            bell: 'data:audio/wav;base64,UklGRnQFAABXQVZFZm10IBAAAAABAAEARKwAAIhYAQACABAAZGF0YVAFAACAD4SQiI+NjYuJhYV/fn17eXd1c3Fvbm1sa2ppaWdmZWRjYmBfXl1cW1pZWFdWVVRTUlFQT05NTEtKSUhHRkVEQ0JBQEBAQEBBQUJDREVGSElKTE1PUFFTVFZXWV1eYGJkZmhqa21vcXN2eXt+gISHjJCUmZ6ipq2ytLm8wsTIy87Q0tbZ3N/j5unr7u/w8/T09fb29/j4+fn5+vn5+fn5+fn4+Pf39vX19PT08vHv7err6unk4t/c2dbT0M7LyMXCv7y5trKupqKdmZSQi4eEgH57eHVzcG5sa2lnZmRjYWBfXl1bWllYV1ZVVFNSU1JRUVBQUFBQUFBQUFFRUlJTU1RVVVZXWFLAAA8AAEAfAQAAABAA',
+                            pop: 'data:audio/wav;base64,UklGRpQEAABXQVZFZm10IBAAAAABAAEARKwAAIhYAQACABAAZGF0YXAEAACAP4iYoKiwtLi8v8DBwsLCwsHBwL+9vLq4trSysa+trKqqp6WjoJ+cm5iWlJKPjYuJhoSCgH17eXd1c3FvbW1ra2lpaGdmZWRjYmJhYGBfXl5dXV1cW1taWllZWVhYWFhYWFhYWFhYWVlaWltcXF1eX2Bhm5iViYeEgoB+fHp4dnRycG5samlnZWRiYF9dXFpZWFZVU1JRUFBOTk5MTExMTEzMy8vLy8vMzM7Oz9DR0tPU1dbX2drb3d7g4uTm6Oru7/Dy9PX29/j5+vv7/P39/f39/v3+/v7+/v7+/v39/fz8+/v6+fn4+Pb19PPy8O/t7Orq6Ofm5OPh4N7d3NrY19XU0dDP',
+                          };
+                          audio.src = sounds[sound.value as keyof typeof sounds];
+                          audio.play().catch(() => {});
+                          
+                          toast({
+                            title: "Son modifié",
+                            description: `Son "${sound.label}" sélectionné`,
+                          });
+                        }}
+                      >
+                        <span className="text-2xl">{sound.icon}</span>
+                        <span className="text-sm font-medium">{sound.label}</span>
+                      </Button>
+                    ))}
+                  </div>
                 </div>
               </CardContent>
             </Card>
