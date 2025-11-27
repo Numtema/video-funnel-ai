@@ -106,24 +106,24 @@ export function PreviewPane({ step, theme }: PreviewPaneProps) {
             )}
 
             {/* Content */}
-            <div className="p-6 space-y-4">
-              <h2 className="text-2xl font-bold break-words" style={{ color: theme.colors.text }}>
+            <div className="p-4 sm:p-6 space-y-3 sm:space-y-4">
+              <h2 className="text-lg sm:text-xl md:text-2xl font-bold break-words leading-tight" style={{ color: theme.colors.text }}>
                 {step.title || 'Titre de l\'étape'}
               </h2>
               
               {step.description && (
-                <p className="text-base opacity-80 break-words whitespace-pre-line">
+                <p className="text-sm sm:text-base opacity-80 break-words whitespace-pre-line leading-relaxed">
                   {step.description}
                 </p>
               )}
 
               {/* Question Options */}
               {step.type === StepType.Question && step.options && (
-                <div className="space-y-2 mt-4">
+                <div className="space-y-2 mt-3 sm:mt-4">
                   {step.options.map((option) => (
                     <button
                       key={option.id}
-                      className="w-full p-3 sm:p-4 rounded-lg border-2 text-left transition-all hover:scale-[1.02] break-words whitespace-normal text-sm sm:text-base"
+                      className="w-full p-2.5 sm:p-3 md:p-4 rounded-lg border-2 text-left transition-all hover:scale-[1.02] break-words whitespace-normal text-xs sm:text-sm md:text-base leading-snug"
                       style={{
                         borderColor: theme.colors.primary,
                         backgroundColor: 'transparent',
