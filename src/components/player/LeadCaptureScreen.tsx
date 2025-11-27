@@ -92,9 +92,9 @@ export function LeadCaptureScreen({ step, theme, funnelId, answers, score, onNex
   return (
     <div className="space-y-6 p-8 rounded-lg bg-card/50 backdrop-blur">
       <div className="text-center mb-6">
-        <h2 className="text-3xl font-bold">{step.title}</h2>
+        <h2 className="text-2xl sm:text-3xl font-bold break-words">{step.title}</h2>
         {step.description && (
-          <p className="text-muted-foreground mt-2">{step.description}</p>
+          <p className="text-muted-foreground mt-2 break-words px-2">{step.description}</p>
         )}
       </div>
 
