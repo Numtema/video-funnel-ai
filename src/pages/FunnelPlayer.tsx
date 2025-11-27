@@ -13,6 +13,7 @@ import { CalendarEmbedScreen } from '@/components/player/CalendarEmbedScreen';
 import { Button } from '@/components/ui/button';
 import { ArrowLeft } from 'lucide-react';
 import { toast } from '@/hooks/use-toast';
+import { sanitizeData } from '@/lib/sanitize';
 import logo from '@/assets/logo.svg';
 
 export default function FunnelPlayer() {
@@ -79,7 +80,9 @@ export default function FunnelPlayer() {
     // Save answer and update score
     let newScore = score;
     if (answer !== undefined) {
-      setAnswers(prev => ({ ...prev, [currentStep.id]: answer }));
+      // Sanitize answer to remove circular references and non-serializable data
+      const sanitizedAnswer = sanitizeData(answer);
+      setAnswers(prev => ({ ...prev, [currentStep.id]: sanitizedAnswer }));
       
       if (currentStep.type === StepType.Question && typeof answer?.score === 'number') {
         newScore = score + answer.score;
