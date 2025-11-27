@@ -4,24 +4,26 @@ import { Button } from '@/components/ui/button';
 import { Label } from '@/components/ui/label';
 import { Checkbox } from '@/components/ui/checkbox';
 import { Textarea } from '@/components/ui/textarea';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Plus, Trash2 } from 'lucide-react';
 
 interface ContentTabProps {
   step: QuizStep;
   onUpdate: (step: QuizStep) => void;
+  allSteps: QuizStep[];
 }
 
-export function ContentTab({ step, onUpdate }: ContentTabProps) {
+export function ContentTab({ step, onUpdate, allSteps }: ContentTabProps) {
   if (step.type === StepType.Question) {
-    return <QuestionContent step={step} onUpdate={onUpdate} />;
+    return <QuestionContent step={step} onUpdate={onUpdate} allSteps={allSteps} />;
   }
 
   if (step.type === StepType.LeadCapture) {
-    return <LeadCaptureContent step={step} onUpdate={onUpdate} />;
+    return <LeadCaptureContent step={step} onUpdate={onUpdate} allSteps={allSteps} />;
   }
 
   if (step.type === StepType.CalendarEmbed) {
-    return <CalendarContent step={step} onUpdate={onUpdate} />;
+    return <CalendarContent step={step} onUpdate={onUpdate} allSteps={allSteps} />;
   }
 
   return (
@@ -31,8 +33,9 @@ export function ContentTab({ step, onUpdate }: ContentTabProps) {
   );
 }
 
-function QuestionContent({ step, onUpdate }: ContentTabProps) {
+function QuestionContent({ step, onUpdate, allSteps }: ContentTabProps) {
   const options = step.options || [];
+  const availableSteps = allSteps.filter(s => s.id !== step.id);
 
   const handleAddOption = () => {
     const newOption: QuestionOption = {
@@ -67,30 +70,74 @@ function QuestionContent({ step, onUpdate }: ContentTabProps) {
   return (
     <div className="space-y-4">
       <div>
+        <Label className="mb-2">Routage par défaut</Label>
+        <Select 
+          value={step.nextStepId || 'next'}
+          onValueChange={(value) => onUpdate({ ...step, nextStepId: value === 'next' ? undefined : value })}
+        >
+          <SelectTrigger>
+            <SelectValue placeholder="Étape suivante" />
+          </SelectTrigger>
+          <SelectContent>
+            <SelectItem value="next">Étape suivante automatique</SelectItem>
+            {availableSteps.map(s => (
+              <SelectItem key={s.id} value={s.id}>
+                {s.title || 'Sans titre'}
+              </SelectItem>
+            ))}
+          </SelectContent>
+        </Select>
+        <p className="text-xs text-muted-foreground mt-1">
+          Étape par défaut si aucune condition spécifique
+        </p>
+      </div>
+
+      <div>
         <Label className="mb-2">Options de réponse</Label>
         <div className="space-y-3">
           {options.map((option, index) => (
-            <div key={option.id} className="flex gap-2">
-              <Input
-                value={option.text}
-                onChange={(e) => handleUpdateOption(index, { text: e.target.value })}
-                placeholder={`Option ${index + 1}`}
-                className="flex-1"
-              />
-              <Input
-                type="number"
-                value={option.score || 0}
-                onChange={(e) => handleUpdateOption(index, { score: parseInt(e.target.value) || 0 })}
-                placeholder="Score"
-                className="w-20"
-              />
-              <Button
-                variant="ghost"
-                size="sm"
-                onClick={() => handleDeleteOption(index)}
-              >
-                <Trash2 className="w-4 h-4 text-destructive" />
-              </Button>
+            <div key={option.id} className="space-y-2 p-3 border rounded-lg">
+              <div className="flex gap-2">
+                <Input
+                  value={option.text}
+                  onChange={(e) => handleUpdateOption(index, { text: e.target.value })}
+                  placeholder={`Option ${index + 1}`}
+                  className="flex-1"
+                />
+                <Input
+                  type="number"
+                  value={option.score || 0}
+                  onChange={(e) => handleUpdateOption(index, { score: parseInt(e.target.value) || 0 })}
+                  placeholder="Score"
+                  className="w-20"
+                />
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  onClick={() => handleDeleteOption(index)}
+                >
+                  <Trash2 className="w-4 h-4 text-destructive" />
+                </Button>
+              </div>
+              <div>
+                <Label className="text-xs">Routage conditionnel (optionnel)</Label>
+                <Select 
+                  value={option.nextStepId || 'default'}
+                  onValueChange={(value) => handleUpdateOption(index, { nextStepId: value === 'default' ? undefined : value })}
+                >
+                  <SelectTrigger className="mt-1">
+                    <SelectValue placeholder="Utiliser routage par défaut" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="default">Utiliser routage par défaut</SelectItem>
+                    {availableSteps.map(s => (
+                      <SelectItem key={s.id} value={s.id}>
+                        → {s.title || 'Sans titre'}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
             </div>
           ))}
         </div>

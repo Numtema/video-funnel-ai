@@ -17,7 +17,7 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { Sparkles, Loader2, Rocket } from 'lucide-react';
+import { Sparkles, Loader2, Rocket, Library } from 'lucide-react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 
 interface CreateFunnelModalProps {
@@ -26,7 +26,7 @@ interface CreateFunnelModalProps {
 }
 
 const CreateFunnelModal = ({ open, onOpenChange }: CreateFunnelModalProps) => {
-  const [step, setStep] = useState<'method' | 'ai' | 'blank'>('method');
+  const [step, setStep] = useState<'method' | 'ai' | 'blank' | 'template'>('method');
   const [loading, setLoading] = useState(false);
   const [name, setName] = useState('');
   const [description, setDescription] = useState('');
@@ -147,7 +147,7 @@ const CreateFunnelModal = ({ open, onOpenChange }: CreateFunnelModalProps) => {
         </DialogHeader>
 
         {step === 'method' && (
-          <div className="grid gap-4 md:grid-cols-2 py-4">
+          <div className="grid gap-4 md:grid-cols-3 py-4">
             <Card 
               className="cursor-pointer hover:shadow-elegant transition-smooth hover:scale-105 border-2 border-accent/20"
               onClick={() => setStep('ai')}
@@ -166,6 +166,29 @@ const CreateFunnelModal = ({ open, onOpenChange }: CreateFunnelModalProps) => {
                   <span className="font-semibold">✨ Recommandé</span>
                   <p className="text-muted-foreground mt-1">
                     Rapide et intelligent
+                  </p>
+                </div>
+              </CardContent>
+            </Card>
+
+            <Card 
+              className="cursor-pointer hover:shadow-elegant transition-smooth hover:scale-105"
+              onClick={() => setStep('template')}
+            >
+              <CardHeader>
+                <div className="h-12 w-12 bg-primary/10 rounded-lg flex items-center justify-center mb-2">
+                  <Library className="h-6 w-6 text-primary" />
+                </div>
+                <CardTitle>Partir d'un template</CardTitle>
+                <CardDescription>
+                  Choisissez parmi nos templates pré-configurés
+                </CardDescription>
+              </CardHeader>
+              <CardContent>
+                <div className="bg-muted rounded-lg p-3 text-sm">
+                  <span className="font-semibold">Rapide</span>
+                  <p className="text-muted-foreground mt-1">
+                    Templates prêts à l'emploi
                   </p>
                 </div>
               </CardContent>
@@ -303,6 +326,32 @@ const CreateFunnelModal = ({ open, onOpenChange }: CreateFunnelModalProps) => {
                 {loading ? 'Création...' : 'Créer le funnel'}
               </Button>
             </div>
+          </div>
+        )}
+
+        {step === 'template' && (
+          <div className="space-y-4 py-4">
+            <p className="text-center text-muted-foreground">
+              Redirection vers la page des templates...
+            </p>
+            <div className="flex justify-center pt-4">
+              <Button 
+                onClick={() => {
+                  onOpenChange(false);
+                  navigate('/templates');
+                }}
+                size="lg"
+              >
+                Voir les templates
+              </Button>
+            </div>
+            <Button 
+              variant="outline" 
+              onClick={() => setStep('method')}
+              className="w-full"
+            >
+              Retour
+            </Button>
           </div>
         )}
       </DialogContent>

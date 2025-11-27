@@ -17,9 +17,10 @@ interface StepEditorProps {
   step: QuizStep;
   onUpdate: (step: QuizStep) => void;
   onDelete: () => void;
+  allSteps: QuizStep[];
 }
 
-export function StepEditor({ step, onUpdate, onDelete }: StepEditorProps) {
+export function StepEditor({ step, onUpdate, onDelete, allSteps }: StepEditorProps) {
   const [isGeneratingTitle, setIsGeneratingTitle] = useState(false);
   const [isGeneratingDesc, setIsGeneratingDesc] = useState(false);
 
@@ -161,7 +162,7 @@ export function StepEditor({ step, onUpdate, onDelete }: StepEditorProps) {
         </TabsList>
 
         <TabsContent value="content" className="mt-6">
-          <ContentTab step={step} onUpdate={onUpdate} />
+          <ContentTab step={step} onUpdate={onUpdate} allSteps={allSteps} />
         </TabsContent>
 
         <TabsContent value="media" className="mt-6">

@@ -82,16 +82,21 @@ export const submissionService = {
       funnel_id: data.funnelId
     });
 
-    // 3. Update analytics session
-    await supabase
-      .from('analytics_sessions')
-      .update({
-        completed: true,
-        submitted: true,
-        score: data.score,
-        completed_at: new Date().toISOString()
-      })
-      .eq('id', data.sessionId);
+    // 3. Update analytics session (with error handling)
+    try {
+      await supabase
+        .from('analytics_sessions')
+        .update({
+          completed: true,
+          submitted: true,
+          score: data.score,
+          completed_at: new Date().toISOString()
+        })
+        .eq('id', data.sessionId);
+    } catch (error) {
+      console.error('Error updating analytics session:', error);
+      // Continue even if analytics update fails
+    }
 
     // 4. Send webhook if configured
     const { data: funnel } = await supabase
