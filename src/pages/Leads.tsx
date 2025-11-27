@@ -15,8 +15,16 @@ import {
   Filter,
   UserCheck,
   Users,
-  TrendingUp
+  TrendingUp,
+  Eye
 } from 'lucide-react';
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+} from '@/components/ui/dialog';
 import {
   Select,
   SelectContent,
@@ -42,6 +50,8 @@ interface Lead {
   score: number;
   status: 'nouveau' | 'contacté' | 'converti';
   created_at: string;
+  device?: string;
+  answers?: Record<string, any>;
   funnels: {
     name: string;
   };
@@ -395,6 +405,54 @@ const Leads = () => {
                         </TableCell>
                         <TableCell>
                           <div className="flex gap-2">
+                            <Dialog>
+                              <DialogTrigger asChild>
+                                <Button size="sm" variant="ghost">
+                                  <Eye className="h-4 w-4" />
+                                </Button>
+                              </DialogTrigger>
+                              <DialogContent className="max-w-2xl max-h-[80vh] overflow-y-auto">
+                                <DialogHeader>
+                                  <DialogTitle>Détails du lead - {lead.contact_name}</DialogTitle>
+                                </DialogHeader>
+                                <div className="space-y-4">
+                                  <div>
+                                    <h3 className="font-semibold mb-2">Informations de contact</h3>
+                                    <div className="space-y-1 text-sm">
+                                      <p><strong>Email:</strong> {lead.contact_email}</p>
+                                      {lead.contact_phone && <p><strong>Téléphone:</strong> {lead.contact_phone}</p>}
+                                      <p><strong>Score:</strong> {lead.score}</p>
+                                      {lead.device && <p><strong>Appareil:</strong> {lead.device}</p>}
+                                    </div>
+                                  </div>
+                                  <div>
+                                    <h3 className="font-semibold mb-2">Réponses du funnel</h3>
+                                    <div className="space-y-3">
+                                      {lead.answers && Object.entries(lead.answers).map(([stepId, answer]: [string, any]) => (
+                                        <div key={stepId} className="border rounded-lg p-3 bg-muted/50">
+                                          <p className="text-sm font-medium mb-1">Étape: {stepId}</p>
+                                          <div className="text-sm">
+                                            {typeof answer === 'object' && answer !== null ? (
+                                              <div className="space-y-1">
+                                                {answer.text && <p><strong>Réponse:</strong> {answer.text}</p>}
+                                                {answer.value !== undefined && <p><strong>Valeur:</strong> {String(answer.value)}</p>}
+                                                {answer.score !== undefined && <p><strong>Points:</strong> {answer.score}</p>}
+                                                {answer.label && <p><strong>Choix:</strong> {answer.label}</p>}
+                                              </div>
+                                            ) : (
+                                              <p>{String(answer)}</p>
+                                            )}
+                                          </div>
+                                        </div>
+                                      ))}
+                                      {(!lead.answers || Object.keys(lead.answers).length === 0) && (
+                                        <p className="text-sm text-muted-foreground">Aucune réponse enregistrée</p>
+                                      )}
+                                    </div>
+                                  </div>
+                                </div>
+                              </DialogContent>
+                            </Dialog>
                             {lead.contact_email && (
                               <Button
                                 size="sm"
