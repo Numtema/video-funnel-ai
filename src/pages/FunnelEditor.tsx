@@ -53,21 +53,32 @@ export default function FunnelEditor() {
   };
 
   const handleSave = async () => {
-    if (!config || !id) return;
+    if (!config || !id) {
+      console.log('❌ Cannot save: missing config or id', { hasConfig: !!config, id });
+      return;
+    }
 
+    console.log('💾 Starting save for funnel:', id);
     setIsSaving(true);
     try {
-      await funnelService.update(id, { config });
+      const result = await funnelService.update(id, { config });
+      console.log('✅ Funnel saved successfully:', result);
       setHasUnsavedChanges(false);
       toast({
         title: 'Sauvegardé',
         description: 'Vos modifications ont été enregistrées',
       });
-    } catch (error) {
-      console.error('Error saving funnel:', error);
+    } catch (error: any) {
+      console.error('❌ Error saving funnel:', error);
+      console.error('Error details:', {
+        message: error.message,
+        details: error.details,
+        hint: error.hint,
+        code: error.code
+      });
       toast({
         title: 'Erreur',
-        description: 'Impossible de sauvegarder le funnel',
+        description: error.message || 'Impossible de sauvegarder le funnel',
         variant: 'destructive',
       });
     } finally {
