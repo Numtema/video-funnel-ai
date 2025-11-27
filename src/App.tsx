@@ -12,6 +12,7 @@ import Funnels from "./pages/Funnels";
 import FunnelEditor from "./pages/FunnelEditor";
 import FunnelPlayer from "./pages/FunnelPlayer";
 import Analytics from "./pages/Analytics";
+import FunnelAnalytics from "./pages/FunnelAnalytics";
 import Leads from "./pages/Leads";
 import Settings from "./pages/Settings";
 import Templates from "./pages/Templates";
@@ -60,6 +61,14 @@ const App = () => (
               element={
                 <ProtectedRoute>
                   <Analytics />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/analytics/:id"
+              element={
+                <ProtectedRoute>
+                  <FunnelAnalytics />
                 </ProtectedRoute>
               }
             />
