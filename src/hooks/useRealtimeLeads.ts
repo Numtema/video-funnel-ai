@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
+import { useNotificationSound } from '@/hooks/useNotificationSound';
 import { RealtimePostgresChangesPayload } from '@supabase/supabase-js';
 
 interface Submission {
@@ -17,6 +18,7 @@ interface Submission {
 
 export const useRealtimeLeads = (userId: string | undefined) => {
   const { toast } = useToast();
+  const { play } = useNotificationSound();
   const [newLeadCount, setNewLeadCount] = useState(0);
 
   useEffect(() => {
@@ -49,6 +51,9 @@ export const useRealtimeLeads = (userId: string | undefined) => {
           if (funnel && funnel.user_id === userId) {
             const contactName = newSubmission.contact_name || newSubmission.contact_email || 'Anonyme';
             const funnelName = funnel.name || 'Funnel';
+
+            // Play notification sound
+            play();
 
             toast({
               title: '🎉 Nouveau lead !',
