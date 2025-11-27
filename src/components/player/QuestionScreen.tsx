@@ -48,10 +48,10 @@ export function QuestionScreen({ step, theme, onNext }: QuestionScreenProps) {
         </>
       )}
 
-      <h2 className="text-3xl font-bold text-center">{step.title}</h2>
+      <h2 className="text-2xl sm:text-3xl font-bold text-center break-words">{step.title}</h2>
       
       {step.description && (
-        <p className="text-center text-muted-foreground">{step.description}</p>
+        <p className="text-center text-muted-foreground break-words px-2">{step.description}</p>
       )}
 
       <div className="space-y-3 mt-8">
@@ -61,12 +61,12 @@ export function QuestionScreen({ step, theme, onNext }: QuestionScreenProps) {
             onClick={() => handleOptionClick(option)}
             variant="outline"
             size="lg"
-            className="w-full justify-start text-left h-auto py-4 px-6 hover:scale-[1.02] transition-transform"
+            className="w-full justify-start text-left h-auto py-4 px-6 hover:scale-[1.02] transition-transform whitespace-normal break-words"
             style={{
               borderColor: theme.colors.primary,
             }}
           >
-            <span className="text-lg">{option.text}</span>
+            <span className="text-base sm:text-lg leading-relaxed">{option.text}</span>
           </Button>
         ))}
       </div>

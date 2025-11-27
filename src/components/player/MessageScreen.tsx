@@ -41,10 +41,10 @@ export function MessageScreen({ step, theme, onNext }: MessageScreenProps) {
         </>
       )}
 
-      <h2 className="text-3xl font-bold">{step.title}</h2>
+      <h2 className="text-2xl sm:text-3xl font-bold break-words">{step.title}</h2>
       
       {step.description && (
-        <p className="text-lg text-muted-foreground max-w-xl mx-auto whitespace-pre-line">
+        <p className="text-base sm:text-lg text-muted-foreground max-w-xl mx-auto whitespace-pre-line break-words px-2">
           {step.description}
         </p>
       )}

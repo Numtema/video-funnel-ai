@@ -41,10 +41,10 @@ export function WelcomeScreen({ step, theme, socialLinks, onNext }: WelcomeScree
         </>
       )}
 
-      <h1 className="text-4xl font-bold mb-4">{step.title}</h1>
+      <h1 className="text-2xl sm:text-3xl lg:text-4xl font-bold mb-4 break-words">{step.title}</h1>
       
       {step.description && (
-        <p className="text-lg text-muted-foreground max-w-xl mx-auto">
+        <p className="text-base sm:text-lg text-muted-foreground max-w-xl mx-auto break-words px-2">
           {step.description}
         </p>
       )}

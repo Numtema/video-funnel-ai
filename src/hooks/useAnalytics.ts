@@ -44,8 +44,38 @@ async function getClientIP(): Promise<string | null> {
 export function useAnalytics(funnelId: string) {
   const [sessionId] = useState(() => generateSessionId());
   const [steps, setSteps] = useState<StepVisit[]>([]);
+  const [sessionCreated, setSessionCreated] = useState(false);
+
+  const createSession = async () => {
+    if (sessionCreated || !funnelId) return;
+    
+    try {
+      const ip = await getClientIP();
+      
+      await supabase.from('analytics_sessions').insert({
+        id: sessionId,
+        funnel_id: funnelId,
+        started_at: new Date().toISOString(),
+        steps: [] as any,
+        completed: false,
+        device: getDeviceType(),
+        source: getSource(),
+        user_agent: navigator.userAgent,
+        ip_address: ip
+      });
+      
+      setSessionCreated(true);
+    } catch (error) {
+      console.error('Error creating analytics session:', error);
+    }
+  };
 
   const trackStepEnter = (stepId: string, stepType: string) => {
+    // Create session on first step if not already created
+    if (!sessionCreated) {
+      createSession();
+    }
+    
     const visit: StepVisit = {
       stepId,
       stepType,
@@ -69,21 +99,17 @@ export function useAnalytics(funnelId: string) {
   };
 
   const saveSession = async (completed: boolean, score?: number) => {
-    const ip = await getClientIP();
-    
-    await supabase.from('analytics_sessions').upsert({
-      id: sessionId,
-      funnel_id: funnelId,
-      started_at: new Date(steps[0]?.enteredAt || Date.now()).toISOString(),
-      completed_at: completed ? new Date().toISOString() : null,
-      steps: steps as any,
-      completed,
-      score,
-      device: getDeviceType(),
-      source: getSource(),
-      user_agent: navigator.userAgent,
-      ip_address: ip
-    });
+    try {
+      await supabase.from('analytics_sessions').update({
+        completed_at: completed ? new Date().toISOString() : null,
+        steps: steps as any,
+        completed,
+        submitted: completed,
+        score
+      }).eq('id', sessionId);
+    } catch (error) {
+      console.error('Error saving session:', error);
+    }
   };
 
   return { sessionId, trackStepEnter, trackStepLeave, saveSession };
