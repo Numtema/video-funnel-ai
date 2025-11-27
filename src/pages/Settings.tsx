@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useRef } from 'react';
 import MainLayout from '@/components/layout/MainLayout';
 import { useAuth } from '@/context/AuthContext';
 import { useToast } from '@/hooks/use-toast';
@@ -7,12 +7,13 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-import { Avatar, AvatarFallback } from '@/components/ui/avatar';
+import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Badge } from '@/components/ui/badge';
-import { User, CreditCard, Bell, Sparkles, Upload } from 'lucide-react';
+import { User, CreditCard, Bell, Sparkles, Upload, Lock } from 'lucide-react';
 import { z } from 'zod';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
+import { supabase } from '@/integrations/supabase/client';
 
 const profileSchema = z.object({
   full_name: z.string().min(2, 'Minimum 2 caractères').max(100),
@@ -20,12 +21,23 @@ const profileSchema = z.object({
   phone: z.string().max(20).optional(),
 });
 
+const passwordSchema = z.object({
+  newPassword: z.string().min(8, 'Minimum 8 caractères'),
+  confirmPassword: z.string(),
+}).refine((data) => data.newPassword === data.confirmPassword, {
+  message: "Les mots de passe ne correspondent pas",
+  path: ["confirmPassword"],
+});
+
 type ProfileFormData = z.infer<typeof profileSchema>;
+type PasswordFormData = z.infer<typeof passwordSchema>;
 
 const Settings = () => {
-  const { user, profile, updateProfile } = useAuth();
+  const { user, profile, updateProfile, refreshProfile } = useAuth();
   const { toast } = useToast();
   const [loading, setLoading] = useState(false);
+  const [uploading, setUploading] = useState(false);
+  const fileInputRef = useRef<HTMLInputElement>(null);
 
   const form = useForm<ProfileFormData>({
     resolver: zodResolver(profileSchema),
@@ -33,6 +45,14 @@ const Settings = () => {
       full_name: profile?.full_name || '',
       company_name: profile?.company_name || '',
       phone: profile?.phone || '',
+    },
+  });
+
+  const passwordForm = useForm<PasswordFormData>({
+    resolver: zodResolver(passwordSchema),
+    defaultValues: {
+      newPassword: '',
+      confirmPassword: '',
     },
   });
 
@@ -46,6 +66,107 @@ const Settings = () => {
         title: "Profil mis à jour",
         description: "Vos informations ont été sauvegardées",
       });
+    }
+  };
+
+  const handlePasswordReset = async (data: PasswordFormData) => {
+    try {
+      setLoading(true);
+      const { error } = await supabase.auth.updateUser({
+        password: data.newPassword
+      });
+
+      if (error) throw error;
+
+      toast({
+        title: "Mot de passe modifié",
+        description: "Votre mot de passe a été mis à jour avec succès",
+      });
+      
+      passwordForm.reset();
+    } catch (error: any) {
+      toast({
+        title: "Erreur",
+        description: error.message,
+        variant: "destructive",
+      });
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleAvatarUpload = async (event: React.ChangeEvent<HTMLInputElement>) => {
+    try {
+      const file = event.target.files?.[0];
+      if (!file) return;
+
+      // Validate file size (max 2MB)
+      if (file.size > 2 * 1024 * 1024) {
+        toast({
+          title: "Fichier trop volumineux",
+          description: "La taille maximale est de 2MB",
+          variant: "destructive",
+        });
+        return;
+      }
+
+      // Validate file type
+      if (!file.type.startsWith('image/')) {
+        toast({
+          title: "Format invalide",
+          description: "Seules les images sont acceptées",
+          variant: "destructive",
+        });
+        return;
+      }
+
+      setUploading(true);
+
+      // Delete old avatar if exists
+      if (profile?.avatar_url) {
+        const oldPath = profile.avatar_url.split('/').pop();
+        if (oldPath) {
+          await supabase.storage.from('avatars').remove([`${user?.id}/${oldPath}`]);
+        }
+      }
+
+      // Upload new avatar
+      const fileExt = file.name.split('.').pop();
+      const fileName = `${Date.now()}.${fileExt}`;
+      const filePath = `${user?.id}/${fileName}`;
+
+      const { error: uploadError } = await supabase.storage
+        .from('avatars')
+        .upload(filePath, file);
+
+      if (uploadError) throw uploadError;
+
+      // Get public URL
+      const { data: { publicUrl } } = supabase.storage
+        .from('avatars')
+        .getPublicUrl(filePath);
+
+      // Update profile with new avatar URL
+      const { error: updateError } = await updateProfile({
+        avatar_url: publicUrl,
+      });
+
+      if (updateError) throw updateError;
+
+      await refreshProfile();
+
+      toast({
+        title: "Photo mise à jour",
+        description: "Votre photo de profil a été mise à jour",
+      });
+    } catch (error: any) {
+      toast({
+        title: "Erreur",
+        description: error.message,
+        variant: "destructive",
+      });
+    } finally {
+      setUploading(false);
     }
   };
 
@@ -118,14 +239,29 @@ const Settings = () => {
               <CardContent className="space-y-6">
                 <div className="flex items-center gap-6">
                   <Avatar className="h-20 w-20">
+                    {profile?.avatar_url && (
+                      <AvatarImage src={profile.avatar_url} alt={profile.full_name || 'Avatar'} />
+                    )}
                     <AvatarFallback className="bg-primary text-primary-foreground text-2xl">
                       {getInitials()}
                     </AvatarFallback>
                   </Avatar>
                   <div>
-                    <Button variant="outline" size="sm">
+                    <input
+                      ref={fileInputRef}
+                      type="file"
+                      accept="image/*"
+                      onChange={handleAvatarUpload}
+                      className="hidden"
+                    />
+                    <Button 
+                      variant="outline" 
+                      size="sm"
+                      onClick={() => fileInputRef.current?.click()}
+                      disabled={uploading}
+                    >
                       <Upload className="mr-2 h-4 w-4" />
-                      Changer la photo
+                      {uploading ? 'Téléchargement...' : 'Changer la photo'}
                     </Button>
                     <p className="text-xs text-muted-foreground mt-2">
                       JPG, PNG ou GIF. Max 2MB.
@@ -180,6 +316,51 @@ const Settings = () => {
 
                   <Button type="submit" disabled={loading}>
                     {loading ? 'Enregistrement...' : 'Sauvegarder'}
+                  </Button>
+                </form>
+              </CardContent>
+            </Card>
+
+            <Card>
+              <CardHeader>
+                <CardTitle>Sécurité</CardTitle>
+                <CardDescription>
+                  Changez votre mot de passe
+                </CardDescription>
+              </CardHeader>
+              <CardContent>
+                <form onSubmit={passwordForm.handleSubmit(handlePasswordReset)} className="space-y-4">
+                  <div className="space-y-2">
+                    <Label htmlFor="newPassword">Nouveau mot de passe</Label>
+                    <Input
+                      id="newPassword"
+                      type="password"
+                      {...passwordForm.register('newPassword')}
+                    />
+                    {passwordForm.formState.errors.newPassword && (
+                      <p className="text-sm text-destructive">
+                        {passwordForm.formState.errors.newPassword.message}
+                      </p>
+                    )}
+                  </div>
+
+                  <div className="space-y-2">
+                    <Label htmlFor="confirmPassword">Confirmer le mot de passe</Label>
+                    <Input
+                      id="confirmPassword"
+                      type="password"
+                      {...passwordForm.register('confirmPassword')}
+                    />
+                    {passwordForm.formState.errors.confirmPassword && (
+                      <p className="text-sm text-destructive">
+                        {passwordForm.formState.errors.confirmPassword.message}
+                      </p>
+                    )}
+                  </div>
+
+                  <Button type="submit" disabled={loading}>
+                    <Lock className="mr-2 h-4 w-4" />
+                    {loading ? 'Modification...' : 'Changer le mot de passe'}
                   </Button>
                 </form>
               </CardContent>
