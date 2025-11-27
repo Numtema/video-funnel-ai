@@ -77,6 +77,8 @@ export interface QuizConfig {
     phoneNumber?: string;
     message?: string;
   };
+  redirectUrl?: string;
+  redirectType?: 'website' | 'whatsapp' | 'messenger' | 'none';
 }
 
 export interface Funnel {
@@ -108,6 +110,7 @@ export interface Profile {
   company_name?: string;
   avatar_url?: string;
   phone?: string;
+  website?: string;
   plan: 'free' | 'starter' | 'pro' | 'enterprise';
   max_funnels: number;
   max_ai_generations_monthly: number;

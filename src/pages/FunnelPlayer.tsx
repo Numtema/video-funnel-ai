@@ -27,6 +27,7 @@ export default function FunnelPlayer() {
   const [loading, setLoading] = useState(true);
   const [startTime] = useState(Date.now());
   const [stepHistory, setStepHistory] = useState<string[]>([]);
+  const [creatorInfo, setCreatorInfo] = useState<{ full_name?: string; company_name?: string; avatar_url?: string; website?: string } | null>(null);
 
   const { sessionId, trackStepEnter, trackStepLeave, saveSession } = useAnalytics(funnelId);
 
@@ -44,6 +45,7 @@ export default function FunnelPlayer() {
       const funnel = await funnelService.getByShareToken(shareToken);
       setFunnelId(funnel.id);
       setConfig(funnel.config);
+      setCreatorInfo(funnel.creator || null);
       if (funnel.config.steps.length > 0) {
         setCurrentStepId(funnel.config.steps[0].id);
       }
@@ -155,6 +157,33 @@ export default function FunnelPlayer() {
 
   const handleComplete = async () => {
     await saveSession(true, score);
+    
+    // Handle redirection
+    if (config?.redirectType && config.redirectType !== 'none' && config.redirectUrl) {
+      let redirectUrl = '';
+      
+      if (config.redirectType === 'whatsapp') {
+        const phone = config.redirectUrl.replace(/\D/g, '');
+        const message = encodeURIComponent('Bonjour, je suis intéressé(e) par vos services');
+        redirectUrl = `https://wa.me/${phone}?text=${message}`;
+      } else if (config.redirectType === 'messenger') {
+        redirectUrl = `https://m.me/${config.redirectUrl}`;
+      } else if (config.redirectType === 'website') {
+        redirectUrl = config.redirectUrl;
+      }
+      
+      if (redirectUrl) {
+        toast({
+          title: 'Merci !',
+          description: 'Redirection en cours...'
+        });
+        setTimeout(() => {
+          window.location.href = redirectUrl;
+        }, 1500);
+        return;
+      }
+    }
+    
     toast({
       title: 'Merci !',
       description: 'Votre réponse a été enregistrée'
@@ -269,10 +298,39 @@ export default function FunnelPlayer() {
       </div>
 
       {/* Branding footer */}
-      <div className="py-4 text-center text-sm text-muted-foreground backdrop-blur-sm bg-background/30">
-        <div className="flex items-center justify-center gap-2">
+      <div className="py-6 text-center backdrop-blur-sm bg-background/30">
+        {/* Creator branding */}
+        {creatorInfo && (creatorInfo.avatar_url || creatorInfo.company_name) && (
+          <div className="flex flex-col items-center gap-2 mb-4 pb-4 border-b border-muted-foreground/20">
+            {creatorInfo.avatar_url && (
+              <img 
+                src={creatorInfo.avatar_url} 
+                alt={creatorInfo.company_name || creatorInfo.full_name || 'Creator'} 
+                className="h-12 w-12 rounded-full object-cover"
+              />
+            )}
+            {creatorInfo.company_name && (
+              <p className="text-sm font-medium text-muted-foreground">
+                {creatorInfo.company_name}
+              </p>
+            )}
+            {creatorInfo.website && (
+              <a 
+                href={creatorInfo.website} 
+                target="_blank" 
+                rel="noopener noreferrer"
+                className="text-xs text-primary hover:underline"
+              >
+                Visitez notre site
+              </a>
+            )}
+          </div>
+        )}
+        
+        {/* Platform branding */}
+        <div className="flex items-center justify-center gap-2 text-xs text-muted-foreground">
           <span>Powered by</span>
-          <img src={logo} alt="Nümtema Face" className="h-5" />
+          <img src={logo} alt="Nümtema Face" className="h-4" />
         </div>
       </div>
     </div>

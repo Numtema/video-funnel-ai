@@ -9,6 +9,7 @@ import {
 } from '@/components/ui/collapsible';
 import { ChevronDown } from 'lucide-react';
 import { useState } from 'react';
+import { RedirectSettings } from './RedirectSettings';
 
 interface FunnelSettingsProps {
   config: QuizConfig;
@@ -245,6 +246,27 @@ export function FunnelSettings({ config, onUpdate }: FunnelSettingsProps) {
               Le logo s'affichera en haut du funnel
             </p>
           </div>
+        </CollapsibleContent>
+      </Collapsible>
+
+      {/* Redirect Section */}
+      <Collapsible
+        open={openSections.includes('redirect')}
+        onOpenChange={() => toggleSection('redirect')}
+      >
+        <CollapsibleTrigger className="flex items-center justify-between w-full p-3 hover:bg-muted rounded-lg">
+          <span className="font-medium text-sm">Redirection de fin</span>
+          <ChevronDown
+            className={`w-4 h-4 transition-transform ${
+              openSections.includes('redirect') ? 'rotate-180' : ''
+            }`}
+          />
+        </CollapsibleTrigger>
+        <CollapsibleContent className="pt-3">
+          <RedirectSettings 
+            config={config} 
+            onChange={(updates) => onUpdate({ ...config, ...updates })}
+          />
         </CollapsibleContent>
       </Collapsible>
 
