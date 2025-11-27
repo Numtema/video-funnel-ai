@@ -1,4 +1,5 @@
 import { QuizStep, ThemeConfig } from '@/types/funnel';
+import { isYouTubeUrl, getYouTubeEmbedUrl } from '@/lib/youtube';
 
 interface CalendarEmbedScreenProps {
   step: QuizStep;
@@ -7,6 +8,10 @@ interface CalendarEmbedScreenProps {
 }
 
 export function CalendarEmbedScreen({ step }: CalendarEmbedScreenProps) {
+  // Check if embedCode is a YouTube URL
+  const isYouTube = step.embedCode && isYouTubeUrl(step.embedCode);
+  const youtubeEmbedUrl = isYouTube ? getYouTubeEmbedUrl(step.embedCode || '') : null;
+
   return (
     <div className="space-y-6 p-8 rounded-lg bg-card/50 backdrop-blur max-w-5xl mx-auto">
       <div className="text-center mb-6">
@@ -17,10 +22,21 @@ export function CalendarEmbedScreen({ step }: CalendarEmbedScreenProps) {
       </div>
 
       {step.embedCode ? (
-        <div 
-          className="w-full min-h-[700px] rounded-lg overflow-hidden bg-background shadow-lg"
-          dangerouslySetInnerHTML={{ __html: step.embedCode }}
-        />
+        youtubeEmbedUrl ? (
+          <div className="w-full aspect-video rounded-lg overflow-hidden bg-background shadow-lg">
+            <iframe
+              src={youtubeEmbedUrl}
+              className="w-full h-full"
+              allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+              allowFullScreen
+            />
+          </div>
+        ) : (
+          <div 
+            className="w-full min-h-[700px] rounded-lg overflow-hidden bg-background shadow-lg"
+            dangerouslySetInnerHTML={{ __html: step.embedCode }}
+          />
+        )
       ) : (
         <div className="text-center py-12 text-muted-foreground">
           <p className="text-lg">Aucun calendrier configuré</p>
