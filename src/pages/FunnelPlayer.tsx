@@ -68,10 +68,25 @@ export default function FunnelPlayer() {
   }, [currentStepId, config]);
 
   const handleNext = async (answer?: any) => {
-    if (!config) return;
+    console.log('═══════════════════════════════════════════════');
+    console.log('🔵 FUNNEL PLAYER - HANDLENEXT CALLED');
+    console.log('═══════════════════════════════════════════════');
+    console.log('Current step ID:', currentStepId);
+    console.log('Answer received:', answer);
+    
+    if (!config) {
+      console.log('❌ No config, aborting handleNext');
+      return;
+    }
     
     const currentStep = config.steps.find(s => s.id === currentStepId);
-    if (!currentStep) return;
+    if (!currentStep) {
+      console.log('❌ Current step not found, aborting handleNext');
+      return;
+    }
+    
+    console.log('📍 Current step type:', currentStep.type);
+    console.log('📍 Current step title:', currentStep.title);
     
     // Track step leave
     trackStepLeave(currentStep.id, !!answer, answer);
@@ -79,22 +94,29 @@ export default function FunnelPlayer() {
     // Save answer and update score
     let newScore = score;
     if (answer !== undefined) {
-      setAnswers(prev => ({ ...prev, [currentStep.id]: answer }));
+      console.log('💾 Saving answer for step:', currentStep.id);
+      setAnswers(prev => {
+        const updated = { ...prev, [currentStep.id]: answer };
+        console.log('📊 Updated answers:', updated);
+        return updated;
+      });
       
       if (currentStep.type === StepType.Question && typeof answer?.score === 'number') {
         newScore = score + answer.score;
         setScore(newScore);
+        console.log('📈 Score updated:', { old: score, new: newScore });
       }
     }
 
     // Handle lead capture submission
     if (currentStep.type === StepType.LeadCapture && answer) {
-      console.log('💾 Starting lead submission...', {
-        funnelId,
-        sessionId,
-        hasAnswers: Object.keys(answers).length > 0,
-        contact: answer
-      });
+      console.log('═══════════════════════════════════════════════');
+      console.log('🎯 LEAD CAPTURE DETECTED - STARTING SUBMISSION');
+      console.log('═══════════════════════════════════════════════');
+      console.log('Funnel ID:', funnelId);
+      console.log('Session ID:', sessionId);
+      console.log('Answers collected:', Object.keys(answers).length, 'steps');
+      console.log('Contact data:', answer);
 
       try {
         const completionTime = Math.floor((Date.now() - startTime) / 1000);
@@ -112,34 +134,60 @@ export default function FunnelPlayer() {
           completionTime
         };
 
-        console.log('📤 Submitting lead data:', submissionData);
+        console.log('📦 Prepared submission data:');
+        console.log(JSON.stringify(submissionData, null, 2));
+        console.log('⏱️ Calling submissionService.submit...');
+        
         const result = await submissionService.submit(submissionData);
-        console.log('✅ Lead submitted successfully:', result);
+        
+        console.log('═══════════════════════════════════════════════');
+        console.log('✅✅✅ SUBMISSION SUCCESSFUL ✅✅✅');
+        console.log('═══════════════════════════════════════════════');
+        console.log('Result:', result);
 
         toast({
-          title: 'Lead enregistré !',
+          title: '✅ Lead enregistré !',
           description: 'Votre information a été sauvegardée avec succès.'
         });
       } catch (error: any) {
-        console.error('❌ Submission error:', error);
+        console.log('═══════════════════════════════════════════════');
+        console.error('❌❌❌ SUBMISSION FAILED ❌❌❌');
+        console.log('═══════════════════════════════════════════════');
+        console.error('Error type:', typeof error);
+        console.error('Error object:', error);
+        console.error('Error message:', error?.message);
+        console.error('Error code:', error?.code);
+        console.error('Error details:', error?.details);
+        console.error('Full error:', JSON.stringify(error, null, 2));
+        
         toast({
-          title: 'Erreur de soumission',
+          title: '❌ Erreur de soumission',
           description: error.message || 'Impossible d\'enregistrer vos informations',
           variant: 'destructive'
         });
+        
+        // Don't throw, continue with navigation
       }
     }
 
     // Get next step using conditional logic
+    console.log('🔄 Getting next step...');
     const nextStepId = getNextStep(currentStep.id, answer, config, newScore);
+    console.log('Next step ID:', nextStepId || 'NONE (funnel complete)');
     
     if (nextStepId) {
       setStepHistory(prev => [...prev, currentStepId]);
       setCurrentStepId(nextStepId);
+      console.log('✅ Navigated to next step');
     } else {
       // Funnel completed
+      console.log('🏁 Funnel completed, calling handleComplete...');
       await handleComplete();
     }
+    
+    console.log('═══════════════════════════════════════════════');
+    console.log('✅ HANDLENEXT COMPLETED');
+    console.log('═══════════════════════════════════════════════');
   };
 
   const handleBack = () => {

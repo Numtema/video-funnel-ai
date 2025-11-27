@@ -27,9 +27,14 @@ export function LeadCaptureScreen({ step, theme, funnelId, answers, score, onNex
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     
-    console.log('🔵 LeadCaptureScreen: Form submitted', { name, email, phone });
+    console.log('═══════════════════════════════════════════════');
+    console.log('🟢 LEAD CAPTURE SCREEN - FORM SUBMIT STARTED');
+    console.log('═══════════════════════════════════════════════');
+    console.log('📝 Form data:', { name, email, phone });
+    console.log('📦 Props received:', { funnelId, score, answersCount: Object.keys(answers).length });
     
     if (!email || !email.trim()) {
+      console.log('❌ Validation failed: email is empty');
       toast({
         title: 'Erreur',
         description: 'L\'email est requis',
@@ -38,18 +43,30 @@ export function LeadCaptureScreen({ step, theme, funnelId, answers, score, onNex
       return;
     }
 
+    console.log('✅ Validation passed, setting submitting state...');
     setSubmitting(true);
 
     try {
-      console.log('🔵 LeadCaptureScreen: Calling onNext with data');
-      await onNext({ name, email, phone, subscribed: false });
-      console.log('🔵 LeadCaptureScreen: onNext completed successfully');
+      const submitData = { name, email, phone, subscribed: false };
+      console.log('📤 About to call onNext with:', submitData);
+      console.log('⏱️ Timestamp:', new Date().toISOString());
+      
+      await onNext(submitData);
+      
+      console.log('═══════════════════════════════════════════════');
+      console.log('✅ LEAD CAPTURE - ONNEXT COMPLETED SUCCESSFULLY');
+      console.log('═══════════════════════════════════════════════');
       setSubmitted(true);
-    } catch (error) {
-      console.error('❌ LeadCaptureScreen: Submission error:', error);
+    } catch (error: any) {
+      console.log('═══════════════════════════════════════════════');
+      console.error('❌❌❌ LEAD CAPTURE - ERROR CAUGHT ❌❌❌');
+      console.log('═══════════════════════════════════════════════');
+      console.error('Error object:', error);
+      console.error('Error message:', error?.message);
+      console.error('Error stack:', error?.stack);
       toast({
-        title: 'Erreur',
-        description: 'Une erreur est survenue lors de l\'envoi',
+        title: 'Erreur de soumission',
+        description: error?.message || 'Une erreur est survenue lors de l\'envoi',
         variant: 'destructive'
       });
       setSubmitting(false);
