@@ -89,9 +89,16 @@ export default function FunnelPlayer() {
 
     // Handle lead capture submission
     if (currentStep.type === StepType.LeadCapture && answer) {
+      console.log('💾 Starting lead submission...', {
+        funnelId,
+        sessionId,
+        hasAnswers: Object.keys(answers).length > 0,
+        contact: answer
+      });
+
       try {
         const completionTime = Math.floor((Date.now() - startTime) / 1000);
-        await submissionService.submit({
+        const submissionData = {
           funnelId,
           sessionId,
           answers,
@@ -103,9 +110,23 @@ export default function FunnelPlayer() {
           },
           score: newScore,
           completionTime
+        };
+
+        console.log('📤 Submitting lead data:', submissionData);
+        const result = await submissionService.submit(submissionData);
+        console.log('✅ Lead submitted successfully:', result);
+
+        toast({
+          title: 'Lead enregistré !',
+          description: 'Votre information a été sauvegardée avec succès.'
         });
-      } catch (error) {
-        console.error('Submission error:', error);
+      } catch (error: any) {
+        console.error('❌ Submission error:', error);
+        toast({
+          title: 'Erreur de soumission',
+          description: error.message || 'Impossible d\'enregistrer vos informations',
+          variant: 'destructive'
+        });
       }
     }
 
