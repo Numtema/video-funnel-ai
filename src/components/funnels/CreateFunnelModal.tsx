@@ -228,11 +228,12 @@ const CreateFunnelModal = ({ open, onOpenChange }: CreateFunnelModalProps) => {
                 placeholder="Ex: Funnel pour un coach en développement personnel qui vend une formation en ligne sur la confiance en soi..."
                 value={aiPrompt}
                 onChange={(e) => setAiPrompt(e.target.value)}
-                maxLength={500}
-                rows={4}
+                maxLength={2000}
+                rows={6}
+                className="min-h-[120px]"
               />
               <p className="text-xs text-muted-foreground">
-                {aiPrompt.length}/500 caractères
+                {aiPrompt.length}/2000 caractères
               </p>
             </div>
 
