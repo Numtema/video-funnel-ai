@@ -4,9 +4,14 @@ import { Funnel, QuizConfig } from '@/types/funnel';
 export const funnelService = {
   // List user funnels
   async list(filters?: { search?: string; status?: string }): Promise<Funnel[]> {
+    // Get current user to filter by user_id
+    const { data: { user }, error: userError } = await supabase.auth.getUser();
+    if (userError || !user) throw new Error('User not authenticated');
+
     let query = supabase
       .from('funnels')
       .select('*')
+      .eq('user_id', user.id) // CRITICAL: Only show current user's funnels
       .is('deleted_at', null)
       .order('created_at', { ascending: false });
     
