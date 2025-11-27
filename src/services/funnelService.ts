@@ -45,10 +45,13 @@ export const funnelService = {
   },
 
   // Get by share token (public)
-  async getByShareToken(token: string): Promise<Funnel> {
+  async getByShareToken(token: string): Promise<Funnel & { creator?: { full_name?: string; company_name?: string; avatar_url?: string; website?: string } }> {
     const { data, error } = await supabase
       .from('funnels')
-      .select('*')
+      .select(`
+        *,
+        creator:profiles!user_id(full_name, company_name, avatar_url, website)
+      `)
       .eq('share_token', token)
       .eq('is_published', true)
       .eq('is_active', true)
@@ -60,7 +63,15 @@ export const funnelService = {
     // Increment views
     await supabase.rpc('increment_funnel_views', { funnel_id: data.id });
     
-    return data as unknown as Funnel;
+    // Transform the creator array to single object
+    const result = {
+      ...data,
+      creator: Array.isArray(data.creator) && data.creator.length > 0 
+        ? data.creator[0] 
+        : data.creator
+    } as any;
+    
+    return result as Funnel & { creator?: { full_name?: string; company_name?: string; avatar_url?: string; website?: string } };
   },
 
   // Create funnel

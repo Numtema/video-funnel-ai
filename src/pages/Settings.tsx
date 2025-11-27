@@ -14,11 +14,13 @@ import { z } from 'zod';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { supabase } from '@/integrations/supabase/client';
+import { PlansDialog } from '@/components/settings/PlansDialog';
 
 const profileSchema = z.object({
   full_name: z.string().min(2, 'Minimum 2 caractères').max(100),
   company_name: z.string().max(100).optional(),
   phone: z.string().max(20).optional(),
+  website: z.string().url('URL invalide').optional().or(z.literal('')),
 });
 
 const passwordSchema = z.object({
@@ -37,6 +39,7 @@ const Settings = () => {
   const { toast } = useToast();
   const [loading, setLoading] = useState(false);
   const [uploading, setUploading] = useState(false);
+  const [plansDialogOpen, setPlansDialogOpen] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   const form = useForm<ProfileFormData>({
@@ -45,6 +48,7 @@ const Settings = () => {
       full_name: profile?.full_name || '',
       company_name: profile?.company_name || '',
       phone: profile?.phone || '',
+      website: profile?.website || '',
     },
   });
 
@@ -314,6 +318,21 @@ const Settings = () => {
                     />
                   </div>
 
+                  <div className="space-y-2">
+                    <Label htmlFor="website">Site web</Label>
+                    <Input
+                      id="website"
+                      type="url"
+                      placeholder="https://example.com"
+                      {...form.register('website')}
+                    />
+                    {form.formState.errors.website && (
+                      <p className="text-sm text-destructive">
+                        {form.formState.errors.website.message}
+                      </p>
+                    )}
+                  </div>
+
                   <Button type="submit" disabled={loading}>
                     {loading ? 'Enregistrement...' : 'Sauvegarder'}
                   </Button>
@@ -404,7 +423,7 @@ const Settings = () => {
                   <p className="text-sm text-muted-foreground mb-4">
                     Passez à un plan supérieur pour débloquer plus de funnels et de crédits IA
                   </p>
-                  <Button>Voir les plans</Button>
+                  <Button onClick={() => setPlansDialogOpen(true)}>Voir les plans</Button>
                 </div>
               </CardContent>
             </Card>
@@ -446,12 +465,19 @@ const Settings = () => {
                 <div className="bg-accent/10 border border-accent/20 rounded-lg p-4">
                   <div className="flex items-start gap-3">
                     <Sparkles className="h-5 w-5 text-accent mt-0.5" />
-                    <div className="text-sm">
+                    <div className="text-sm flex-1">
                       <p className="font-medium mb-1">Optimisez votre utilisation</p>
-                      <p className="text-muted-foreground">
+                      <p className="text-muted-foreground mb-3">
                         Les crédits IA sont utilisés pour générer des images, vidéos, audio et contenu texte.
                         Planifiez vos générations pour maximiser votre quota mensuel.
                       </p>
+                      <Button 
+                        size="sm" 
+                        variant="outline"
+                        onClick={() => setPlansDialogOpen(true)}
+                      >
+                        Acheter plus de crédits
+                      </Button>
                     </div>
                   </div>
                 </div>
@@ -480,6 +506,8 @@ const Settings = () => {
           </TabsContent>
         </Tabs>
       </div>
+      
+      <PlansDialog open={plansDialogOpen} onOpenChange={setPlansDialogOpen} />
     </MainLayout>
   );
 };
