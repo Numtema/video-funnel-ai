@@ -130,33 +130,55 @@ export const submissionService = {
     // 5. Send email notification
     if (funnelData) {
       try {
+        console.log('📧 Getting funnel owner email for notification...');
+        
         // Get owner email using RPC function
         const { data: ownerEmail, error: emailError } = await supabase
           .rpc('get_user_email_by_funnel', { 
             funnel_uuid: data.funnelId 
           });
           
-        if (!emailError && ownerEmail) {
-          console.log('Sending email notification to:', ownerEmail);
+        if (emailError) {
+          console.error('❌ Error getting owner email:', emailError);
+        } else if (!ownerEmail) {
+          console.warn('⚠️ No owner email found for funnel:', data.funnelId);
+        } else {
+          console.log('📧 Owner email found:', ownerEmail, '- Sending notification...');
           
-          await supabase.functions.invoke('send-lead-notification', {
-            body: {
-              funnelId: data.funnelId,
-              funnelName: funnelData.name,
-              ownerEmail: ownerEmail,
-              contact: data.contact,
-              score: data.score,
-              answers: data.answers,
-              completionTime: data.completionTime,
-              device,
-              source
-            }
+          const emailPayload = {
+            funnelId: data.funnelId,
+            funnelName: funnelData.name,
+            ownerEmail: ownerEmail,
+            contact: data.contact,
+            score: data.score,
+            answers: data.answers,
+            completionTime: data.completionTime,
+            device,
+            source
+          };
+          
+          console.log('📧 Email payload prepared:', {
+            funnelName: emailPayload.funnelName,
+            ownerEmail: emailPayload.ownerEmail,
+            contactEmail: emailPayload.contact.email
           });
           
-          console.log('Email notification sent successfully');
+          const { data: emailResult, error: invokeError } = await supabase.functions.invoke(
+            'send-lead-notification',
+            { body: emailPayload }
+          );
+          
+          if (invokeError) {
+            console.error('❌ Error invoking email function:', invokeError);
+          } else {
+            console.log('✅ Email notification sent successfully:', emailResult);
+          }
         }
-      } catch (emailError) {
-        console.error('Error sending email notification:', emailError);
+      } catch (emailError: any) {
+        console.error('❌ Error in email notification process:', {
+          message: emailError.message,
+          details: emailError
+        });
         // Continue even if email fails
       }
 

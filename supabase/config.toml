@@ -14,3 +14,6 @@ verify_jwt = false
 
 [functions.export-analytics]
 verify_jwt = true
+
+[functions.send-lead-notification]
+verify_jwt = false
