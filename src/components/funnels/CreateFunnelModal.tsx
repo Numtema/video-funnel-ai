@@ -4,7 +4,8 @@ import { funnelService } from '@/services/funnelService';
 import { aiService } from '@/services/aiService';
 import { QuizConfig } from '@/types/funnel';
 import { useAuth } from '@/context/AuthContext';
-import { useToast } from '@/hooks/use-toast';
+import { toast } from 'sonner';
+import { supabase } from '@/integrations/supabase/client';
 import {
   Dialog,
   DialogContent,
@@ -17,8 +18,10 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { Sparkles, Loader2, Rocket, Library } from 'lucide-react';
+import { Sparkles, Loader2, Rocket, Library, Target } from 'lucide-react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import { LeadMachineWizard } from './LeadMachineWizard';
+import { LeadMachineWorkbook } from '@/types/leadMachine';
 
 interface CreateFunnelModalProps {
   open: boolean;
@@ -26,23 +29,18 @@ interface CreateFunnelModalProps {
 }
 
 const CreateFunnelModal = ({ open, onOpenChange }: CreateFunnelModalProps) => {
-  const [step, setStep] = useState<'method' | 'ai' | 'blank' | 'template'>('method');
+  const [step, setStep] = useState<'method' | 'ai' | 'blank' | 'template' | 'leadMachine'>('method');
   const [loading, setLoading] = useState(false);
   const [name, setName] = useState('');
   const [description, setDescription] = useState('');
   const [aiPrompt, setAiPrompt] = useState('');
   const [aiModel, setAiModel] = useState('google/gemini-2.5-flash');
   const { profile } = useAuth();
-  const { toast } = useToast();
   const navigate = useNavigate();
 
   const handleCreateBlank = async () => {
     if (!name.trim()) {
-      toast({
-        title: "Erreur",
-        description: "Le nom du funnel est requis",
-        variant: "destructive",
-      });
+      toast.error("Le nom du funnel est requis");
       return;
     }
 
@@ -69,19 +67,12 @@ const CreateFunnelModal = ({ open, onOpenChange }: CreateFunnelModalProps) => {
         config: defaultConfig,
       });
 
-      toast({
-        title: "Funnel créé !",
-        description: "Vous pouvez maintenant le configurer",
-      });
+      toast.success("Funnel créé ! Vous pouvez maintenant le configurer");
 
       onOpenChange(false);
       navigate(`/funnels/${funnel.id}/edit`);
     } catch (error: any) {
-      toast({
-        title: "Erreur",
-        description: error.message,
-        variant: "destructive",
-      });
+      toast.error(error.message);
     } finally {
       setLoading(false);
     }
@@ -89,11 +80,7 @@ const CreateFunnelModal = ({ open, onOpenChange }: CreateFunnelModalProps) => {
 
   const handleAIGeneration = async () => {
     if (!aiPrompt.trim()) {
-      toast({
-        title: "Erreur",
-        description: "Veuillez décrire votre funnel",
-        variant: "destructive",
-      });
+      toast.error("Veuillez décrire votre funnel");
       return;
     }
 
@@ -108,19 +95,44 @@ const CreateFunnelModal = ({ open, onOpenChange }: CreateFunnelModalProps) => {
         config,
       });
 
-      toast({
-        title: "Funnel créé avec IA !",
-        description: "Votre funnel a été généré avec succès",
-      });
+      toast.success("Funnel créé avec IA ! Votre funnel a été généré avec succès");
 
       onOpenChange(false);
       navigate(`/funnels/${funnel.id}/edit`);
     } catch (error: any) {
-      toast({
-        title: "Erreur",
-        description: error.message,
-        variant: "destructive",
+      toast.error(error.message);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleLeadMachineGeneration = async (workbook: LeadMachineWorkbook) => {
+    setLoading(true);
+    try {
+      console.log("🚀 Starting Lead Machine funnel generation...");
+      
+      const { data, error } = await supabase.functions.invoke('generate-lead-machine-funnel', {
+        body: { workbook }
       });
+
+      if (error) throw error;
+
+      console.log("✅ Lead Machine funnel generated:", data);
+
+      const result = await funnelService.create({
+        name: data.name,
+        description: data.description,
+        config: data.config
+      });
+
+      toast.success("Funnel Lead Machine créé ! Votre funnel de conversion a été généré avec succès");
+
+      onOpenChange(false);
+      handleReset();
+      navigate(`/funnels/${result.id}/edit`);
+    } catch (error: any) {
+      console.error("Error generating Lead Machine funnel:", error);
+      toast.error(error.message || "Erreur lors de la génération du funnel");
     } finally {
       setLoading(false);
     }
@@ -138,7 +150,7 @@ const CreateFunnelModal = ({ open, onOpenChange }: CreateFunnelModalProps) => {
       onOpenChange(newOpen);
       if (!newOpen) handleReset();
     }}>
-      <DialogContent className="max-w-2xl">
+      <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
         <DialogHeader>
           <DialogTitle className="text-2xl">Créer un nouveau funnel</DialogTitle>
           <DialogDescription>
@@ -147,7 +159,30 @@ const CreateFunnelModal = ({ open, onOpenChange }: CreateFunnelModalProps) => {
         </DialogHeader>
 
         {step === 'method' && (
-          <div className="grid gap-4 md:grid-cols-3 py-4">
+          <div className="grid gap-4 md:grid-cols-2 py-4">
+            <Card 
+              className="cursor-pointer hover:shadow-elegant transition-smooth hover:scale-105 border-2 border-accent/20"
+              onClick={() => setStep('leadMachine')}
+            >
+              <CardHeader>
+                <div className="h-12 w-12 bg-accent/10 rounded-lg flex items-center justify-center mb-2">
+                  <Target className="h-6 w-6 text-accent" />
+                </div>
+                <CardTitle>Lead Machine</CardTitle>
+                <CardDescription>
+                  Wizard guidé avec IA pour un funnel de conversion optimisé
+                </CardDescription>
+              </CardHeader>
+              <CardContent>
+                <div className="bg-primary/5 rounded-lg p-3 text-sm">
+                  <span className="font-semibold">🎯 Nouveau</span>
+                  <p className="text-muted-foreground mt-1">
+                    9 étapes : ATTRACT → NURTURE
+                  </p>
+                </div>
+              </CardContent>
+            </Card>
+
             <Card 
               className="cursor-pointer hover:shadow-elegant transition-smooth hover:scale-105 border-2 border-accent/20"
               onClick={() => setStep('ai')}
@@ -158,7 +193,7 @@ const CreateFunnelModal = ({ open, onOpenChange }: CreateFunnelModalProps) => {
                 </div>
                 <CardTitle>Générer avec IA</CardTitle>
                 <CardDescription>
-                  Décrivez votre funnel et laissez l'IA le créer pour vous
+                  Décrivez votre funnel et laissez l'IA le créer
                 </CardDescription>
               </CardHeader>
               <CardContent>
@@ -181,14 +216,14 @@ const CreateFunnelModal = ({ open, onOpenChange }: CreateFunnelModalProps) => {
                 </div>
                 <CardTitle>Partir d'un template</CardTitle>
                 <CardDescription>
-                  Choisissez parmi nos templates pré-configurés
+                  Templates pré-configurés prêts à l'emploi
                 </CardDescription>
               </CardHeader>
               <CardContent>
                 <div className="bg-muted rounded-lg p-3 text-sm">
                   <span className="font-semibold">Rapide</span>
                   <p className="text-muted-foreground mt-1">
-                    Templates prêts à l'emploi
+                    Personnalisables
                   </p>
                 </div>
               </CardContent>
@@ -204,19 +239,26 @@ const CreateFunnelModal = ({ open, onOpenChange }: CreateFunnelModalProps) => {
                 </div>
                 <CardTitle>Partir de zéro</CardTitle>
                 <CardDescription>
-                  Créez votre funnel étape par étape manuellement
+                  Créez votre funnel étape par étape
                 </CardDescription>
               </CardHeader>
               <CardContent>
                 <div className="bg-muted rounded-lg p-3 text-sm">
                   <span className="font-semibold">Contrôle total</span>
                   <p className="text-muted-foreground mt-1">
-                    Pour les utilisateurs avancés
+                    Utilisateurs avancés
                   </p>
                 </div>
               </CardContent>
             </Card>
           </div>
+        )}
+
+        {step === 'leadMachine' && (
+          <LeadMachineWizard 
+            onComplete={handleLeadMachineGeneration}
+            onBack={() => setStep('method')}
+          />
         )}
 
         {step === 'ai' && (
@@ -225,64 +267,53 @@ const CreateFunnelModal = ({ open, onOpenChange }: CreateFunnelModalProps) => {
               <Label htmlFor="aiPrompt">Décrivez votre funnel</Label>
               <Textarea
                 id="aiPrompt"
-                placeholder="Ex: Funnel pour un coach en développement personnel qui vend une formation en ligne sur la confiance en soi..."
+                placeholder="Ex: Je veux créer un quiz pour qualifier les prospects intéressés par mes services de coaching en développement personnel..."
                 value={aiPrompt}
                 onChange={(e) => setAiPrompt(e.target.value)}
-                maxLength={2000}
-                rows={6}
-                className="min-h-[120px]"
+                rows={5}
+                maxLength={10000}
               />
               <p className="text-xs text-muted-foreground">
-                {aiPrompt.length}/2000 caractères
+                {aiPrompt.length}/10000 caractères
               </p>
             </div>
 
             <div className="space-y-2">
-              <Label htmlFor="model">Modèle IA</Label>
+              <Label htmlFor="aiModel">Modèle IA</Label>
               <Select value={aiModel} onValueChange={setAiModel}>
-                <SelectTrigger id="model">
+                <SelectTrigger>
                   <SelectValue />
                 </SelectTrigger>
                 <SelectContent>
                   <SelectItem value="google/gemini-2.5-flash">
-                    Gemini Flash (Rapide)
+                    Gemini 2.5 Flash (Recommandé)
                   </SelectItem>
                   <SelectItem value="google/gemini-2.5-pro">
-                    Gemini Pro (Précis)
-                  </SelectItem>
-                  <SelectItem value="google/gemini-2.5-flash-lite">
-                    Gemini Flash Lite (Ultra rapide)
-                  </SelectItem>
-                  <SelectItem value="openai/gpt-5">
-                    GPT-5 (Puissant)
+                    Gemini 2.5 Pro (Plus puissant)
                   </SelectItem>
                   <SelectItem value="openai/gpt-5-mini">
-                    GPT-5 Mini (Équilibré)
+                    GPT-5 Mini
                   </SelectItem>
-                  <SelectItem value="openai/gpt-5-nano">
-                    GPT-5 Nano (Économique)
+                  <SelectItem value="openai/gpt-5">
+                    GPT-5 (Plus intelligent)
                   </SelectItem>
                 </SelectContent>
               </Select>
             </div>
 
-            <div className="flex gap-2 pt-4">
-              <Button variant="outline" onClick={() => setStep('method')} className="flex-1">
+            <div className="flex gap-2 justify-end">
+              <Button variant="outline" onClick={() => setStep('method')}>
                 Retour
               </Button>
-              <Button 
-                onClick={handleAIGeneration}
-                disabled={!aiPrompt.trim() || loading}
-                className="flex-1"
-              >
+              <Button onClick={handleAIGeneration} disabled={loading || !aiPrompt.trim()}>
                 {loading ? (
                   <>
-                    <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                    <Loader2 className="mr-2 h-4 w-4 animate-spin" />
                     Génération...
                   </>
                 ) : (
                   <>
-                    <Sparkles className="w-4 h-4 mr-2" />
+                    <Sparkles className="mr-2 h-4 w-4" />
                     Générer avec IA
                   </>
                 )}
@@ -297,34 +328,39 @@ const CreateFunnelModal = ({ open, onOpenChange }: CreateFunnelModalProps) => {
               <Label htmlFor="name">Nom du funnel *</Label>
               <Input
                 id="name"
-                placeholder="Ex: Quiz Découverte Produit"
+                placeholder="Mon super funnel"
                 value={name}
                 onChange={(e) => setName(e.target.value)}
-                maxLength={100}
               />
             </div>
 
             <div className="space-y-2">
-              <Label htmlFor="description">Description (optionnel)</Label>
+              <Label htmlFor="description">Description</Label>
               <Textarea
                 id="description"
-                placeholder="Décrivez l'objectif de ce funnel..."
+                placeholder="Description de votre funnel..."
                 value={description}
                 onChange={(e) => setDescription(e.target.value)}
-                maxLength={500}
                 rows={3}
               />
-              <p className="text-xs text-muted-foreground">
-                {description.length}/500 caractères
-              </p>
             </div>
 
-            <div className="flex gap-2 pt-4">
-              <Button variant="outline" onClick={() => setStep('method')} className="flex-1">
+            <div className="flex gap-2 justify-end">
+              <Button variant="outline" onClick={() => setStep('method')}>
                 Retour
               </Button>
-              <Button onClick={handleCreateBlank} disabled={loading} className="flex-1">
-                {loading ? 'Création...' : 'Créer le funnel'}
+              <Button onClick={handleCreateBlank} disabled={loading || !name.trim()}>
+                {loading ? (
+                  <>
+                    <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                    Création...
+                  </>
+                ) : (
+                  <>
+                    <Rocket className="mr-2 h-4 w-4" />
+                    Créer
+                  </>
+                )}
               </Button>
             </div>
           </div>
@@ -335,24 +371,15 @@ const CreateFunnelModal = ({ open, onOpenChange }: CreateFunnelModalProps) => {
             <p className="text-center text-muted-foreground">
               Redirection vers la page des templates...
             </p>
-            <div className="flex justify-center pt-4">
-              <Button 
-                onClick={() => {
-                  onOpenChange(false);
-                  navigate('/templates');
-                }}
-                size="lg"
-              >
+            <div className="flex justify-center">
+              <Button onClick={() => {
+                onOpenChange(false);
+                navigate('/templates');
+              }}>
+                <Library className="mr-2 h-4 w-4" />
                 Voir les templates
               </Button>
             </div>
-            <Button 
-              variant="outline" 
-              onClick={() => setStep('method')}
-              className="w-full"
-            >
-              Retour
-            </Button>
           </div>
         )}
       </DialogContent>

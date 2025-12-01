@@ -12,6 +12,9 @@ verify_jwt = false
 [functions.webhook-handler]
 verify_jwt = false
 
+[functions.generate-lead-machine-funnel]
+verify_jwt = true
+
 [functions.export-analytics]
 verify_jwt = true
 
