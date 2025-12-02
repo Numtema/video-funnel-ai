@@ -18,6 +18,14 @@ import Settings from "./pages/Settings";
 import Templates from "./pages/Templates";
 import Pricing from "./pages/Pricing";
 import Notifications from "./pages/Notifications";
+import Features from "./pages/Features";
+import Resources from "./pages/Resources";
+import Documentation from "./pages/Documentation";
+import Blog from "./pages/Blog";
+import Support from "./pages/Support";
+import Privacy from "./pages/Privacy";
+import Terms from "./pages/Terms";
+import Legal from "./pages/Legal";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -30,9 +38,22 @@ const App = () => (
         <Sonner />
         <BrowserRouter>
           <Routes>
+            {/* Public Pages */}
             <Route path="/" element={<Index />} />
             <Route path="/auth" element={<Auth />} />
             <Route path="/f/:shareToken" element={<FunnelPlayer />} />
+            <Route path="/pricing" element={<Pricing />} />
+            <Route path="/templates" element={<Templates />} />
+            <Route path="/features" element={<Features />} />
+            <Route path="/resources" element={<Resources />} />
+            <Route path="/docs" element={<Documentation />} />
+            <Route path="/blog" element={<Blog />} />
+            <Route path="/support" element={<Support />} />
+            <Route path="/privacy" element={<Privacy />} />
+            <Route path="/terms" element={<Terms />} />
+            <Route path="/legal" element={<Legal />} />
+            
+            {/* Protected Pages */}
             <Route
               path="/dashboard"
               element={
@@ -86,22 +107,6 @@ const App = () => (
               element={
                 <ProtectedRoute>
                   <Settings />
-                </ProtectedRoute>
-              }
-            />
-            <Route
-              path="/templates"
-              element={
-                <ProtectedRoute>
-                  <Templates />
-                </ProtectedRoute>
-              }
-            />
-            <Route
-              path="/pricing"
-              element={
-                <ProtectedRoute>
-                  <Pricing />
                 </ProtectedRoute>
               }
             />

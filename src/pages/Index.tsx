@@ -426,23 +426,23 @@ const Index = () => {
               <ul className="space-y-3 text-sm">
                 <li><Button variant="link" className="h-auto p-0 text-muted-foreground hover:text-foreground" onClick={() => navigate('/pricing')}>Tarifs</Button></li>
                 <li><Button variant="link" className="h-auto p-0 text-muted-foreground hover:text-foreground" onClick={() => navigate('/templates')}>Templates</Button></li>
-                <li><Button variant="link" className="h-auto p-0 text-muted-foreground hover:text-foreground">Fonctionnalités</Button></li>
+                <li><Button variant="link" className="h-auto p-0 text-muted-foreground hover:text-foreground" onClick={() => navigate('/features')}>Fonctionnalités</Button></li>
               </ul>
             </div>
             <div>
               <h4 className="font-semibold mb-4">Ressources</h4>
               <ul className="space-y-3 text-sm">
-                <li><Button variant="link" className="h-auto p-0 text-muted-foreground hover:text-foreground">Documentation</Button></li>
-                <li><Button variant="link" className="h-auto p-0 text-muted-foreground hover:text-foreground">Blog</Button></li>
-                <li><Button variant="link" className="h-auto p-0 text-muted-foreground hover:text-foreground">Support</Button></li>
+                <li><Button variant="link" className="h-auto p-0 text-muted-foreground hover:text-foreground" onClick={() => navigate('/docs')}>Documentation</Button></li>
+                <li><Button variant="link" className="h-auto p-0 text-muted-foreground hover:text-foreground" onClick={() => navigate('/blog')}>Blog</Button></li>
+                <li><Button variant="link" className="h-auto p-0 text-muted-foreground hover:text-foreground" onClick={() => navigate('/support')}>Support</Button></li>
               </ul>
             </div>
             <div>
               <h4 className="font-semibold mb-4">Légal</h4>
               <ul className="space-y-3 text-sm">
-                <li><Button variant="link" className="h-auto p-0 text-muted-foreground hover:text-foreground">Confidentialité</Button></li>
-                <li><Button variant="link" className="h-auto p-0 text-muted-foreground hover:text-foreground">Conditions</Button></li>
-                <li><Button variant="link" className="h-auto p-0 text-muted-foreground hover:text-foreground">Mentions légales</Button></li>
+                <li><Button variant="link" className="h-auto p-0 text-muted-foreground hover:text-foreground" onClick={() => navigate('/privacy')}>Confidentialité</Button></li>
+                <li><Button variant="link" className="h-auto p-0 text-muted-foreground hover:text-foreground" onClick={() => navigate('/terms')}>Conditions</Button></li>
+                <li><Button variant="link" className="h-auto p-0 text-muted-foreground hover:text-foreground" onClick={() => navigate('/legal')}>Mentions légales</Button></li>
               </ul>
             </div>
           </div>
