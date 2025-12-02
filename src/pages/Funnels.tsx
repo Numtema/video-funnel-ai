@@ -258,7 +258,7 @@ const Funnels = () => {
                         </Button>
                       </DropdownMenuTrigger>
                        <DropdownMenuContent align="end">
-                        <DropdownMenuItem onClick={() => navigate(`/funnels/${funnel.id}`)}>
+                        <DropdownMenuItem onClick={() => navigate(`/funnels/${funnel.id}/edit`)}>
                           <Edit className="mr-2 h-4 w-4" />
                           Éditer
                         </DropdownMenuItem>
@@ -369,7 +369,7 @@ const Funnels = () => {
                           </Button>
                         </DropdownMenuTrigger>
                         <DropdownMenuContent align="end">
-                          <DropdownMenuItem onClick={() => navigate(`/funnels/${funnel.id}`)}>
+                          <DropdownMenuItem onClick={() => navigate(`/funnels/${funnel.id}/edit`)}>
                             <Edit className="mr-2 h-4 w-4" />
                             Éditer
                           </DropdownMenuItem>
