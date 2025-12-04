@@ -6,6 +6,7 @@ import { Card, CardContent } from '@/components/ui/card';
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@/components/ui/accordion';
 import { Video, Sparkles, TrendingUp, Zap, Users, Shield, Palette, BarChart3, Clock, Rocket, Check, ArrowRight, Play, Star, Globe, MessageSquare, Target } from 'lucide-react';
 import numtemaLogo from '@/assets/numtema-face-logo.png';
+import numtemaAgence from '@/assets/numtema-agence.gif';
 
 const Index = () => {
   const { user, loading } = useAuth();
@@ -107,15 +108,11 @@ const Index = () => {
             
             <div className="relative animate-scale-in" style={{ animationDelay: '0.3s' }}>
               <div className="relative rounded-2xl overflow-hidden shadow-elegant border border-border/50 bg-card">
-                <div className="aspect-video bg-gradient-to-br from-primary/20 via-accent/10 to-primary/5 flex items-center justify-center relative">
-                  <div className="absolute inset-0 bg-[radial-gradient(circle_at_center,_transparent_30%,_hsl(var(--background))_100%)]" />
-                  <div className="relative z-10 flex flex-col items-center">
-                    <div className="w-20 h-20 rounded-full bg-primary/20 flex items-center justify-center mb-4 animate-pulse">
-                      <Video className="h-10 w-10 text-primary" />
-                    </div>
-                    <p className="text-muted-foreground font-medium">Funnel Vidéo Interactif</p>
-                  </div>
-                </div>
+                <img 
+                  src={numtemaAgence} 
+                  alt="Nümtema Agence - Funnel Vidéo Interactif" 
+                  className="w-full h-auto"
+                />
               </div>
               {/* Decorative elements */}
               <div className="absolute -top-4 -right-4 w-24 h-24 bg-accent/20 rounded-full blur-2xl" />
