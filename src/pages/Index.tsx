@@ -5,7 +5,7 @@ import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@/components/ui/accordion';
 import { Video, Sparkles, TrendingUp, Zap, Users, Shield, Palette, BarChart3, Clock, Rocket, Check, ArrowRight, Play, Star, Globe, MessageSquare, Target } from 'lucide-react';
-import numtemaLogo from '@/assets/numtema-face-logo.png';
+import numtemaLogo from '@/assets/numtema-face-logo-new.png';
 import numtemaAgence from '@/assets/numtema-agence.gif';
 
 const Index = () => {
