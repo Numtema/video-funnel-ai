@@ -1,10 +1,93 @@
 import "https://deno.land/x/xhr@0.1.0/mod.ts";
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
+import { createClient } from "https://esm.sh/@supabase/supabase-js@2.7.1";
 
 const corsHeaders = {
   'Access-Control-Allow-Origin': '*',
   'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
 };
+
+// Extract and verify user from JWT
+async function authenticateUser(req: Request): Promise<{ userId: string; error?: string }> {
+  const authHeader = req.headers.get('Authorization');
+  
+  if (!authHeader || !authHeader.startsWith('Bearer ')) {
+    return { userId: '', error: 'Authorization header missing or invalid' };
+  }
+
+  const token = authHeader.replace('Bearer ', '');
+  
+  const supabaseUrl = Deno.env.get('SUPABASE_URL');
+  const supabaseAnonKey = Deno.env.get('SUPABASE_ANON_KEY');
+  
+  if (!supabaseUrl || !supabaseAnonKey) {
+    return { userId: '', error: 'Supabase configuration missing' };
+  }
+
+  const supabase = createClient(supabaseUrl, supabaseAnonKey, {
+    auth: {
+      autoRefreshToken: false,
+      persistSession: false
+    },
+    global: {
+      headers: {
+        Authorization: `Bearer ${token}`
+      }
+    }
+  });
+
+  const { data: { user }, error } = await supabase.auth.getUser(token);
+  
+  if (error || !user) {
+    console.error('Auth error:', error?.message);
+    return { userId: '', error: 'Invalid or expired token' };
+  }
+
+  return { userId: user.id };
+}
+
+// Check if user has available AI credits
+async function checkAIQuota(userId: string): Promise<{ allowed: boolean; error?: string }> {
+  const supabaseUrl = Deno.env.get('SUPABASE_URL');
+  const supabaseServiceKey = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY');
+  
+  if (!supabaseUrl || !supabaseServiceKey) {
+    return { allowed: false, error: 'Supabase configuration missing' };
+  }
+
+  const supabase = createClient(supabaseUrl, supabaseServiceKey);
+
+  // Get user's AI usage limits
+  const { data: profile, error } = await supabase
+    .from('profiles')
+    .select('current_month_ai_count, max_ai_generations_monthly, ai_count_reset_at')
+    .eq('id', userId)
+    .single();
+
+  if (error || !profile) {
+    console.error('Profile fetch error:', error?.message);
+    return { allowed: false, error: 'Could not verify AI quota' };
+  }
+
+  // Check if we need to reset the monthly count
+  const resetDate = profile.ai_count_reset_at ? new Date(profile.ai_count_reset_at) : null;
+  const now = new Date();
+  const oneMonthAgo = new Date(now.getTime() - 30 * 24 * 60 * 60 * 1000);
+
+  if (!resetDate || resetDate < oneMonthAgo) {
+    // Reset needed - will be handled by increment_ai_usage function
+    return { allowed: true };
+  }
+
+  const currentCount = profile.current_month_ai_count || 0;
+  const maxGenerations = profile.max_ai_generations_monthly || 50;
+
+  if (currentCount >= maxGenerations) {
+    return { allowed: false, error: 'Limite mensuelle de générations IA atteinte' };
+  }
+
+  return { allowed: true };
+}
 
 serve(async (req) => {
   if (req.method === 'OPTIONS') {
@@ -12,6 +95,28 @@ serve(async (req) => {
   }
 
   try {
+    // Authenticate user
+    const { userId, error: authError } = await authenticateUser(req);
+    
+    if (authError || !userId) {
+      console.error('Authentication failed:', authError);
+      return new Response(
+        JSON.stringify({ error: authError || 'Authentication required' }),
+        { status: 401, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+      );
+    }
+
+    // Check AI quota
+    const { allowed, error: quotaError } = await checkAIQuota(userId);
+    
+    if (!allowed) {
+      console.error('Quota check failed:', quotaError);
+      return new Response(
+        JSON.stringify({ error: quotaError || 'AI quota exceeded' }),
+        { status: 402, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+      );
+    }
+
     const { action, ...params } = await req.json();
     const LOVABLE_API_KEY = Deno.env.get('LOVABLE_API_KEY');
 
@@ -19,7 +124,7 @@ serve(async (req) => {
       throw new Error('LOVABLE_API_KEY not configured');
     }
 
-    console.log(`AI Gateway action: ${action}`);
+    console.log(`AI Gateway action: ${action} for user: ${userId}`);
 
     let response;
 
@@ -212,7 +317,7 @@ Réponds UNIQUEMENT avec du JSON valide.`
     }
 
     const data = await response.json();
-    console.log('AI Gateway response received');
+    console.log('AI Gateway response received for user:', userId);
     
     return new Response(
       JSON.stringify(data),
