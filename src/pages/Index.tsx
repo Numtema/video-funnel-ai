@@ -35,7 +35,7 @@ const Index = () => {
       <header className="border-b border-border/40 bg-background/80 backdrop-blur-md sticky top-0 z-50">
         <div className="container mx-auto px-4 lg:px-8 py-4 flex items-center justify-between">
           <div className="flex items-center">
-            <img src={numtemaLogo} alt="Nümtema Face" className="h-10 md:h-12" />
+            <img src={numtemaLogo} alt="Nümtema Face" className="h-8 md:h-10" />
           </div>
           <nav className="hidden md:flex items-center gap-8">
             <Button variant="ghost" onClick={() => navigate('/templates')} className="text-muted-foreground hover:text-foreground">
@@ -410,7 +410,7 @@ const Index = () => {
         <div className="container mx-auto px-4 lg:px-8">
           <div className="grid md:grid-cols-4 gap-10 mb-10">
             <div className="md:col-span-1">
-              <img src={numtemaLogo} alt="Nümtema Face" className="h-10 mb-4" />
+              <img src={numtemaLogo} alt="Nümtema Face" className="h-8 mb-4" />
               <p className="text-sm text-muted-foreground mb-4">
                 Créez des funnels interactifs intelligents avec l'IA générative.
               </p>
