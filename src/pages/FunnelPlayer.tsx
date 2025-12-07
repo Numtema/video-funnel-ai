@@ -14,7 +14,7 @@ import { Button } from '@/components/ui/button';
 import { ArrowLeft } from 'lucide-react';
 import { toast } from '@/hooks/use-toast';
 import { sanitizeData } from '@/lib/sanitize';
-import logo from '@/assets/logo.svg';
+
 
 export default function FunnelPlayer() {
   const { shareToken } = useParams<{ shareToken: string }>();
@@ -330,7 +330,7 @@ export default function FunnelPlayer() {
         {/* Platform branding */}
         <div className="flex flex-col sm:flex-row items-center justify-center gap-2 px-4">
           <span className="text-sm font-semibold text-foreground">Powered by</span>
-          <img src={logo} alt="Nümtema Face" className="h-8 sm:h-6" />
+          <span className="text-lg font-bold text-primary font-poppins">Nümtema Face</span>
         </div>
       </div>
     </div>
