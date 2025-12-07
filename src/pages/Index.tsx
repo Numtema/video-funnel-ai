@@ -6,6 +6,7 @@ import { Card, CardContent } from '@/components/ui/card';
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@/components/ui/accordion';
 import { Video, Sparkles, TrendingUp, Zap, Users, Shield, Palette, BarChart3, Clock, Rocket, Check, ArrowRight, Play, Star, Globe, MessageSquare, Target } from 'lucide-react';
 import numtemaAgence from '@/assets/numtema-agence.gif';
+import numtemaLogo from '@/assets/numtema-face-logo.png';
 
 const Index = () => {
   const { user, loading } = useAuth();
@@ -33,8 +34,8 @@ const Index = () => {
       {/* Header */}
       <header className="border-b border-border/40 bg-background/80 backdrop-blur-md sticky top-0 z-50">
         <div className="container mx-auto px-4 lg:px-8 py-4 flex items-center justify-between">
-          <div className="flex items-center">
-            <span className="text-xl md:text-2xl font-bold text-primary font-poppins">Nümtema Face</span>
+          <div className="flex items-center cursor-pointer" onClick={() => navigate('/')}>
+            <img src={numtemaLogo} alt="Nümtema Face" className="h-10 md:h-12" />
           </div>
           <nav className="hidden md:flex items-center gap-8">
             <Button variant="ghost" onClick={() => navigate('/templates')} className="text-muted-foreground hover:text-foreground">
