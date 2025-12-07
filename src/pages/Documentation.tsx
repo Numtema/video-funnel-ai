@@ -3,7 +3,7 @@ import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
 import { Book, Rocket, Video, Users, BarChart3, Zap, Settings, Shield, ArrowRight, Search, ChevronRight } from 'lucide-react';
 import { Input } from '@/components/ui/input';
-import numtemaLogo from '@/assets/numtema-face-logo.png';
+
 
 const Documentation = () => {
   const navigate = useNavigate();
@@ -53,7 +53,7 @@ const Documentation = () => {
       <header className="border-b border-border/40 bg-background/80 backdrop-blur-md sticky top-0 z-50">
         <div className="container mx-auto px-4 lg:px-8 py-4 flex items-center justify-between">
           <div className="flex items-center cursor-pointer" onClick={() => navigate('/')}>
-            <img src={numtemaLogo} alt="Nümtema Face" className="h-10 md:h-12" />
+            <span className="text-xl md:text-2xl font-bold text-primary font-poppins">Nümtema Face</span>
           </div>
           <div className="flex items-center gap-3">
             <Button variant="ghost" onClick={() => navigate('/auth')}>Connexion</Button>
