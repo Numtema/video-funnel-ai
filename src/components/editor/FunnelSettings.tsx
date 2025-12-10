@@ -7,17 +7,19 @@ import {
   CollapsibleContent,
   CollapsibleTrigger,
 } from '@/components/ui/collapsible';
-import { ChevronDown, Route } from 'lucide-react';
+import { ChevronDown, Route, Zap } from 'lucide-react';
 import { useState } from 'react';
 import { RedirectSettings } from './RedirectSettings';
 import { AdvancedRoutingTab } from './AdvancedRoutingTab';
+import { IntegrationsTab } from './IntegrationsTab';
 
 interface FunnelSettingsProps {
   config: QuizConfig;
+  funnelId?: string;
   onUpdate: (config: QuizConfig) => void;
 }
 
-export function FunnelSettings({ config, onUpdate }: FunnelSettingsProps) {
+export function FunnelSettings({ config, funnelId, onUpdate }: FunnelSettingsProps) {
   const [openSections, setOpenSections] = useState<string[]>(['scoring']);
 
   const toggleSection = (section: string) => {
@@ -79,41 +81,31 @@ export function FunnelSettings({ config, onUpdate }: FunnelSettingsProps) {
         </CollapsibleContent>
       </Collapsible>
 
-      {/* Tracking Section */}
+      {/* Integrations Section */}
       <Collapsible
-        open={openSections.includes('tracking')}
-        onOpenChange={() => toggleSection('tracking')}
+        open={openSections.includes('integrations')}
+        onOpenChange={() => toggleSection('integrations')}
       >
         <CollapsibleTrigger className="flex items-center justify-between w-full p-3 hover:bg-muted rounded-lg">
-          <span className="font-medium text-sm">Tracking</span>
+          <div className="flex items-center gap-2">
+            <Zap className="w-4 h-4 text-orange-500" />
+            <span className="font-medium text-sm">Intégrations</span>
+            {(config.tracking?.webhookUrl || config.integrations?.calendar?.enabled) && (
+              <span className="w-2 h-2 bg-orange-500 rounded-full" />
+            )}
+          </div>
           <ChevronDown
             className={`w-4 h-4 transition-transform ${
-              openSections.includes('tracking') ? 'rotate-180' : ''
+              openSections.includes('integrations') ? 'rotate-180' : ''
             }`}
           />
         </CollapsibleTrigger>
-        <CollapsibleContent className="pt-3 space-y-4">
-          <div>
-            <Label htmlFor="webhook-url">Webhook URL</Label>
-            <Input
-              id="webhook-url"
-              value={config.tracking?.webhookUrl || ''}
-              onChange={(e) =>
-                onUpdate({
-                  ...config,
-                  tracking: {
-                    ...config.tracking,
-                    webhookUrl: e.target.value,
-                  },
-                })
-              }
-              placeholder="https://..."
-              className="mt-2"
-            />
-            <p className="text-xs text-muted-foreground mt-1">
-              Recevez les submissions en temps réel
-            </p>
-          </div>
+        <CollapsibleContent className="pt-3">
+          <IntegrationsTab
+            config={config}
+            funnelId={funnelId || ''}
+            onUpdate={onUpdate}
+          />
         </CollapsibleContent>
       </Collapsible>
 

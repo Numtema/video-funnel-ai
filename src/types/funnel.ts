@@ -95,6 +95,20 @@ export interface ThemeConfig {
   };
 }
 
+// Integrations config
+export interface CalendarIntegration {
+  enabled: boolean;
+  provider: 'calendly' | 'cal' | 'custom';
+  url?: string;
+}
+
+export interface IntegrationsConfig {
+  calendar?: CalendarIntegration;
+  zapier?: { webhookUrl?: string };
+  make?: { webhookUrl?: string };
+  n8n?: { webhookUrl?: string };
+}
+
 export interface QuizConfig {
   steps: QuizStep[];
   theme: ThemeConfig;
@@ -113,6 +127,7 @@ export interface QuizConfig {
     phoneNumber?: string;
     message?: string;
   };
+  integrations?: IntegrationsConfig;
   redirectUrl?: string;
   redirectType?: 'website' | 'whatsapp' | 'messenger' | 'none';
 }
