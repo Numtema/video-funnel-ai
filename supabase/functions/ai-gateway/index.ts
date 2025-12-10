@@ -121,7 +121,7 @@ serve(async (req) => {
     const LOVABLE_API_KEY = Deno.env.get('LOVABLE_API_KEY');
 
     if (!LOVABLE_API_KEY) {
-      throw new Error('LOVABLE_API_KEY not configured');
+      throw new Error('AI_API_KEY not configured');
     }
 
     console.log(`AI Gateway action: ${action} for user: ${userId}`);
