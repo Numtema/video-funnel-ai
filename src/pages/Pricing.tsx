@@ -19,7 +19,7 @@ const plans = [
       'Analytics basiques',
       'Support email',
     ],
-    priceId: null,
+    stripeUrl: null,
     highlighted: false,
   },
   {
@@ -34,7 +34,7 @@ const plans = [
       'Webhooks illimités',
       'Support prioritaire',
     ],
-    priceId: 'price_1SXrjmIo2oYoHceFtI0kBmVL',
+    stripeUrl: 'https://buy.stripe.com/6oUcN5bHOeDX4GfaBc6J208',
     highlighted: false,
   },
   {
@@ -51,7 +51,7 @@ const plans = [
       'Support prioritaire',
       'Domaine personnalisé',
     ],
-    priceId: 'price_1SXrkxIo2oYoHceFyNjl85Lb',
+    stripeUrl: 'https://buy.stripe.com/28E9ATaDKcvP2y724G6J209',
     highlighted: true,
   },
   {
@@ -67,7 +67,7 @@ const plans = [
       'Formation personnalisée',
       'Intégrations sur mesure',
     ],
-    priceId: null,
+    stripeUrl: null,
     highlighted: false,
     contact: true,
   },
@@ -77,10 +77,10 @@ export default function Pricing() {
   const { toast } = useToast();
   const [loading, setLoading] = useState<string | null>(null);
 
-  const handleSubscribe = async (priceId: string | null, planName: string) => {
-    if (!priceId) {
+  const handleSubscribe = (stripeUrl: string | null, planName: string) => {
+    if (!stripeUrl) {
       if (planName === 'Enterprise') {
-        window.location.href = 'mailto:contact@example.com?subject=Enterprise Plan Inquiry';
+        window.location.href = 'mailto:contact@numtema.com?subject=Demande Enterprise Plan';
       } else {
         toast({
           title: 'Plan actuel',
@@ -90,42 +90,8 @@ export default function Pricing() {
       return;
     }
 
-    setLoading(planName);
-    try {
-      // Verify authentication first
-      const { data: { session } } = await supabase.auth.getSession();
-      
-      if (!session) {
-        toast({
-          title: 'Connexion requise',
-          description: 'Veuillez vous connecter pour souscrire à un plan',
-          variant: 'destructive',
-        });
-        setLoading(null);
-        return;
-      }
-
-      const { data, error } = await supabase.functions.invoke('stripe-create-checkout', {
-        body: { priceId, planName: planName.toLowerCase() },
-      });
-
-      if (error) throw error;
-
-      if (data?.url) {
-        window.location.href = data.url;
-      } else {
-        throw new Error('Aucune URL de paiement reçue');
-      }
-    } catch (error: any) {
-      console.error('Stripe checkout error:', error);
-      toast({
-        title: 'Erreur',
-        description: error.message || 'Impossible de créer la session de paiement',
-        variant: 'destructive',
-      });
-    } finally {
-      setLoading(null);
-    }
+    // Ouvrir directement le lien Stripe
+    window.open(stripeUrl, '_blank');
   };
 
   return (
@@ -169,16 +135,14 @@ export default function Pricing() {
                 <Button
                   className="w-full"
                   variant={plan.highlighted ? 'default' : 'outline'}
-                  onClick={() => handleSubscribe(plan.priceId, plan.name)}
-                  disabled={loading === plan.name || plan.name === 'Free'}
+                  onClick={() => handleSubscribe(plan.stripeUrl, plan.name)}
+                  disabled={plan.name === 'Free'}
                 >
-                  {plan.name === 'Free' 
-                    ? 'Plan actuel' 
-                    : plan.contact 
+                  {plan.name === 'Free'
+                    ? 'Plan actuel'
+                    : plan.contact
                       ? 'Nous contacter'
-                      : loading === plan.name 
-                        ? 'Chargement...' 
-                        : 'Souscrire'}
+                      : 'Souscrire'}
                 </Button>
               </CardContent>
             </Card>
