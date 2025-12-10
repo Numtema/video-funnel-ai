@@ -300,9 +300,9 @@ const Index = () => {
           </div>
           <div className="grid md:grid-cols-3 gap-6 lg:gap-8 max-w-5xl mx-auto">
             {[
-              { name: 'Free', price: '0€', period: '/mois', features: ['3 funnels actifs', '50 générations IA/mois', 'Analytics de base', 'Support communautaire'] },
-              { name: 'Starter', price: '29€', period: '/mois', features: ['10 funnels actifs', '200 générations IA/mois', 'Analytics avancées', 'Support email', 'Domaine personnalisé'], popular: true },
-              { name: 'Pro', price: '79€', period: '/mois', features: ['Funnels illimités', '1000 générations IA/mois', 'Analytics premium', 'Support prioritaire', 'Marque blanche', 'API access'] },
+              { name: 'Free', price: '0€', period: '/mois', features: ['3 funnels actifs', '50 générations IA/mois', 'Analytics de base', 'Support communautaire'], stripeUrl: null },
+              { name: 'Starter', price: '29€', period: '/mois', features: ['10 funnels actifs', '200 générations IA/mois', 'Analytics avancées', 'Support email', 'Domaine personnalisé'], popular: true, stripeUrl: 'https://buy.stripe.com/6oUcN5bHOeDX4GfaBc6J208' },
+              { name: 'Pro', price: '79€', period: '/mois', features: ['Funnels illimités', '1000 générations IA/mois', 'Analytics premium', 'Support prioritaire', 'Marque blanche', 'API access'], stripeUrl: 'https://buy.stripe.com/28E9ATaDKcvP2y724G6J209' },
             ].map((plan, i) => (
               <Card key={i} className={`relative group hover:shadow-elegant transition-all duration-300 animate-scale-in ${plan.popular ? 'border-primary border-2 scale-105' : 'border-border/50'}`} style={{ animationDelay: `${i * 0.1}s` }}>
                 {plan.popular && (
@@ -324,10 +324,10 @@ const Index = () => {
                       </li>
                     ))}
                   </ul>
-                  <Button 
-                    className="w-full" 
+                  <Button
+                    className="w-full"
                     variant={plan.popular ? 'default' : 'outline'}
-                    onClick={() => navigate('/pricing')}
+                    onClick={() => plan.stripeUrl ? window.open(plan.stripeUrl, '_blank') : navigate('/auth')}
                   >
                     {plan.name === 'Free' ? 'Commencer' : 'Choisir ce plan'}
                   </Button>

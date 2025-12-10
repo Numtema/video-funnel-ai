@@ -20,7 +20,7 @@ const plans = [
       'Webhooks illimités',
       'Support prioritaire',
     ],
-    priceId: 'price_1SXrjmIo2oYoHceFtI0kBmVL',
+    stripeUrl: 'https://buy.stripe.com/6oUcN5bHOeDX4GfaBc6J208',
   },
   {
     name: 'Pro',
@@ -36,7 +36,7 @@ const plans = [
       'Support prioritaire',
       'Domaine personnalisé',
     ],
-    priceId: 'price_1SXrkxIo2oYoHceFyNjl85Lb',
+    stripeUrl: 'https://buy.stripe.com/28E9ATaDKcvP2y724G6J209',
     highlighted: true,
   },
   {
@@ -52,7 +52,7 @@ const plans = [
       'Formation personnalisée',
       'Intégrations sur mesure',
     ],
-    priceId: null,
+    stripeUrl: null,
     contact: true,
   },
 ];
@@ -66,49 +66,16 @@ export function PlansDialog({ open, onOpenChange }: PlansDialogProps) {
   const { toast } = useToast();
   const [loading, setLoading] = useState<string | null>(null);
 
-  const handleSubscribe = async (priceId: string | null, planName: string) => {
-    if (!priceId) {
+  const handleSubscribe = (stripeUrl: string | null, planName: string) => {
+    if (!stripeUrl) {
       if (planName === 'Enterprise') {
-        window.open('mailto:contact@numtema.com?subject=Enterprise Plan Inquiry', '_blank');
+        window.open('mailto:contact@numtema.com?subject=Demande Enterprise Plan', '_blank');
       }
       return;
     }
 
-    setLoading(planName);
-    try {
-      const { data: { session } } = await supabase.auth.getSession();
-      
-      if (!session) {
-        toast({
-          title: 'Connexion requise',
-          description: 'Veuillez vous connecter pour souscrire à un plan',
-          variant: 'destructive',
-        });
-        setLoading(null);
-        return;
-      }
-
-      const { data, error } = await supabase.functions.invoke('stripe-create-checkout', {
-        body: { priceId, planName: planName.toLowerCase() },
-      });
-
-      if (error) throw error;
-
-      if (data?.url) {
-        window.open(data.url, '_blank');
-      } else {
-        throw new Error('Aucune URL de paiement reçue');
-      }
-    } catch (error: any) {
-      console.error('Stripe checkout error:', error);
-      toast({
-        title: 'Erreur',
-        description: error.message || 'Impossible de créer la session de paiement',
-        variant: 'destructive',
-      });
-    } finally {
-      setLoading(null);
-    }
+    // Ouvrir directement le lien Stripe
+    window.open(stripeUrl, '_blank');
   };
 
   return (
@@ -149,14 +116,11 @@ export function PlansDialog({ open, onOpenChange }: PlansDialogProps) {
                 <Button
                   className="w-full"
                   variant={plan.highlighted ? 'default' : 'outline'}
-                  onClick={() => handleSubscribe(plan.priceId, plan.name)}
-                  disabled={loading === plan.name}
+                  onClick={() => handleSubscribe(plan.stripeUrl, plan.name)}
                 >
-                  {plan.contact 
+                  {plan.contact
                     ? 'Nous contacter'
-                    : loading === plan.name 
-                      ? 'Chargement...' 
-                      : 'Souscrire'}
+                    : 'Souscrire'}
                 </Button>
               </CardContent>
             </Card>
