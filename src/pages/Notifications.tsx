@@ -167,25 +167,27 @@ const Notifications = () => {
   return (
     <MainLayout>
       <div className="p-4 sm:p-6 max-w-4xl mx-auto space-y-6">
-        <div className="flex items-center justify-between">
+        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
           <div>
-            <h1 className="text-3xl font-bold flex items-center gap-2">
-              <Bell className="w-8 h-8" />
+            <h1 className="text-2xl sm:text-3xl font-bold flex items-center gap-2">
+              <Bell className="w-6 h-6 sm:w-8 sm:h-8" />
               Notifications
             </h1>
-            <p className="text-muted-foreground mt-1">
+            <p className="text-sm sm:text-base text-muted-foreground mt-1">
               Historique complet de vos notifications
             </p>
           </div>
 
-          <div className="flex gap-2">
-            <Button variant="outline" onClick={markAllAsRead}>
-              <CheckCheck className="w-4 h-4 mr-2" />
-              Tout marquer comme lu
+          <div className="flex gap-2 flex-wrap">
+            <Button variant="outline" size="sm" onClick={markAllAsRead} className="flex-1 sm:flex-none">
+              <CheckCheck className="w-4 h-4 sm:mr-2" />
+              <span className="hidden sm:inline">Tout marquer comme lu</span>
+              <span className="sm:hidden">Lu</span>
             </Button>
-            <Button variant="outline" onClick={clearAll}>
-              <Trash2 className="w-4 h-4 mr-2" />
-              Tout effacer
+            <Button variant="outline" size="sm" onClick={clearAll} className="flex-1 sm:flex-none">
+              <Trash2 className="w-4 h-4 sm:mr-2" />
+              <span className="hidden sm:inline">Tout effacer</span>
+              <span className="sm:hidden">Effacer</span>
             </Button>
           </div>
         </div>
