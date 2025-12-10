@@ -18,10 +18,11 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { Sparkles, Loader2, Rocket, Library, Target } from 'lucide-react';
+import { Sparkles, Loader2, Rocket, Library, Target, Wand2 } from 'lucide-react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { LeadMachineWizard } from './LeadMachineWizard';
 import { LeadMachineWorkbook } from '@/types/leadMachine';
+import AIFunnelGenerator from './AIFunnelGenerator';
 
 interface CreateFunnelModalProps {
   open: boolean;
@@ -35,6 +36,7 @@ const CreateFunnelModal = ({ open, onOpenChange }: CreateFunnelModalProps) => {
   const [description, setDescription] = useState('');
   const [aiPrompt, setAiPrompt] = useState('');
   const [aiModel, setAiModel] = useState('google/gemini-2.5-flash');
+  const [aiGeneratorOpen, setAiGeneratorOpen] = useState(false);
   const { profile } = useAuth();
   const navigate = useNavigate();
 
@@ -146,6 +148,7 @@ const CreateFunnelModal = ({ open, onOpenChange }: CreateFunnelModalProps) => {
   };
 
   return (
+    <>
     <Dialog open={open} onOpenChange={(newOpen) => {
       onOpenChange(newOpen);
       if (!newOpen) handleReset();
@@ -183,24 +186,30 @@ const CreateFunnelModal = ({ open, onOpenChange }: CreateFunnelModalProps) => {
               </CardContent>
             </Card>
 
-            <Card 
-              className="cursor-pointer hover:shadow-elegant transition-smooth hover:scale-105 border-2 border-accent/20"
-              onClick={() => setStep('ai')}
+            <Card
+              className="cursor-pointer hover:shadow-elegant transition-smooth hover:scale-105 border-2 border-accent/20 bg-gradient-to-br from-primary/5 to-accent/5"
+              onClick={() => {
+                onOpenChange(false);
+                setAiGeneratorOpen(true);
+              }}
             >
               <CardHeader>
-                <div className="h-12 w-12 bg-accent/10 rounded-lg flex items-center justify-center mb-2">
-                  <Sparkles className="h-6 w-6 text-accent" />
+                <div className="h-12 w-12 bg-gradient-to-br from-primary to-accent rounded-lg flex items-center justify-center mb-2">
+                  <Wand2 className="h-6 w-6 text-white" />
                 </div>
-                <CardTitle>Générer avec IA</CardTitle>
+                <CardTitle className="flex items-center gap-2">
+                  Générateur IA Pro
+                  <span className="text-xs bg-accent text-white px-2 py-0.5 rounded-full">Nouveau</span>
+                </CardTitle>
                 <CardDescription>
-                  Décrivez votre funnel et laissez l'IA le créer
+                  L'IA génère tous les steps d'un coup avec prévisualisation
                 </CardDescription>
               </CardHeader>
               <CardContent>
-                <div className="bg-primary/5 rounded-lg p-3 text-sm">
-                  <span className="font-semibold">✨ Recommandé</span>
+                <div className="bg-primary/10 rounded-lg p-3 text-sm">
+                  <span className="font-semibold">✨ Ultra complet</span>
                   <p className="text-muted-foreground mt-1">
-                    Rapide et intelligent
+                    Config avancée + Preview + Édition
                   </p>
                 </div>
               </CardContent>
@@ -384,6 +393,18 @@ const CreateFunnelModal = ({ open, onOpenChange }: CreateFunnelModalProps) => {
         )}
       </DialogContent>
     </Dialog>
+
+    {/* AI Funnel Generator Modal */}
+    <AIFunnelGenerator
+      open={aiGeneratorOpen}
+      onOpenChange={(isOpen) => {
+        setAiGeneratorOpen(isOpen);
+        if (!isOpen) {
+          handleReset();
+        }
+      }}
+    />
+  </>
   );
 };
 

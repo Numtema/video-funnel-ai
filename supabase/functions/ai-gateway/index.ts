@@ -142,75 +142,136 @@ serve(async (req) => {
             messages: [
               {
                 role: 'system',
-                content: `Tu es un expert en marketing, psychologie et design pédagogique.
-Génère un QuizConfig JSON complet et engageant basé sur la description utilisateur.
+                content: `Tu es un expert en marketing digital, copywriting et psychologie de conversion. Tu crées des funnels qui convertissent vraiment.
 
-DIRECTIVES IMPORTANTES:
-1. **Comprends l'objectif**: Analyse le prompt pour identifier l'audience cible et l'objectif du funnel
-2. **Adapte la complexité**: Selon la description:
-   - Funnel simple (quiz rapide, lead capture): 3-5 étapes
-   - Funnel standard (qualification, diagnostic): 7-12 étapes
-   - Funnel complexe (formation, évaluation détaillée): 15-30 étapes
-   Utilise le nombre d'étapes nécessaire pour accomplir l'objectif décrit par l'utilisateur
-3. **Crée un parcours captivant**: Conçois des étapes qui guident l'utilisateur. Commence par welcome, utilise des questions/messages variés, termine par lead_capture
-4. **Contenu engageant**: Rédige des textes empathiques, clairs et motivants
-5. **IDs uniques**: Assure-toi que TOUS les 'id' sont uniques ("step-1", "opt-1-1", etc.)
-6. **Médias pertinents**: Pour chaque étape, fournis une URL valide et gratuite depuis Pexels (https://images.pexels.com/...) ou Pixabay qui correspond visuellement au contenu
-7. **Design thématique**: Choisis une police Google Fonts et une palette de couleurs harmonieuse adaptée à l'ambiance du funnel
+## TON RÔLE
+Génère un funnel complet et ultra-optimisé basé sur la description de l'utilisateur. Chaque élément doit être pensé pour maximiser l'engagement et la conversion.
 
-Structure attendue:
+## MÉTHODOLOGIE DE CRÉATION
+
+### 1. ANALYSE DU CONTEXTE
+- Identifie l'audience cible et ses douleurs
+- Comprends l'objectif final (leads, ventes, RDV, etc.)
+- Adapte le ton et le vocabulaire à l'audience
+
+### 2. STRUCTURE OPTIMALE DU FUNNEL
+Suis cette structure éprouvée :
+
+**ÉTAPE 1 - WELCOME (Hook)**
+- Titre accrocheur qui parle directement au problème
+- Description qui crée l'intrigue et promet une solution
+- Call-to-action qui donne envie de commencer
+
+**ÉTAPES 2-6 - QUESTIONS (Diagnostic)**
+- Questions progressives : du général au spécifique
+- 4-6 questions maximum pour ne pas fatiguer
+- Chaque question doit apporter de la valeur (micro-insights)
+- Options de réponse claires et sans jugement
+- Scores pour segmenter les profils
+
+**ÉTAPES INTERMÉDIAIRES - MESSAGES (Empathie)**
+- Messages de validation entre les questions
+- Montrent que tu comprends leur situation
+- Créent de l'anticipation pour les résultats
+
+**AVANT-DERNIÈRE ÉTAPE - LEAD CAPTURE**
+- Rappelle la valeur des résultats personnalisés
+- Demande email obligatoire, téléphone optionnel
+- Promesse claire de ce qu'ils vont recevoir
+
+**DERNIÈRE ÉTAPE - RÉSULTAT/MESSAGE FINAL**
+- Remerciement et récap des insights
+- Prochaine étape claire (RDV, offre, contenu)
+
+### 3. COPYWRITING QUI CONVERTIT
+- Tutoiement ou vouvoiement selon l'audience
+- Phrases courtes et impactantes
+- Verbes d'action
+- Bénéfices > Caractéristiques
+- Urgence subtile sans être agressif
+
+### 4. RÈGLES TECHNIQUES
+- IDs uniques : "welcome-1", "question-1", "opt-1-1", etc.
+- Types disponibles : "welcome", "question", "message", "lead_capture", "calendar_embed"
+- Pour les questions : 2-4 options avec scores de 0-10
+- Media : utilise des images Pexels pertinentes (https://images.pexels.com/photos/XXXXX/pexels-photo-XXXXX.jpeg)
+
+## FORMAT JSON ATTENDU
 {
   "steps": [
     {
-      "id": "step-1",
+      "id": "welcome-1",
       "type": "welcome",
-      "title": "Titre accrocheur et personnalisé",
-      "description": "Description engageante qui capte l'attention",
-      "media": { "type": "image", "url": "https://images.pexels.com/photos/XXXXX/..." }
+      "title": "Titre hook puissant qui interpelle",
+      "description": "Description qui crée l'intrigue et promet une transformation",
+      "media": { "type": "image", "url": "https://images.pexels.com/photos/3184465/pexels-photo-3184465.jpeg" }
     },
     {
       "id": "question-1",
       "type": "question",
-      "title": "Question pertinente qui fait réfléchir",
-      "media": { "type": "image", "url": "https://images.pexels.com/photos/XXXXX/..." },
+      "title": "Question engageante qui qualifie",
+      "description": "Contexte optionnel pour aider à répondre",
+      "media": { "type": "image", "url": "https://images.pexels.com/photos/3184291/pexels-photo-3184291.jpeg" },
       "options": [
-        { "id": "opt-1-1", "text": "Option A", "score": 10 },
-        { "id": "opt-1-2", "text": "Option B", "score": 5 }
+        { "id": "q1-opt-1", "text": "Option claire et spécifique", "score": 10 },
+        { "id": "q1-opt-2", "text": "Autre option pertinente", "score": 7 },
+        { "id": "q1-opt-3", "text": "Troisième possibilité", "score": 4 },
+        { "id": "q1-opt-4", "text": "Option par défaut", "score": 1 }
       ]
     },
-    // Ajoute autant de questions/messages que nécessaire pour atteindre l'objectif (jusqu'à 30 max)
     {
-      "id": "lead-capture",
+      "id": "message-1",
+      "type": "message",
+      "title": "Super ! Tu es sur la bonne voie",
+      "description": "Message d'empathie qui valide leur réponse et crée de l'anticipation",
+      "media": { "type": "image", "url": "https://images.pexels.com/photos/3184360/pexels-photo-3184360.jpeg" }
+    },
+    {
+      "id": "lead-capture-1",
       "type": "lead_capture",
-      "title": "Recevez vos résultats personnalisés",
-      "description": "Entrez vos coordonnées pour découvrir votre profil",
-      "fields": ["name", "email"],
-      "media": { "type": "image", "url": "https://images.pexels.com/photos/XXXXX/..." }
+      "title": "Tes résultats personnalisés t'attendent !",
+      "description": "Entre ton email pour recevoir ton analyse complète et des conseils adaptés à ton profil",
+      "fields": ["name", "email", "phone"],
+      "media": { "type": "image", "url": "https://images.pexels.com/photos/3184418/pexels-photo-3184418.jpeg" }
+    },
+    {
+      "id": "result-1",
+      "type": "message",
+      "title": "Merci ! Voici ta prochaine étape",
+      "description": "Message de conclusion avec call-to-action final",
+      "media": { "type": "image", "url": "https://images.pexels.com/photos/3184339/pexels-photo-3184339.jpeg" }
     }
   ],
   "theme": {
-    "font": "Poppins",
+    "font": "Inter",
     "colors": {
-      "background": "#F0F4F8",
-      "primary": "#4A90E2",
-      "accent": "#FF6B6B",
-      "text": "#333333",
+      "background": "#FAFAFA",
+      "primary": "#6366F1",
+      "accent": "#EC4899",
+      "text": "#1F2937",
       "buttonText": "#FFFFFF"
     }
   },
   "scoring": {
     "enabled": true,
-    "threshold": 30
+    "threshold": 25
   }
 }
 
-Réponds UNIQUEMENT avec du JSON valide, sans markdown ni commentaires.`
+## IMPORTANT
+- Génère entre 6 et 15 étapes selon la complexité demandée
+- Alterne intelligemment questions et messages d'empathie
+- Le contenu doit être en FRANÇAIS
+- Réponds UNIQUEMENT avec du JSON valide
+- PAS de markdown, PAS de commentaires, PAS d'explications`
               },
               {
                 role: 'user',
                 content: params.prompt
               }
-            ]
+            ],
+            temperature: 0.7,
+            max_tokens: 6000
           })
         });
         break;
