@@ -7,9 +7,10 @@ import {
   CollapsibleContent,
   CollapsibleTrigger,
 } from '@/components/ui/collapsible';
-import { ChevronDown } from 'lucide-react';
+import { ChevronDown, Route } from 'lucide-react';
 import { useState } from 'react';
 import { RedirectSettings } from './RedirectSettings';
+import { AdvancedRoutingTab } from './AdvancedRoutingTab';
 
 interface FunnelSettingsProps {
   config: QuizConfig;
@@ -54,45 +55,27 @@ export function FunnelSettings({ config, onUpdate }: FunnelSettingsProps) {
     <div className="p-6 space-y-4 border-t">
       <h3 className="font-semibold">Paramètres du Funnel</h3>
 
-      {/* Scoring Section */}
+      {/* Advanced Routing Section */}
       <Collapsible
         open={openSections.includes('scoring')}
         onOpenChange={() => toggleSection('scoring')}
       >
         <CollapsibleTrigger className="flex items-center justify-between w-full p-3 hover:bg-muted rounded-lg">
-          <span className="font-medium text-sm">Scoring</span>
+          <div className="flex items-center gap-2">
+            <Route className="w-4 h-4 text-blue-500" />
+            <span className="font-medium text-sm">Scoring & Routing</span>
+            {config.scoring?.enabled && (
+              <span className="w-2 h-2 bg-blue-500 rounded-full" />
+            )}
+          </div>
           <ChevronDown
             className={`w-4 h-4 transition-transform ${
               openSections.includes('scoring') ? 'rotate-180' : ''
             }`}
           />
         </CollapsibleTrigger>
-        <CollapsibleContent className="pt-3 space-y-4">
-          <div className="flex items-center justify-between">
-            <Label htmlFor="scoring-enabled">Activer le scoring</Label>
-            <Switch
-              id="scoring-enabled"
-              checked={config.scoring?.enabled || false}
-              onCheckedChange={handleScoringToggle}
-            />
-          </div>
-
-          {config.scoring?.enabled && (
-            <div>
-              <Label htmlFor="scoring-threshold">
-                Seuil de qualification ({config.scoring.threshold || 50}%)
-              </Label>
-              <input
-                type="range"
-                id="scoring-threshold"
-                min="0"
-                max="100"
-                value={config.scoring.threshold || 50}
-                onChange={(e) => handleThresholdChange(parseInt(e.target.value))}
-                className="w-full mt-2"
-              />
-            </div>
-          )}
+        <CollapsibleContent className="pt-3">
+          <AdvancedRoutingTab config={config} onUpdate={onUpdate} />
         </CollapsibleContent>
       </Collapsible>
 

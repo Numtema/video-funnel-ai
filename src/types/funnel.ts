@@ -20,24 +20,57 @@ export interface QuestionOption {
   nextStepId?: string;
 }
 
+// A/B Testing - Variante d'un step
+export interface StepVariant {
+  id: string;
+  name: string;
+  title?: string;
+  description?: string;
+  buttonText?: string;
+  media?: MediaConfig;
+  options?: QuestionOption[]; // Pour les questions
+  weight: number; // Pourcentage de trafic (0-100)
+  views: number;
+  conversions: number;
+}
+
 export interface QuizStep {
   id: string;
   type: StepType;
   title: string;
   description?: string;
   media: MediaConfig;
-  
+  buttonText?: string;
+
   // Pour Question
   options?: QuestionOption[];
-  
+
   // Pour LeadCapture
   fields?: string[];
   webhookUrl?: string;
-  
+
   // Pour CalendarEmbed
   embedCode?: string;
-  
+
   nextStepId?: string;
+
+  // A/B Testing
+  variants?: StepVariant[];
+  abTestEnabled?: boolean;
+}
+
+// Routing avancé - Segment basé sur le score
+export interface ScoreSegment {
+  id: string;
+  name: string;
+  label: string; // Ex: "Débutant", "Intermédiaire", "Expert"
+  minScore: number;
+  maxScore: number;
+  color: string;
+  nextStepId?: string;
+  redirectUrl?: string;
+  redirectType?: 'website' | 'whatsapp' | 'messenger' | 'none';
+  customMessage?: string;
 }
 
 export interface ScoringConfig {
@@ -45,6 +78,9 @@ export interface ScoringConfig {
   threshold: number;
   highScoreStepId?: string;
   lowScoreStepId?: string;
+  // Routing avancé avec segments
+  segments?: ScoreSegment[];
+  showSegmentResult?: boolean; // Afficher le segment à l'utilisateur
 }
 
 export interface ThemeConfig {

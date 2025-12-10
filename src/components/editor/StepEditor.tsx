@@ -10,6 +10,7 @@ import { Trash2, Sparkles } from 'lucide-react';
 import { ContentTab } from './ContentTab';
 import { MediaTab } from './MediaTab';
 import { DesignTab } from './DesignTab';
+import { ABTestingTab } from './ABTestingTab';
 import { aiService } from '@/services/aiService';
 import { toast } from '@/hooks/use-toast';
 
@@ -155,10 +156,16 @@ export function StepEditor({ step, onUpdate, onDelete, allSteps }: StepEditorPro
 
       {/* Tabs */}
       <Tabs defaultValue="content" className="w-full">
-        <TabsList className="w-full grid grid-cols-3">
+        <TabsList className="w-full grid grid-cols-4">
           <TabsTrigger value="content">Contenu</TabsTrigger>
           <TabsTrigger value="media">Média</TabsTrigger>
           <TabsTrigger value="design">Design</TabsTrigger>
+          <TabsTrigger value="ab-testing" className="relative">
+            A/B Test
+            {step.abTestEnabled && (
+              <span className="absolute -top-1 -right-1 w-2 h-2 bg-purple-500 rounded-full" />
+            )}
+          </TabsTrigger>
         </TabsList>
 
         <TabsContent value="content" className="mt-6">
@@ -171,6 +178,13 @@ export function StepEditor({ step, onUpdate, onDelete, allSteps }: StepEditorPro
 
         <TabsContent value="design" className="mt-6">
           <DesignTab step={step} onUpdate={onUpdate} />
+        </TabsContent>
+
+        <TabsContent value="ab-testing" className="mt-6">
+          <ABTestingTab
+            step={step}
+            onUpdate={(updates) => onUpdate({ ...step, ...updates })}
+          />
         </TabsContent>
       </Tabs>
     </div>
