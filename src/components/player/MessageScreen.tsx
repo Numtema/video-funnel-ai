@@ -2,6 +2,7 @@ import { QuizStep, ThemeConfig } from '@/types/funnel';
 import { Button } from '@/components/ui/button';
 import { ArrowRight } from 'lucide-react';
 import { isYouTubeUrl, getYouTubeEmbedUrl } from '@/lib/youtube';
+import { renderMarkdown, cleanProfileTitle } from '@/lib/markdown';
 
 interface MessageScreenProps {
   step: QuizStep;
@@ -10,12 +11,14 @@ interface MessageScreenProps {
 }
 
 export function MessageScreen({ step, theme, onNext }: MessageScreenProps) {
+  const cleanTitle = cleanProfileTitle(step.title);
+  
   return (
     <div className="text-center space-y-4 sm:space-y-6 p-4 sm:p-6 md:p-8 rounded-lg bg-card/50 backdrop-blur">
       {step.media.type === 'image' && step.media.url && (
         <img 
           src={step.media.url} 
-          alt={step.title}
+          alt={cleanTitle}
           className="w-full max-h-48 sm:max-h-64 object-cover rounded-lg mb-3 sm:mb-4"
         />
       )}
@@ -41,12 +44,14 @@ export function MessageScreen({ step, theme, onNext }: MessageScreenProps) {
         </>
       )}
 
-      <h2 className="text-lg sm:text-xl md:text-2xl lg:text-3xl font-bold break-words leading-tight px-2">{step.title}</h2>
+      <h2 className="text-lg sm:text-xl md:text-2xl lg:text-3xl font-bold break-words leading-tight px-2">
+        {cleanTitle}
+      </h2>
       
       {step.description && (
-        <p className="text-sm sm:text-base md:text-lg text-muted-foreground max-w-xl mx-auto whitespace-pre-line break-words px-3 leading-relaxed">
-          {step.description}
-        </p>
+        <div className="text-sm sm:text-base md:text-lg text-muted-foreground max-w-xl mx-auto break-words px-3 leading-relaxed text-left">
+          {renderMarkdown(step.description)}
+        </div>
       )}
 
       <Button 

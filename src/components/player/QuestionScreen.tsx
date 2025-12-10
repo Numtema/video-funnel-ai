@@ -1,6 +1,7 @@
 import { QuizStep, ThemeConfig, QuestionOption } from '@/types/funnel';
 import { Button } from '@/components/ui/button';
 import { isYouTubeUrl, getYouTubeEmbedUrl } from '@/lib/youtube';
+import { renderMarkdown, cleanProfileTitle } from '@/lib/markdown';
 
 interface QuestionScreenProps {
   step: QuizStep;
@@ -17,12 +18,14 @@ export function QuestionScreen({ step, theme, onNext }: QuestionScreenProps) {
     });
   };
 
+  const cleanTitle = cleanProfileTitle(step.title);
+
   return (
     <div className="space-y-4 sm:space-y-6 p-4 sm:p-6 md:p-8 rounded-lg bg-card/50 backdrop-blur">
       {step.media.type === 'image' && step.media.url && (
         <img 
           src={step.media.url} 
-          alt={step.title}
+          alt={cleanTitle}
           className="w-full max-h-48 sm:max-h-64 object-cover rounded-lg mb-3 sm:mb-4"
         />
       )}
@@ -48,10 +51,14 @@ export function QuestionScreen({ step, theme, onNext }: QuestionScreenProps) {
         </>
       )}
 
-      <h2 className="text-lg sm:text-xl md:text-2xl lg:text-3xl font-bold text-center break-words leading-tight px-2">{step.title}</h2>
+      <h2 className="text-lg sm:text-xl md:text-2xl lg:text-3xl font-bold text-center break-words leading-tight px-2">
+        {cleanTitle}
+      </h2>
       
       {step.description && (
-        <p className="text-sm sm:text-base text-center text-muted-foreground break-words px-2 leading-relaxed">{step.description}</p>
+        <div className="text-sm sm:text-base text-center text-muted-foreground break-words px-2 leading-relaxed">
+          {renderMarkdown(step.description)}
+        </div>
       )}
 
       <div className="space-y-2 sm:space-y-3 mt-4 sm:mt-6">
@@ -67,7 +74,7 @@ export function QuestionScreen({ step, theme, onNext }: QuestionScreenProps) {
             }}
           >
             <span className="text-xs sm:text-sm md:text-base leading-snug sm:leading-relaxed break-words whitespace-normal block w-full" style={{ overflowWrap: 'break-word', wordBreak: 'break-word' }}>
-              {option.text}
+              {renderMarkdown(option.text)}
             </span>
           </Button>
         ))}
