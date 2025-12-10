@@ -17,7 +17,10 @@ import {
   UserCheck,
   Users,
   TrendingUp,
-  Eye
+  Eye,
+  Tag,
+  Plus,
+  X
 } from 'lucide-react';
 import {
   Dialog,
@@ -41,6 +44,11 @@ import {
   TableHeader,
   TableRow,
 } from '@/components/ui/table';
+import {
+  Popover,
+  PopoverContent,
+  PopoverTrigger,
+} from '@/components/ui/popover';
 
 interface Lead {
   id: string;
@@ -53,10 +61,23 @@ interface Lead {
   created_at: string;
   device?: string;
   answers?: Record<string, any>;
+  tags?: string[];
   funnels: {
     name: string;
   };
 }
+
+// Predefined avatar/tag colors for lead segmentation
+const TAG_COLORS: Record<string, string> = {
+  'Chaud': 'bg-red-500 text-white',
+  'Tiède': 'bg-orange-500 text-white',
+  'Froid': 'bg-blue-500 text-white',
+  'VIP': 'bg-purple-500 text-white',
+  'Qualifié': 'bg-green-500 text-white',
+  'À rappeler': 'bg-yellow-500 text-black',
+  'Intéressé': 'bg-teal-500 text-white',
+  'Premium': 'bg-pink-500 text-white',
+};
 
 const Leads = () => {
   const [leads, setLeads] = useState<Lead[]>([]);
@@ -241,6 +262,109 @@ const Leads = () => {
     return <Badge className={variant.className}>{variant.label}</Badge>;
   };
 
+  // Tag management functions
+  const getLeadTags = (lead: Lead): string[] => {
+    // Tags can come from ai_analysis or from a tags field in answers
+    const aiTags = (lead.answers as any)?.tags || [];
+    return Array.isArray(aiTags) ? aiTags : [];
+  };
+
+  const updateLeadTags = async (leadId: string, tags: string[]) => {
+    try {
+      // Get existing answers
+      const lead = leads.find(l => l.id === leadId);
+      const currentAnswers = lead?.answers || {};
+      
+      const { error } = await supabase
+        .from('submissions')
+        .update({ 
+          answers: { ...currentAnswers, tags }
+        })
+        .eq('id', leadId);
+
+      if (error) throw error;
+
+      // Update local state
+      setLeads(prev => prev.map(l => 
+        l.id === leadId ? { ...l, answers: { ...l.answers, tags } } : l
+      ));
+
+      toast({ title: 'Tags mis à jour' });
+    } catch (error: any) {
+      toast({
+        title: 'Erreur',
+        description: error.message,
+        variant: 'destructive',
+      });
+    }
+  };
+
+  const addTagToLead = (leadId: string, tag: string) => {
+    const lead = leads.find(l => l.id === leadId);
+    const currentTags = getLeadTags(lead!);
+    if (!currentTags.includes(tag)) {
+      updateLeadTags(leadId, [...currentTags, tag]);
+    }
+  };
+
+  const removeTagFromLead = (leadId: string, tag: string) => {
+    const lead = leads.find(l => l.id === leadId);
+    const currentTags = getLeadTags(lead!);
+    updateLeadTags(leadId, currentTags.filter(t => t !== tag));
+  };
+
+  // Tag component for display
+  const LeadTagsDisplay = ({ lead }: { lead: Lead }) => {
+    const tags = getLeadTags(lead);
+    const availableTags = Object.keys(TAG_COLORS);
+    
+    return (
+      <Popover>
+        <PopoverTrigger asChild>
+          <Button variant="ghost" size="sm" className="h-auto p-1 flex flex-wrap gap-1 max-w-[200px] justify-start">
+            {tags.length > 0 ? (
+              tags.map(tag => (
+                <Badge 
+                  key={tag} 
+                  className={`${TAG_COLORS[tag] || 'bg-gray-500 text-white'} text-xs`}
+                >
+                  {tag}
+                </Badge>
+              ))
+            ) : (
+              <span className="text-xs text-muted-foreground flex items-center gap-1">
+                <Tag className="h-3 w-3" />
+                Ajouter
+              </span>
+            )}
+          </Button>
+        </PopoverTrigger>
+        <PopoverContent className="w-64 p-2" align="start">
+          <div className="space-y-2">
+            <p className="text-sm font-medium">Tags Avatar</p>
+            <div className="flex flex-wrap gap-1">
+              {availableTags.map(tag => {
+                const isActive = tags.includes(tag);
+                return (
+                  <Button
+                    key={tag}
+                    size="sm"
+                    variant={isActive ? "default" : "outline"}
+                    className={`h-7 text-xs ${isActive ? TAG_COLORS[tag] : ''}`}
+                    onClick={() => isActive ? removeTagFromLead(lead.id, tag) : addTagToLead(lead.id, tag)}
+                  >
+                    {tag}
+                    {isActive && <X className="h-3 w-3 ml-1" />}
+                  </Button>
+                );
+              })}
+            </div>
+          </div>
+        </PopoverContent>
+      </Popover>
+    );
+  };
+
   // Test submission function
   const testSubmission = async () => {
     try {
@@ -292,13 +416,14 @@ const Leads = () => {
               {stats.total} leads au total
             </p>
           </div>
-          <div className="flex gap-2">
-            <Button onClick={testSubmission} variant="outline" size="lg">
-              🧪 Tester
+          <div className="flex gap-2 flex-wrap">
+            <Button onClick={testSubmission} variant="outline" size="sm" className="hidden sm:flex">
+              Test
             </Button>
-            <Button onClick={exportToCSV} size="lg" disabled={leads.length === 0}>
-              <Download className="mr-2 h-5 w-5" />
-              Exporter CSV
+            <Button onClick={exportToCSV} size="sm" disabled={leads.length === 0} className="flex-1 sm:flex-none">
+              <Download className="h-4 w-4 sm:mr-2" />
+              <span className="hidden sm:inline">Exporter CSV</span>
+              <span className="sm:hidden">Export</span>
             </Button>
           </div>
         </div>
@@ -394,56 +519,65 @@ const Leads = () => {
               <Table>
                 <TableHeader>
                   <TableRow>
-                    <TableHead>Date</TableHead>
+                    <TableHead className="hidden sm:table-cell">Date</TableHead>
                     <TableHead>Contact</TableHead>
-                    <TableHead>Funnel</TableHead>
-                    <TableHead>Score</TableHead>
+                    <TableHead className="hidden md:table-cell">Funnel</TableHead>
+                    <TableHead className="hidden lg:table-cell">Score</TableHead>
+                    <TableHead>Tags</TableHead>
                     <TableHead>Statut</TableHead>
-                    <TableHead>Actions</TableHead>
+                    <TableHead className="w-20">Actions</TableHead>
                   </TableRow>
                 </TableHeader>
                 <TableBody>
                   {loading ? (
                     <TableRow>
-                      <TableCell colSpan={6} className="text-center py-8">
+                      <TableCell colSpan={7} className="text-center py-8">
                         Chargement...
                       </TableCell>
                     </TableRow>
                   ) : leads.length === 0 ? (
                     <TableRow>
-                      <TableCell colSpan={6} className="text-center py-8">
+                      <TableCell colSpan={7} className="text-center py-8">
                         Aucun lead trouvé
                       </TableCell>
                     </TableRow>
                   ) : (
                     leads.map((lead) => (
                       <TableRow key={lead.id}>
-                        <TableCell className="whitespace-nowrap">
+                        <TableCell className="whitespace-nowrap hidden sm:table-cell">
                           <div className="flex items-center gap-2">
                             <Calendar className="h-4 w-4 text-muted-foreground" />
-                            {new Date(lead.created_at).toLocaleDateString('fr-FR')}
+                            <span className="text-sm">{new Date(lead.created_at).toLocaleDateString('fr-FR')}</span>
                           </div>
                         </TableCell>
                         <TableCell>
-                          <div>
-                            <div className="font-medium">{lead.contact_name || 'N/A'}</div>
+                          <div className="min-w-0">
+                            <div className="font-medium truncate max-w-[150px] sm:max-w-none">{lead.contact_name || 'N/A'}</div>
+                            <div className="sm:hidden text-xs text-muted-foreground">
+                              {new Date(lead.created_at).toLocaleDateString('fr-FR')}
+                            </div>
                             {lead.contact_email && (
-                              <div className="flex items-center gap-1 text-sm text-muted-foreground">
-                                <Mail className="h-3 w-3" />
-                                {lead.contact_email}
+                              <div className="flex items-center gap-1 text-xs sm:text-sm text-muted-foreground truncate max-w-[150px] sm:max-w-none">
+                                <Mail className="h-3 w-3 flex-shrink-0" />
+                                <span className="truncate">{lead.contact_email}</span>
                               </div>
                             )}
                             {lead.contact_phone && (
-                              <div className="flex items-center gap-1 text-sm text-muted-foreground">
-                                <Phone className="h-3 w-3" />
+                              <div className="flex items-center gap-1 text-xs sm:text-sm text-muted-foreground">
+                                <Phone className="h-3 w-3 flex-shrink-0" />
                                 {lead.contact_phone}
                               </div>
                             )}
                           </div>
                         </TableCell>
-                        <TableCell>{lead.funnels?.name || 'N/A'}</TableCell>
-                        <TableCell>
+                        <TableCell className="hidden md:table-cell">
+                          <span className="truncate max-w-[120px] block">{lead.funnels?.name || 'N/A'}</span>
+                        </TableCell>
+                        <TableCell className="hidden lg:table-cell">
                           <Badge variant="outline">{lead.score || 0}</Badge>
+                        </TableCell>
+                        <TableCell>
+                          <LeadTagsDisplay lead={lead} />
                         </TableCell>
                         <TableCell>
                           <Select
