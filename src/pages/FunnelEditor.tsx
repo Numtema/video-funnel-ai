@@ -345,6 +345,7 @@ export default function FunnelEditor() {
             />
             <FunnelSettings
               config={config}
+              funnelId={id}
               onUpdate={handleUpdateConfig}
             />
           </TabsContent>
@@ -390,9 +391,10 @@ export default function FunnelEditor() {
             step={selectedStep}
             theme={config.theme}
           />
-          
+
           <FunnelSettings
             config={config}
+            funnelId={id}
             onUpdate={handleUpdateConfig}
           />
         </div>
