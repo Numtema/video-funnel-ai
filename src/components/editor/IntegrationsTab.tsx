@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { QuizConfig } from '@/types/funnel';
+import { QuizConfig, CalendarIntegration } from '@/types/funnel';
 import { Label } from '@/components/ui/label';
 import { Input } from '@/components/ui/input';
 import { Switch } from '@/components/ui/switch';
@@ -61,7 +61,7 @@ const INTEGRATIONS: Integration[] = [
   },
 ];
 
-const CALENDAR_PROVIDERS = [
+const CALENDAR_PROVIDERS: { id: CalendarIntegration['provider']; name: string; placeholder: string }[] = [
   { id: 'calendly', name: 'Calendly', placeholder: 'https://calendly.com/votre-nom' },
   { id: 'cal', name: 'Cal.com', placeholder: 'https://cal.com/votre-nom' },
   { id: 'custom', name: 'Autre (iframe)', placeholder: 'https://...' },
@@ -85,7 +85,7 @@ export function IntegrationsTab({ config, funnelId, onUpdate }: IntegrationsTabP
     });
   };
 
-  const handleCalendarChange = (url: string, provider?: string) => {
+  const handleCalendarChange = (url: string, provider?: CalendarIntegration['provider']) => {
     onUpdate({
       ...config,
       integrations: {
@@ -100,7 +100,7 @@ export function IntegrationsTab({ config, funnelId, onUpdate }: IntegrationsTabP
     });
   };
 
-  const handleCalendarProviderChange = (provider: string) => {
+  const handleCalendarProviderChange = (provider: CalendarIntegration['provider']) => {
     onUpdate({
       ...config,
       integrations: {
