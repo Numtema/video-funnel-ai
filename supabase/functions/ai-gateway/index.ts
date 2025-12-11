@@ -353,6 +353,58 @@ Réponds UNIQUEMENT avec du JSON valide.`
         break;
       }
 
+      case 'lgm-step': {
+        console.log('Generating LGM step with prompt:', params.prompt);
+        response = await fetch('https://ai.gateway.lovable.dev/v1/chat/completions', {
+          method: 'POST',
+          headers: {
+            'Authorization': `Bearer ${LOVABLE_API_KEY}`,
+            'Content-Type': 'application/json'
+          },
+          body: JSON.stringify({
+            model: 'google/gemini-2.5-flash',
+            messages: [
+              {
+                role: 'system',
+                content: 'Tu es un expert en marketing et génération de leads. Réponds uniquement avec du JSON valide, sans markdown ni explications.'
+              },
+              {
+                role: 'user',
+                content: params.prompt
+              }
+            ],
+            temperature: 0.7,
+            max_tokens: 1000
+          })
+        });
+
+        if (!response.ok) {
+          const errorText = await response.text();
+          console.error(`LGM step generation error (${response.status}):`, errorText);
+          throw new Error(`AI Gateway error: ${errorText}`);
+        }
+
+        const lgmData = await response.json();
+        let content = lgmData.choices?.[0]?.message?.content || '{}';
+        
+        // Remove markdown code blocks if present
+        content = content.replace(/```json\n?/g, '').replace(/```\n?/g, '').trim();
+        
+        try {
+          const parsedContent = JSON.parse(content);
+          return new Response(
+            JSON.stringify({ content: parsedContent }),
+            { headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+          );
+        } catch (parseError) {
+          console.error('Failed to parse LGM response:', content);
+          return new Response(
+            JSON.stringify({ content: { title: 'Étape générée', description: content, buttonText: 'Continuer' } }),
+            { headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+          );
+        }
+      }
+
       default:
         throw new Error(`Unknown action: ${action}`);
     }

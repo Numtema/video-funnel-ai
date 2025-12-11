@@ -197,8 +197,8 @@ export function LeadGenerationMachine({ onGenerate, onClose }: LeadGenerationMac
         // Call AI to generate content
         const { data, error } = await supabase.functions.invoke('ai-gateway', {
           body: {
+            action: 'lgm-step',
             prompt,
-            type: 'lgm-step',
           },
         });
 
