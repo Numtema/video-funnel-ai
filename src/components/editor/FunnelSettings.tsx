@@ -7,11 +7,13 @@ import {
   CollapsibleContent,
   CollapsibleTrigger,
 } from '@/components/ui/collapsible';
-import { ChevronDown, Route, Zap } from 'lucide-react';
+import { ChevronDown, Route, Zap, Activity, Globe } from 'lucide-react';
 import { useState } from 'react';
 import { RedirectSettings } from './RedirectSettings';
 import { AdvancedRoutingTab } from './AdvancedRoutingTab';
 import { IntegrationsTab } from './IntegrationsTab';
+import { TrackingPixelsTab } from './TrackingPixelsTab';
+import { I18nTab } from './I18nTab';
 
 interface FunnelSettingsProps {
   config: QuizConfig;
@@ -106,6 +108,54 @@ export function FunnelSettings({ config, funnelId, onUpdate }: FunnelSettingsPro
             funnelId={funnelId || ''}
             onUpdate={onUpdate}
           />
+        </CollapsibleContent>
+      </Collapsible>
+
+      {/* Tracking Pixels Section */}
+      <Collapsible
+        open={openSections.includes('tracking')}
+        onOpenChange={() => toggleSection('tracking')}
+      >
+        <CollapsibleTrigger className="flex items-center justify-between w-full p-3 hover:bg-muted rounded-lg">
+          <div className="flex items-center gap-2">
+            <Activity className="w-4 h-4 text-purple-500" />
+            <span className="font-medium text-sm">Tracking Pixels</span>
+            {(config.trackingPixels?.facebookPixel?.enabled || config.trackingPixels?.googleAnalytics?.enabled) && (
+              <span className="w-2 h-2 bg-purple-500 rounded-full" />
+            )}
+          </div>
+          <ChevronDown
+            className={`w-4 h-4 transition-transform ${
+              openSections.includes('tracking') ? 'rotate-180' : ''
+            }`}
+          />
+        </CollapsibleTrigger>
+        <CollapsibleContent className="pt-3">
+          <TrackingPixelsTab config={config} onUpdate={onUpdate} />
+        </CollapsibleContent>
+      </Collapsible>
+
+      {/* i18n Multi-langue Section */}
+      <Collapsible
+        open={openSections.includes('i18n')}
+        onOpenChange={() => toggleSection('i18n')}
+      >
+        <CollapsibleTrigger className="flex items-center justify-between w-full p-3 hover:bg-muted rounded-lg">
+          <div className="flex items-center gap-2">
+            <Globe className="w-4 h-4 text-indigo-500" />
+            <span className="font-medium text-sm">Multi-langue</span>
+            {config.i18n?.enabled && (
+              <span className="w-2 h-2 bg-indigo-500 rounded-full" />
+            )}
+          </div>
+          <ChevronDown
+            className={`w-4 h-4 transition-transform ${
+              openSections.includes('i18n') ? 'rotate-180' : ''
+            }`}
+          />
+        </CollapsibleTrigger>
+        <CollapsibleContent className="pt-3">
+          <I18nTab config={config} onUpdate={onUpdate} />
         </CollapsibleContent>
       </Collapsible>
 
