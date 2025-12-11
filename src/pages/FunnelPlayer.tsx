@@ -4,7 +4,10 @@ import { funnelService } from '@/services/funnelService';
 import { submissionService } from '@/services/submissionService';
 import { QuizStep, QuizConfig, StepType } from '@/types/funnel';
 import { useAnalytics } from '@/hooks/useAnalytics';
+import { useTrackingPixels } from '@/hooks/useTrackingPixels';
+import { useI18n } from '@/hooks/useI18n';
 import { getNextStep, calculateProgress, getStepIndexById } from '@/components/player/PlayerLogic';
+import { LanguageSelector } from '@/components/player/LanguageSelector';
 import { WelcomeScreen } from '@/components/player/WelcomeScreen';
 import { QuestionScreen } from '@/components/player/QuestionScreen';
 import { MessageScreen } from '@/components/player/MessageScreen';
@@ -30,6 +33,31 @@ export default function FunnelPlayer() {
   const [creatorInfo, setCreatorInfo] = useState<{ full_name?: string; company_name?: string; avatar_url?: string; website?: string } | null>(null);
 
   const { sessionId, trackStepEnter, trackStepLeave, saveSession } = useAnalytics(funnelId);
+  const [funnelName, setFunnelName] = useState<string>('');
+
+  // Initialize tracking pixels
+  const {
+    trackPageView,
+    trackLead,
+    trackCompleteRegistration,
+    trackStepChange
+  } = useTrackingPixels({
+    trackingConfig: config?.trackingPixels,
+    funnelId,
+    funnelName
+  });
+
+  // Initialize i18n
+  const {
+    currentLanguage,
+    changeLanguage,
+    t,
+    isRTL,
+    availableLanguages,
+    showLanguageSelector
+  } = useI18n({
+    i18nConfig: config?.i18n
+  });
 
   useEffect(() => {
     loadFunnel();
@@ -44,6 +72,7 @@ export default function FunnelPlayer() {
     try {
       const funnel = await funnelService.getByShareToken(shareToken);
       setFunnelId(funnel.id);
+      setFunnelName(funnel.name || 'Funnel');
       setConfig(funnel.config);
       setCreatorInfo(funnel.creator || null);
       if (funnel.config.steps.length > 0) {
@@ -61,14 +90,24 @@ export default function FunnelPlayer() {
     }
   };
 
+  // Track page view on initial load
+  useEffect(() => {
+    if (config && funnelId && !loading) {
+      trackPageView();
+    }
+  }, [config, funnelId, loading, trackPageView]);
+
+  // Track step changes
   useEffect(() => {
     if (config && currentStepId) {
       const step = config.steps.find(s => s.id === currentStepId);
       if (step) {
         trackStepEnter(step.id, step.type);
+        const stepIndex = config.steps.findIndex(s => s.id === currentStepId);
+        trackStepChange(step.id, step.title || `Step ${stepIndex + 1}`, stepIndex);
       }
     }
-  }, [currentStepId, config]);
+  }, [currentStepId, config, trackStepEnter, trackStepChange]);
 
   const handleNext = async (answer?: any) => {
     if (!config) return;
@@ -121,6 +160,9 @@ export default function FunnelPlayer() {
         const result = await submissionService.submit(submissionData);
         console.log('✅ Lead submitted successfully:', result);
 
+        // Track lead conversion
+        trackLead(answer.email, answer.phone, newScore);
+
         toast({
           title: 'Lead enregistré !',
           description: 'Votre information a été sauvegardée avec succès.'
@@ -157,7 +199,10 @@ export default function FunnelPlayer() {
 
   const handleComplete = async () => {
     await saveSession(true, score);
-    
+
+    // Track funnel completion
+    trackCompleteRegistration(score);
+
     // Handle redirection
     if (config?.redirectType && config.redirectType !== 'none' && config.redirectUrl) {
       let redirectUrl = '';
@@ -222,43 +267,57 @@ export default function FunnelPlayer() {
   const progress = calculateProgress(currentStepIndex, config.steps.length);
 
   return (
-    <div 
+    <div
       className="min-h-screen flex flex-col"
       style={{
         backgroundColor: config.theme.colors.background,
         color: config.theme.colors.text,
         fontFamily: config.theme.font
       }}
+      dir={isRTL ? 'rtl' : 'ltr'}
     >
       {/* Progress bar */}
       <div className="fixed top-0 left-0 right-0 h-1 bg-muted z-50">
-        <div 
+        <div
           className="h-full transition-all duration-500 ease-out"
-          style={{ 
+          style={{
             width: `${progress}%`,
-            backgroundColor: config.theme.colors.primary 
+            backgroundColor: config.theme.colors.primary
           }}
         />
       </div>
 
-      {/* Back button */}
-      {stepHistory.length > 0 && (
-        <div className="fixed top-4 left-4 z-40">
+      {/* Top navigation: Back button and Language selector */}
+      <div className="fixed top-4 left-4 right-4 z-40 flex items-center justify-between">
+        {/* Back button */}
+        {stepHistory.length > 0 ? (
           <Button
             variant="ghost"
             size="sm"
             onClick={handleBack}
             className="backdrop-blur-sm bg-background/50"
           >
-            <ArrowLeft className="w-4 h-4 mr-2" />
-            Retour
+            <ArrowLeft className={`w-4 h-4 ${isRTL ? 'ml-2 rotate-180' : 'mr-2'}`} />
+            {t('back')}
           </Button>
-        </div>
-      )}
+        ) : (
+          <div />
+        )}
+
+        {/* Language selector */}
+        {showLanguageSelector && (
+          <LanguageSelector
+            currentLanguage={currentLanguage}
+            availableLanguages={availableLanguages}
+            onChangeLanguage={changeLanguage}
+            compact
+          />
+        )}
+      </div>
 
       {/* Logo */}
       {config.theme.logo && (
-        <div className="pt-8 pb-4 flex justify-center">
+        <div className="pt-12 pb-4 flex justify-center">
           <img src={config.theme.logo} alt="Logo" className="h-16 object-contain" />
         </div>
       )}

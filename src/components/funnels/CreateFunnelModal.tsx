@@ -23,6 +23,8 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { LeadMachineWizard } from './LeadMachineWizard';
 import { LeadMachineWorkbook } from '@/types/leadMachine';
 import AIFunnelGenerator from './AIFunnelGenerator';
+import { LeadGenerationMachine } from '@/components/editor/LeadGenerationMachine';
+import { QuizStep } from '@/types/funnel';
 
 interface CreateFunnelModalProps {
   open: boolean;
@@ -30,7 +32,7 @@ interface CreateFunnelModalProps {
 }
 
 const CreateFunnelModal = ({ open, onOpenChange }: CreateFunnelModalProps) => {
-  const [step, setStep] = useState<'method' | 'ai' | 'blank' | 'template' | 'leadMachine'>('method');
+  const [step, setStep] = useState<'method' | 'ai' | 'blank' | 'template' | 'leadMachine' | 'lgm9'>('method');
   const [loading, setLoading] = useState(false);
   const [name, setName] = useState('');
   const [description, setDescription] = useState('');
@@ -108,6 +110,42 @@ const CreateFunnelModal = ({ open, onOpenChange }: CreateFunnelModalProps) => {
     }
   };
 
+  const handleLGM9Generation = async (steps: QuizStep[]) => {
+    setLoading(true);
+    try {
+      const defaultConfig: QuizConfig = {
+        steps,
+        theme: {
+          font: 'Poppins',
+          colors: {
+            background: '#D9CFC4',
+            primary: '#A97C7C',
+            accent: '#A11D1F',
+            text: '#374151',
+            buttonText: '#FFFFFF',
+          },
+        },
+      };
+
+      const result = await funnelService.create({
+        name: `Funnel LGM - ${new Date().toLocaleDateString('fr-FR')}`,
+        description: 'Funnel généré avec la méthode Lead Generation Machine 9 étapes',
+        config: defaultConfig,
+      });
+
+      toast.success("Funnel LGM créé ! Vos 9 étapes ont été générées avec succès");
+
+      onOpenChange(false);
+      handleReset();
+      navigate(`/funnels/${result.id}/edit`);
+    } catch (error: any) {
+      console.error("Error creating LGM funnel:", error);
+      toast.error(error.message || "Erreur lors de la création du funnel");
+    } finally {
+      setLoading(false);
+    }
+  };
+
   const handleLeadMachineGeneration = async (workbook: LeadMachineWorkbook) => {
     setLoading(true);
     try {
@@ -163,24 +201,27 @@ const CreateFunnelModal = ({ open, onOpenChange }: CreateFunnelModalProps) => {
 
         {step === 'method' && (
           <div className="grid gap-4 md:grid-cols-2 py-4">
-            <Card 
+            <Card
               className="cursor-pointer hover:shadow-elegant transition-smooth hover:scale-105 border-2 border-accent/20"
-              onClick={() => setStep('leadMachine')}
+              onClick={() => setStep('lgm9')}
             >
               <CardHeader>
-                <div className="h-12 w-12 bg-accent/10 rounded-lg flex items-center justify-center mb-2">
-                  <Target className="h-6 w-6 text-accent" />
+                <div className="h-12 w-12 bg-gradient-to-br from-red-500 to-purple-600 rounded-lg flex items-center justify-center mb-2">
+                  <Target className="h-6 w-6 text-white" />
                 </div>
-                <CardTitle>Lead Machine</CardTitle>
+                <CardTitle className="flex items-center gap-2">
+                  LGM 9 Étapes
+                  <span className="text-xs bg-gradient-to-r from-red-500 to-purple-600 text-white px-2 py-0.5 rounded-full">Pro</span>
+                </CardTitle>
                 <CardDescription>
-                  Wizard guidé avec IA pour un funnel de conversion optimisé
+                  Lead Generation Machine - Méthode en 9 étapes
                 </CardDescription>
               </CardHeader>
               <CardContent>
-                <div className="bg-primary/5 rounded-lg p-3 text-sm">
-                  <span className="font-semibold">🎯 Nouveau</span>
+                <div className="bg-gradient-to-r from-red-500/10 to-purple-600/10 rounded-lg p-3 text-sm">
+                  <span className="font-semibold">🎯 ATTRACT → CONVERT</span>
                   <p className="text-muted-foreground mt-1">
-                    9 étapes : ATTRACT → NURTURE
+                    Génération IA de chaque étape
                   </p>
                 </div>
               </CardContent>
@@ -264,9 +305,16 @@ const CreateFunnelModal = ({ open, onOpenChange }: CreateFunnelModalProps) => {
         )}
 
         {step === 'leadMachine' && (
-          <LeadMachineWizard 
+          <LeadMachineWizard
             onComplete={handleLeadMachineGeneration}
             onBack={() => setStep('method')}
+          />
+        )}
+
+        {step === 'lgm9' && (
+          <LeadGenerationMachine
+            onGenerate={handleLGM9Generation}
+            onClose={() => setStep('method')}
           />
         )}
 

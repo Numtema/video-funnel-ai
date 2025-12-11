@@ -109,12 +109,60 @@ export interface IntegrationsConfig {
   n8n?: { webhookUrl?: string };
 }
 
+// Tracking Pixels Configuration
+export interface FacebookPixelConfig {
+  enabled: boolean;
+  pixelId?: string;
+  trackPageView?: boolean;
+  trackLead?: boolean;
+  trackCompleteRegistration?: boolean;
+  customEvents?: { name: string; params?: Record<string, string> }[];
+}
+
+export interface GoogleAnalyticsConfig {
+  enabled: boolean;
+  measurementId?: string; // GA4 format: G-XXXXXXXXXX
+  trackPageView?: boolean;
+  trackFormSubmit?: boolean;
+  trackStepChange?: boolean;
+}
+
+export interface TikTokPixelConfig {
+  enabled: boolean;
+  pixelId?: string;
+}
+
+export interface TrackingConfig {
+  facebookPixel?: FacebookPixelConfig;
+  googleAnalytics?: GoogleAnalyticsConfig;
+  tiktokPixel?: TikTokPixelConfig;
+}
+
+// i18n Configuration
+export type SupportedLanguage = 'fr' | 'en' | 'es' | 'de' | 'pt' | 'it' | 'ar';
+
+export interface TranslatedContent {
+  title?: Record<SupportedLanguage, string>;
+  description?: Record<SupportedLanguage, string>;
+  buttonText?: Record<SupportedLanguage, string>;
+  options?: Record<SupportedLanguage, string[]>;
+}
+
+export interface I18nConfig {
+  enabled: boolean;
+  defaultLanguage: SupportedLanguage;
+  availableLanguages: SupportedLanguage[];
+  autoDetect?: boolean;
+}
+
 export interface QuizConfig {
   steps: QuizStep[];
   theme: ThemeConfig;
   tracking?: {
     webhookUrl?: string;
   };
+  trackingPixels?: TrackingConfig;
+  i18n?: I18nConfig;
   scoring?: ScoringConfig;
   socialLinks?: {
     facebook?: string;
