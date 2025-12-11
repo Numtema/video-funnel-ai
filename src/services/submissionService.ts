@@ -78,7 +78,9 @@ export const submissionService = {
     const sanitizedAnswers = sanitizeData(data.answers);
     console.log('🧹 Answers sanitized for database insertion');
     
-    const { data: submission, error } = await supabase
+    // Use insert without .select() to avoid RLS SELECT policy issues for anonymous users
+    // The INSERT policy allows anonymous submissions, but SELECT requires authentication
+    const { error } = await supabase
       .from('submissions')
       .insert({
         funnel_id: data.funnelId,
@@ -95,9 +97,15 @@ export const submissionService = {
         ip_address: ip,
         user_agent: navigator.userAgent,
         status: 'nouveau'
-      })
-      .select()
-      .single();
+      });
+    
+    // Create a mock submission object for the rest of the flow
+    const submission = {
+      id: data.sessionId, // Use session ID as a reference
+      funnel_id: data.funnelId,
+      session_id: data.sessionId,
+      contact_email: data.contact.email
+    };
 
     if (error) {
       console.error('❌❌❌ SUBMISSION INSERT ERROR ❌❌❌');
