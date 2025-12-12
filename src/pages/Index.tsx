@@ -6,7 +6,6 @@ import { Card, CardContent } from '@/components/ui/card';
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@/components/ui/accordion';
 import { Video, Sparkles, TrendingUp, Zap, Users, Shield, Palette, BarChart3, Clock, Rocket, Check, ArrowRight, Play, Star, Globe, MessageSquare, Target } from 'lucide-react';
 import numtemaAgence from '@/assets/numtema-agence.gif';
-import numtemaLogo from '@/assets/numtema-face-logo-new.png';
 
 
 const Index = () => {
@@ -36,7 +35,7 @@ const Index = () => {
       <header className="border-b border-border/40 bg-background/80 backdrop-blur-md sticky top-0 z-50">
         <div className="container mx-auto px-4 lg:px-8 py-4 flex items-center justify-between">
           <div className="flex items-center cursor-pointer" onClick={() => navigate('/')}>
-            <img src={numtemaLogo} alt="Nümtema Face" className="h-12 w-auto" />
+            <span className="text-xl md:text-2xl font-bold text-primary font-poppins">Nümtema Face</span>
           </div>
           <nav className="hidden md:flex items-center gap-8">
             <Button variant="ghost" onClick={() => navigate('/templates')} className="text-muted-foreground hover:text-foreground">
@@ -411,7 +410,7 @@ const Index = () => {
         <div className="container mx-auto px-4 lg:px-8">
           <div className="grid md:grid-cols-4 gap-10 mb-10">
             <div className="md:col-span-1">
-              <img src={numtemaLogo} alt="Nümtema Face" className="h-12 w-auto mb-4" />
+              <span className="text-xl font-bold text-primary font-poppins mb-4 block">Nümtema Face</span>
               <p className="text-sm text-muted-foreground mb-4">
                 Créez des funnels interactifs intelligents avec l'IA générative.
               </p>
